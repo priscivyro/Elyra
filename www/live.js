@@ -14,25 +14,26 @@ function ElyraFace(host,opt){opt=opt||{};
    <defs><clipPath id="flc"><circle cx="120" cy="120" r="118"/></clipPath>
     <radialGradient id="flbg" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#f4effa"/><stop offset="1" stop-color="#e3dbf2"/></radialGradient></defs>
    <g clip-path="url(#flc)"><circle cx="120" cy="120" r="120" fill="url(#flbg)"/>
-    <g class="fl-body"><path d="M36 250c6-42 40-60 84-60s78 18 84 60z" fill="#9db59a"/><path d="M84 202q36 22 72 0" fill="none" stroke="#e4d2ae" stroke-width="4" stroke-linecap="round"/></g>
+    <g class="fl-body"></g>
     <g class="fl-head">
-     <path d="M58 140c-10-62 20-104 62-104s72 42 62 104c-3 24-10 44-18 58H76c-8-14-15-34-18-58z" fill="#8a79bd"/>
-     <path d="M104 166h32v34h-32z" fill="#e7cbb3"/>
-     <ellipse cx="73" cy="124" rx="7" ry="11" fill="#ecd2bd"/><ellipse cx="167" cy="124" rx="7" ry="11" fill="#ecd2bd"/>
-     <ellipse cx="120" cy="120" rx="47" ry="55" fill="#f2dcc8"/>
-     <path d="M70 116c2-42 30-62 58-58 26 4 44 26 42 58-14-20-36-30-58-26-18 4-32 12-42 26z" fill="#9787c7"/>
-     <path d="M156 64c10-14 26-16 32-8-8 14-24 16-32 8z" fill="#9db59a"/>
-     <g class="fl-brows" fill="none" stroke="#7a6658" stroke-width="2.6" stroke-linecap="round"><path class="fl-bl" d="M90 104q10-6 20-2"/><path class="fl-br" d="M130 102q10-4 20 2"/></g>
-     <g class="fl-eye fl-el"><path d="M89 121q11-9 22 0q-11 8-22 0z" fill="#fffdf9"/><g class="fl-pupil"><circle cx="100" cy="121" r="5" fill="#6b5a8e"/><circle cx="100" cy="121" r="2.4" fill="#2c2433"/><circle cx="101.6" cy="119.4" r="1.3" fill="#fff"/></g><path d="M88.5 121q11.5-10 23 0" fill="none" stroke="#6d5a50" stroke-width="2" stroke-linecap="round"/></g>
-     <g class="fl-eye fl-er"><path d="M129 121q11-9 22 0q-11 8-22 0z" fill="#fffdf9"/><g class="fl-pupil"><circle cx="140" cy="121" r="5" fill="#6b5a8e"/><circle cx="140" cy="121" r="2.4" fill="#2c2433"/><circle cx="141.6" cy="119.4" r="1.3" fill="#fff"/></g><path d="M128.5 121q11.5-10 23 0" fill="none" stroke="#6d5a50" stroke-width="2" stroke-linecap="round"/></g>
-     <path d="M118 128q-3 10 1 13q3 1 5-1" fill="none" stroke="#d9b49d" stroke-width="2" stroke-linecap="round"/>
-     <circle cx="92" cy="140" r="8" fill="#eba497" opacity=".35"/><circle cx="148" cy="140" r="8" fill="#eba497" opacity=".35"/>
-     <g transform="translate(120 156)"><path class="fl-mouth" d="" fill="#a65a58" stroke="#b8746a" stroke-width="2.2" stroke-linejoin="round"/></g>
+     <path d="M120 30C72 30 48 66 50 108C51 130 44 146 46 164C48 182 40 194 46 210C50 220 60 226 72 228L84 196L156 196L168 228C180 226 190 220 194 210C200 194 192 182 194 164C196 146 189 130 190 108C192 66 168 30 120 30Z" fill="#4a3226"/>
+     <path d="M106 148h28v54h-28z" fill="#e6c4ab"/>
+     <path d="M28 254C34 218 70 198 120 198S206 218 212 254Z" fill="#9db59a"/><path d="M102 199L120 222L138 199" fill="#e6c4ab"/><path d="M100 198L120 224L140 198" fill="none" stroke="#86a383" stroke-width="3" stroke-linejoin="round"/><circle cx="120" cy="211" r="3" fill="#e4d2ae"/>
+     <path d="M62 150C56 172 66 186 58 202C54 214 62 226 78 234C82 218 78 204 84 190C88 176 84 164 78 150Z" fill="#4a3226"/><path d="M178 150C184 172 174 186 182 202C186 214 178 226 162 234C158 218 162 204 156 190C152 176 156 164 162 150Z" fill="#4a3226"/>
+     <ellipse cx="120" cy="112" rx="49" ry="57" fill="#f3d9c4"/>
+     <path d="M66 122C60 84 78 48 108 42C138 36 170 52 174 90C175 102 172 112 168 124C166 104 158 88 142 80C128 90 104 96 84 98C76 104 70 112 66 122Z" fill="#4a3226"/>
+     <path d="M92 58C84 68 78 80 74 96M132 46C148 54 160 66 166 84M66 176C62 190 68 200 64 212M174 176C178 190 172 200 176 212" fill="none" stroke="#6b4936" stroke-width="1.6" stroke-linecap="round"/>
+     <g class="fl-brows" fill="none" stroke="#4a3226" stroke-width="3.4" stroke-linecap="round"><path class="fl-bl" d="M86 99Q99 90 113 95"/><path class="fl-br" d="M127 95Q141 90 154 99"/></g>
+     <g class="fl-eye fl-el"><path d="M86 118Q100 104 114 118Q100 128 86 118Z" fill="#fffdf9"/><g class="fl-pupil"><circle cx="100" cy="117.5" r="6.4" fill="#6b4a3a"/><circle cx="100" cy="117.5" r="3" fill="#24180f"/><circle cx="102.2" cy="115.3" r="1.7" fill="#fff"/></g><path d="M115 117.5Q100 103 85 116.5L81.5 113.5" fill="none" stroke="#3a2820" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M90 122.5Q100 127 110 122.5" fill="none" stroke="#e0b9a4" stroke-width="1.2" stroke-linecap="round"/></g>
+     <g class="fl-eye fl-er"><path d="M126 118Q140 104 154 118Q140 128 126 118Z" fill="#fffdf9"/><g class="fl-pupil"><circle cx="140" cy="117.5" r="6.4" fill="#6b4a3a"/><circle cx="140" cy="117.5" r="3" fill="#24180f"/><circle cx="142.2" cy="115.3" r="1.7" fill="#fff"/></g><path d="M125 117.5Q140 103 155 116.5L158.5 113.5" fill="none" stroke="#3a2820" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M130 122.5Q140 127 150 122.5" fill="none" stroke="#e0b9a4" stroke-width="1.2" stroke-linecap="round"/></g>
+     <path d="M119 124Q116 135 120 138Q123 139 125 137" fill="none" stroke="#d4a890" stroke-width="2" stroke-linecap="round"/>
+     <circle cx="92" cy="138" r="9" fill="#ef9f92" opacity=".36"/><circle cx="148" cy="138" r="9" fill="#ef9f92" opacity=".36"/>
+     <g transform="translate(120 153)"><path class="fl-mouth" d="" fill="#c8605f" stroke="#d07a76" stroke-width="2.2" stroke-linejoin="round"/></g>
     </g></g></svg></div>`;
   const root=host.querySelector('.fl'),head=root.querySelector('.fl-head'),body=root.querySelector('.fl-body'),mouth=root.querySelector('.fl-mouth');
   const eyes=[...root.querySelectorAll('.fl-eye')],pup=[...root.querySelectorAll('.fl-pupil')],bl=root.querySelector('.fl-bl'),br=root.querySelector('.fl-br');
   const S={state:'idle',mouth:0,target:0,ex:EXPR.doux,cur:{s:.65,b:0,t:0},blinkAt:0,blink:0,gaze:[0,0],gazeT:[0,0],gazeAt:0,talk:null,raf:0,t0:performance.now(),dead:false};
-  const mp=(o,s)=>{const w=13+s*2,cy=-s*3.2,up=-o*2.5+s*1.2,lo=o*13+s*4.2+1.8;return `M${-w} ${cy}Q0 ${up} ${w} ${cy}Q0 ${lo} ${-w} ${cy}Z`};
+  const mp=(o,s)=>{const w=15+s*3,cy=-s*3.2,up=-o*2.5+s*1.2,lo=o*13+s*4.2+1.8;return `M${-w} ${cy}Q0 ${up} ${w} ${cy}Q0 ${lo} ${-w} ${cy}Z`};
   function frame(now){if(S.dead)return;if(root.offsetParent===null&&!root.closest('.conv.on')){S.raf=0;setTimeout(()=>{if(!S.dead)S.raf=requestAnimationFrame(frame)},600);return}const t=(now-S.t0)/1000,rm=RM();
     // lèvres
     if(S.talk){const k=Math.min(S.talk.seq.length-1,Math.floor((now-S.talk.start)/S.talk.step));S.target=k>=0&&k<S.talk.seq.length?S.talk.seq[k]:0;if(now-S.talk.start>S.talk.dur)S.talk=null}
@@ -41,11 +42,11 @@ function ElyraFace(host,opt){opt=opt||{};
     // expression (glisse doucement)
     for(const k of ['s','b','t'])S.cur[k]+=(S.ex[k]-S.cur[k])*.08;
     mouth.setAttribute('d',mp(Math.max(0,Math.min(1,S.mouth)),S.cur.s));
-    bl.setAttribute('transform',`translate(0 ${S.cur.b}) rotate(${S.cur.t} 110 104)`);br.setAttribute('transform',`translate(0 ${S.cur.b}) rotate(${-S.cur.t} 130 104)`);
+    bl.setAttribute('transform',`translate(0 ${S.cur.b}) rotate(${S.cur.t} 100 95)`);br.setAttribute('transform',`translate(0 ${S.cur.b}) rotate(${-S.cur.t} 140 95)`);
     // clignements
     if(now>S.blinkAt){S.blink=now;S.blinkAt=now+2200+Math.random()*4200}
     const bk=now-S.blink<160?Math.sin((now-S.blink)/160*Math.PI):0;
-    eyes.forEach((e,i)=>e.setAttribute('transform',`translate(0 ${121*bk*.9}) scale(1 ${1-bk*.9})`));
+    eyes.forEach((e,i)=>e.setAttribute('transform',`translate(0 ${118*bk*.9}) scale(1 ${1-bk*.9})`));
     // regard
     if(now>S.gazeAt){S.gazeAt=now+1400+Math.random()*2600;S.gazeT=S.state==='think'?[2.5,-2.2]:S.state==='listen'?[0,0]:[(Math.random()-.5)*3,(Math.random()-.5)*1.6]}
     S.gaze[0]+=(S.gazeT[0]-S.gaze[0])*.12;S.gaze[1]+=(S.gazeT[1]-S.gaze[1])*.12;pup.forEach(p=>p.setAttribute('transform',`translate(${S.gaze[0]} ${S.gaze[1]})`));
