@@ -71,14 +71,26 @@ button:disabled{opacity:.45;cursor:default}
 input[type=text],select{min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);padding:0 12px;font-size:16px;width:100%}
 .del{min-height:44px;padding:0 12px;background:transparent;border:1px solid var(--line);color:var(--soft);font-size:13px;flex:none}
 .empty{text-align:center;padding:30px 10px 10px}
-.empty svg{width:70px;height:70px}
+.empty svg{width:96px;height:96px;border-radius:50%;box-shadow:0 12px 30px -14px rgb(90 70 140/.5)}
 .dlg{position:fixed;inset:0;z-index:50;background:rgb(30 25 35/.45);display:none;place-items:center;padding:20px}.dlg.on{display:grid}.dlg .card{max-width:420px;width:100%}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mk" viewBox="0 0 48 48">
 <ellipse cx="24" cy="21" rx="9" ry="16" transform="rotate(-30 24 34)" fill="#b8a8d9"/><ellipse cx="24" cy="21" rx="9" ry="16" transform="rotate(30 24 34)" fill="#9db59a" fill-opacity=".9"/>
-<ellipse cx="24" cy="20" rx="6.5" ry="13" fill="#e4d2ae" fill-opacity=".85"/><circle cx="24" cy="33" r="4" fill="#fffcf6"/></symbol></svg>
+<ellipse cx="24" cy="20" rx="6.5" ry="13" fill="#e4d2ae" fill-opacity=".85"/><circle cx="24" cy="33" r="4" fill="#fffcf6"/></symbol><symbol id="face" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="60" fill="#eee8f7"/>
+    <path d="M25 72c-5-31 11-52 35-52s40 21 35 52c-2 13-5 24-9 32H34c-4-8-7-19-9-32z" fill="#8a79bd"/>
+    <path d="M49 84h22v18H49z" fill="#e7cbb3"/>
+    <path d="M20 120c4-17 20-25 40-25s36 8 40 25z" fill="#9db59a"/>
+    <path d="M44 99q16 10 32 0" fill="none" stroke="#e4d2ae" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="60" cy="62" rx="23.5" ry="27" fill="#f2dcc8"/>
+    <path d="M35 60c1-21 15-31 29-29 13 2 22 13 21 29-7-10-18-15-29-13-9 2-16 6-21 13z" fill="#9787c7"/>
+    <path d="M47.5 64.5q5 4.5 10 0M62.5 64.5q5 4.5 10 0" fill="none" stroke="#6d5a50" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M54.5 77q5.5 4.5 11 0" fill="none" stroke="#b8746a" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="45.5" cy="72" r="4.6" fill="#eba497" opacity=".42"/><circle cx="74.5" cy="72" r="4.6" fill="#eba497" opacity=".42"/>
+    <path d="M79 37c5-7 13-8 16-4-4 7-12 8-16 4z" fill="#9db59a"/><path d="M79 37c4-1 9-2 12-3" fill="none" stroke="#7f9b7c" stroke-width="1"/>
+  </symbol></svg>
 <div class="app">
   <div class="top">
     <a class="brand" href="https://priscivyro.github.io/Elyra/" aria-label="Retour à l'appli ELYRA"><svg aria-hidden="true"><use href="#mk"/></svg>elyra</a>
@@ -127,13 +139,15 @@ const MODES={
  apaise:['Apaise','Un moment difficile, maintenant.',"ELYRA APAISE : la personne traverse peut-être un moment difficile en ce moment. Phrases très courtes et rassurantes. Ancre-la dans le présent avec UNE petite action concrète (sentir ses pieds au sol, nommer ce qu'elle voit, laisser sortir l'air lentement). Ne force jamais une respiration profonde. Si le moindre doute existe sur sa sécurité, demande-lui doucement si elle est en sécurité."],
  comprend:['Comprend','Démêler une situation et les pensées.',"ELYRA COMPREND : aide à démêler la situation, les pensées automatiques, les émotions et les sensations, dans l'esprit des thérapies cognitives et comportementales, avec curiosité et sans jugement. Une seule question à la fois. Aide à distinguer les faits des hypothèses."],
  accompagne:['Accompagne','Exercices et petits pas.',"ELYRA ACCOMPAGNE : propose des exercices et de petites étapes concrètes et progressives, adaptés à ce que la personne vit. Explique en une phrase pourquoi ça peut aider. Propose, n'impose pas."],
- encourage:['Encourage','Valoriser le chemin parcouru.',"ELYRA ENCOURAGE : valorise sincèrement et concrètement les efforts et les progrès, même minuscules, sans en faire trop ni minimiser les difficultés."]};
-const EXS={"br:coh":"Cohérence 5-5","br:apaise":"Apaisante 4-6","br:douce":"Douce 3-5","br:carre":"Carré 4-4-4-4","br:dodo":"Sommeil 4-7-8","br:vague":"Vague 4-2-6","med:minute":"Une minute pour souffler","med:pause":"Pause de 3 minutes","med:respi":"Respiration consciente","med:emotion":"Accueillir une émotion","med:pression":"Lâcher la pression","med:colere":"Quand la colère monte","med:avant":"Avant un moment important","med:scan":"Scan corporel","med:muscle":"Relaxation musculaire","med:marche":"Marche consciente","med:jardin":"Le jardin calme","med:plage":"La plage au coucher du soleil","med:foret":"La forêt après la pluie","med:montagne":"La montagne","med:force":"Ma force tranquille","med:douceur":"Douceur envers soi","med:proches":"Bienveillance pour mes proches","med:matin":"Bien commencer la journée","med:soir":"Lâcher la journée","med:gratitude":"Gratitude du soir","med:nuages":"Pensées comme des nuages","med:scandodo":"Scan du soir pour dormir","med:dodo":"S'endormir","med:reveil":"Réveil nocturne","med:sosvoix":"Une voix calme","med:vague":"Traverser la vague","med:trop":"Quand tout est trop","story:phare":"Le phare au bout de la jetée (histoire)","story:cabane":"La cabane sous la neige (histoire)","story:jardinnuit":"Le jardin de nuit (histoire)","story:train":"Le train de nuit (histoire)","sos:ground":"Ancrage 5-4-3-2-1","sos:souffle":"Le soupir qui apaise","sos:froid":"Le froid qui ramène","sos:eft":"Tapotements"};
+ encourage:['Encourage','Valoriser le chemin parcouru.',"ELYRA ENCOURAGE : valorise sincèrement et concrètement les efforts et les progrès, même minuscules, sans en faire trop ni minimiser les difficultés."],
+ apprendre:['Explique','Comprendre ce qui se passe, simplement.',"ELYRA EXPLIQUE (mode pédagogique) : explique simplement, avec des images du quotidien, comment fonctionnent l'anxiété, le stress, les ruminations, les crises de panique, le sommeil, et pourquoi les exercices peuvent aider (TCC, ACT, relaxation). Courts paragraphes, un exemple concret, puis vérifie en une question si c'est clair. Ne relie jamais un symptôme précis de la personne à l'anxiété : rappelle qu'un symptôme doit être vérifié par un médecin."],
+ nuit:['La nuit','Un réveil nocturne, très doucement.',"ELYRA LA NUIT : la personne est probablement réveillée la nuit. Phrases très courtes, très douces, rythme lent. Ne lance aucune réflexion de fond, rien à résoudre maintenant. Propose de poser les pensées pour demain, une respiration lente sans retenir le souffle, une histoire du soir ou le son de la pluie de l'appli. Ne parle pas de l'heure. Invite à se reposer, même sans dormir."]};
+const EXS={"br:coh":"Cohérence 5-5","br:apaise":"Apaisante 4-6","br:douce":"Douce 3-5","br:carre":"Carré 4-4-4-4","br:dodo":"Sommeil 4-7-8","br:vague":"Vague 4-2-6","med:minute":"Une minute pour souffler","med:pause":"Pause de 3 minutes","med:respi":"Respiration consciente","med:emotion":"Accueillir une émotion","med:pression":"Lâcher la pression","med:colere":"Quand la colère monte","med:avant":"Avant un moment important","med:scan":"Scan corporel","med:muscle":"Relaxation musculaire","med:etire":"Étirements doux","med:place":"Faire de la place à une sensation","med:marche":"Marche consciente","med:jardin":"Le jardin calme","med:plage":"La plage au coucher du soleil","med:foret":"La forêt après la pluie","med:montagne":"La montagne","med:force":"Ma force tranquille","med:douceur":"Douceur envers soi","med:proches":"Bienveillance pour mes proches","med:matin":"Bien commencer la journée","med:soir":"Lâcher la journée","med:gratitude":"Gratitude du soir","med:nuages":"Pensées comme des nuages","med:scandodo":"Scan du soir pour dormir","med:dodo":"S'endormir","med:reveil":"Réveil nocturne","med:sosvoix":"Une voix calme","med:vague":"Traverser la vague","med:trop":"Quand tout est trop","story:phare":"Le phare au bout de la jetée","story:cabane":"La cabane sous la neige","story:jardinnuit":"Le jardin de nuit","story:train":"Le train de nuit","sos:ground":"Ancrage 5-4-3-2-1","sos:souffle":"Le soupir qui apaise","sos:froid":"Le froid qui ramène","sos:eft":"Tapotements","outil:defusion":"Prendre du recul avec une pensée","outil:accueil":"Faire de la place à une émotion","outil:valeurs":"Mes valeurs, mon prochain pas","outil:matrice":"Ma boussole","outil:probleme":"Résoudre un problème","outil:reporter":"Reporter mes inquiétudes","expo:coach":"Coach d'exposition"};
 const CATS={preferences:'Préférences de communication',difficultes:'Difficultés souvent évoquées',exercices:'Exercices appréciés',objectifs:'Objectifs personnels',strategies:'Ce qui a aidé'};
 const URG=[['112',"Urgence : ambulance, pompiers. Danger immédiat."],['1733','Médecin de garde.'],['0800 32 123','Centre de Prévention du Suicide. Gratuit, 24h/24.'],['107','Télé-Accueil. Écoute anonyme, 24h/24.']];
 const CRISIS=/suicid|me tuer|me suicider|en finir avec (la vie|tout)|mettre fin à (ma vie|mes jours)|plus envie de vivre|envie de mourir|veux mourir|me faire du mal|me blesser|me scarifi|overdose|disparaître pour toujours/i;
 const BODY=/(douleur|mal|serrement|pression) (à|a|dans|sur) la poitrine|douleur thoracique|oppression (dans|à|a) la poitrine|n'arrive plus à respirer|arrive pas à respirer|j'étouffe|bras gauche|paralys|engourdi|perdre connaissance|évanouir|malaise/i;
-const ST={db:null,path:null,mode:'ecoute',chat:[],mem:{on:true,name:'',tone:'doux',len:'courtes',items:[]},busy:false,ctl:null,sample:null,tts:null};
+const ST={ctx:'',db:null,path:null,mode:'ecoute',chat:[],mem:{on:true,name:'',tone:'doux',len:'courtes',items:[]},busy:false,ctl:null,sample:null,tts:null};
 let ready=false;
 
 function ask(t,p,ok,cb){$('#dlgT').textContent=t;$('#dlgP').textContent=p;$('#dlgOk').textContent=ok;$('#dlg').classList.add('on');$('#dlgOk').onclick=()=>{$('#dlg').classList.remove('on');cb()};$('#dlgNo').onclick=()=>$('#dlg').classList.remove('on')}
@@ -146,7 +160,9 @@ addEventListener('keydown',e=>{if(e.key==='Escape')$$('.sheet.on,.dlg.on').forEa
 /* ---------- modes ---------- */
 function setMode(m){if(!MODES[m])m='ecoute';ST.mode=m;$('#modes').innerHTML=Object.entries(MODES).map(([k,v])=>`<button data-m="${k}" aria-pressed="${k===m}">ELYRA ${esc(v[0])}</button>`).join('');$('#mdesc').textContent=MODES[m][1];if(!ST.chat.length)render()}
 $('#modes').onclick=e=>{const b=e.target.closest('[data-m]');if(b)setMode(b.dataset.m)};
-const fromHash=()=>{const h=(location.hash||'').slice(1);if(MODES[h])setMode(h)};
+const fromHash=()=>{const h=(location.hash||'').slice(1);const [m,...rest]=h.split('&');const q={};for(const x of rest){const i=x.indexOf('=');if(i>0){try{q[x.slice(0,i)]=decodeURIComponent(x.slice(i+1))}catch(e){}}}
+  if(MODES[m])setMode(m);if(q.c)ST.ctx=String(q.c).replace(/[\u0000-\u001f]/g,' ').slice(0,700);
+  if(q.m&&!$('#inp').value){$('#inp').value=String(q.m).slice(0,600);$('#inp').dispatchEvent(new Event('input'))}};
 addEventListener('hashchange',fromHash);
 
 /* ---------- stockage privé ---------- */
@@ -178,6 +194,8 @@ function opener(){const n=ST.mem.name?' '+ST.mem.name:'';const h=new Date().getH
    :ST.mode==='encourage'?`${g} Raconte-moi un petit pas que tu as fait récemment, même minuscule.`
    :ST.mode==='comprend'?`${g} Quelle situation aimerais-tu démêler ensemble ?`
    :ST.mode==='accompagne'?`${g} Qu'est-ce qui te pèse en ce moment ? On cherchera ensemble un petit pas adapté.`
+   :ST.mode==='apprendre'?`${g} Qu'est-ce que tu aimerais mieux comprendre ? L'anxiété, une crise de panique, le sommeil, un exercice…`
+   :ST.mode==='nuit'?`Je suis là. Tout doucement. Rien à régler maintenant. Si tu veux, dis-moi juste ce qui se passe pour toi, là.`
    :`${g} Je t'écoute. De quoi as-tu envie de parler ?`}
 function msgHTML(m,i){if(m.r==='u')return `<div class="msg u">${esc(m.c)}</div>`;
   if(m.r==='s')return m.k==='err'?`<div class="msg a"><p class="note" style="margin:0">${esc(m.c)}</p></div>`:urgCard(m.k);
@@ -185,7 +203,7 @@ function msgHTML(m,i){if(m.r==='u')return `<div class="msg u">${esc(m.c)}</div>`
    ${m.mem&&!m.memDone&&ST.mem.on?`<div class="memp">ELYRA propose de retenir : <b>${esc(m.mem.txt)}</b><div class="row"><button class="main" data-mk="${i}">Garder</button><button class="ghost" data-mn="${i}">Non merci</button></div></div>`:''}
    ${ST.tts?`<div class="tools"><button data-say="${i}">Écouter</button></div>`:''}</div>`}
 function render(){const box=$('#msgs');
-  box.innerHTML=(ST.chat.length?'':`<div class="empty"><svg aria-hidden="true"><use href="#mk"/></svg></div><div class="msg a"><p>${esc(opener())}</p></div>`)+ST.chat.map(msgHTML).join('');
+  box.innerHTML=(ST.chat.length?'':`<div class="empty"><svg aria-hidden="true" class="face"><use href="#face"/></svg></div><div class="msg a"><p>${esc(opener())}</p></div>`)+ST.chat.map(msgHTML).join('');
   scrollEnd()}
 const scrollEnd=()=>requestAnimationFrame(()=>window.scrollTo(0,document.body.scrollHeight));
 $('#msgs').onclick=e=>{const k=e.target.closest('[data-mk]'),n=e.target.closest('[data-mn]'),s=e.target.closest('[data-say]');
@@ -202,10 +220,13 @@ function prompt(){const M=ST.mem;const L=[];
 - Si la personne évoque des idées suicidaires, l'envie de se faire du mal ou un danger immédiat : reste présente et calme, prends-la au sérieux, encourage-la à contacter maintenant le 112, le Centre de Prévention du Suicide (0800 32 123, gratuit, 24h/24) ou Télé-Accueil (107), ou une personne de confiance. Ne donne jamais d'information sur des moyens.
 - Encourage un suivi par un professionnel (médecin traitant, psychologue) quand c'est pertinent, sans le répéter à chaque message.
 - Ne force jamais une respiration profonde ou une technique : propose, et rappelle qu'on peut arrêter si c'est inconfortable.
+- Réassurance : si la personne te demande à répétition d'être rassurée (« tu es sûre que ce n'est rien ? », « dis-moi que ça va aller »), ne multiplie pas les garanties. Reconnais l'inquiétude avec chaleur, explique doucement que chercher à être rassuré soulage peu de temps et nourrit le doute, et aide-la à tolérer un peu d'incertitude. Pour un symptôme physique, oriente vers un médecin plutôt que de rassurer toi-même.
+- Ne renforce pas l'évitement : valide l'émotion, puis encourage, sans pression, un petit pas vers ce qui compte pour elle.
 - ${M.len==='developpees'?"Réponses développées si utile, 200 mots maximum.":"Réponses courtes : 2 à 5 phrases."} Une seule question à la fois au maximum. Pas de titres, pas de listes à rallonge.
 - ${M.tone==='direct'?"La personne préfère un ton plus direct et concret, tout en restant bienveillant.":"La personne préfère un ton très doux."}`);
   L.push('MODE ACTUEL\n'+MODES[ST.mode][2]);
   if(M.name)L.push(`La personne s'appelle ${M.name}.`);
+  if(ST.ctx)L.push("RÉSUMÉ PARTAGÉ PAR L'APPLI ELYRA, AVEC L'ACCORD DE LA PERSONNE (contexte, à utiliser avec tact, sans le réciter)\n"+ST.ctx);
   if(M.on&&M.items.length)L.push("CE QUE LA PERSONNE T'A AUTORISÉE À RETENIR (utilise-le avec tact, sans le réciter)\n"+M.items.slice(-40).map(x=>`- [${CATS[x.cat]||x.cat}] ${x.txt}`).join('\n'));
   L.push(`EXERCICES DISPONIBLES DANS L'APPLI ELYRA DE LA PERSONNE (tu peux en proposer UN quand c'est pertinent, en le nommant)\n${Object.entries(EXS).map(([k,v])=>k+' = '+v).join('\n')}`);
   L.push(`FORMAT

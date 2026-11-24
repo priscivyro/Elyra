@@ -2,8 +2,8 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.2.0";
-const C=window.ELYRA_CONTENT, SND=window.ElyraSons;
+const APP_VERSION="1.3.0";
+const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -32,26 +32,29 @@ const EX={};
 for(const k in PRESETS)EX['br:'+k]=PRESETS[k].n;MEDS.forEach(m=>EX['med:'+m.k]=m.t);STORIES.forEach(s=>EX['story:'+s.k]=s.t);
 for(const k in SOSF)EX['sos:'+k]=SOSF[k].n;C.sounds.forEach(s=>EX['snd:'+s[0]]=s[1]);FICHES.forEach(f=>EX['fiche:'+f.k]='Lire : '+f.t);
 window.ELYRA_TAG.mods.forEach((m,i)=>EX['tag:'+m.id]=`Module ${i+1} : ${m.n}`);
-Object.assign(EX,{programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
+for(const k in O.tools)EX['outil:'+k]=O.tools[k].n;
+Object.assign(EX,{'calme:respirer':'Respiration guidée','calme:mediter':'Méditations guidées',expo:"Coach d'exposition",outils:'Ma boîte à outils',corps:'Mon corps',consult:'Préparer une consultation',nuit:'Réveil la nuit',programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
   'chat:comprend':'En parler avec ELYRA','chat:accompagne':'En parler avec ELYRA','chat:encourage':'En parler avec ELYRA','chat:ecoute':'En parler avec ELYRA'});
 const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
 const isStory=k=>STORIES.some(s=>s.k===k);
-function catOf(ex){const [k,v]=ex.split(':');if(k==='br')return'breath';if(k==='snd')return'son';if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
+function catOf(ex){const [k,v]=ex.split(':');if(k==='outil'&&O.tools[v])return O.tools[v].c;if(k==='br')return'breath';if(k==='snd')return'son';if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
 const covHTML=(cat,cls='')=>`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
 
 /* ============ DONNÉES (sur le téléphone) ============ */
 const KEY='elyra.v1';
 const defP=()=>({name:'',genre:'',vmode:'elyra',rate:1,vname:'',brVoice:false,size:'m',theme:'auto',anticip:true,kit:{phr:[],con:[],notes:'',tech:[]},favs:[],goals:[],prog:{id:null,done:{}},
-  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',sndVol:{},tag:{cur:null,m:{}},vvoice:'siwis'});
+  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',sndVol:{},tag:{cur:null,m:{}},vvoice:'siwis',soucis:[],expo:{but:'',steps:[]},lock:{on:false,h:'',s:''},rem:{},ctxShare:false,consult:''});
 const ST={prof:defP(),items:[]};
 let storageOK=true;
 function merge(base,o){const r=Object.assign(base,o);r.kit=Object.assign(defP().kit,o.kit||{});r.prog=Object.assign({id:null,done:{}},o.prog||{});
   r.routine=Object.assign({items:C.routine.slice(),checks:{}},o.routine||{});for(const k of ['favs','goals','up'])if(!Array.isArray(r[k]))r[k]=[];
-  if(!r.sndVol||typeof r.sndVol!=='object')r.sndVol={};if(!r.tag||typeof r.tag!=='object'||!r.tag.m)r.tag={cur:null,m:{}};return r}
+  if(!r.sndVol||typeof r.sndVol!=='object')r.sndVol={};if(!r.tag||typeof r.tag!=='object'||!r.tag.m)r.tag={cur:null,m:{}};if(!Array.isArray(r.soucis))r.soucis=[];
+  if(!r.expo||!Array.isArray(r.expo.steps))r.expo={but:'',steps:[]};if(!r.lock||typeof r.lock!=='object')r.lock={on:false,h:'',s:''};if(!r.rem||typeof r.rem!=='object')r.rem={};return r}
 function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const o=JSON.parse(raw);ST.items=Array.isArray(o.items)?o.items.filter(x=>x&&x.t&&x.kind):[];ST.prof=merge(defP(),o.prof||{})}catch(e){storageOK=false}}
 let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250)}
 function saveNow(){try{localStorage.setItem(KEY,JSON.stringify({v:1,prof:ST.prof,items:ST.items.slice(0,6000)}));storageOK=true}catch(e){storageOK=false;toast("Impossible d'enregistrer sur ce téléphone.")}}
-function addItem(e){e.id='e'+uid();e.t=e.t||Date.now();ST.items.unshift(e);ST.items.sort((a,b)=>b.t-a.t);save();renderAll()}
+function addItem(e){e.id='e'+uid();e.t=e.t||Date.now();ST.items.unshift(e);ST.items.sort((a,b)=>b.t-a.t);save();renderAll();return e}
+const isPrat=x=>x.kind==='pratique'||x.kind==='outil'||x.kind==='expo';
 function delItem(id){ST.items=ST.items.filter(x=>x.id!==id);save();renderAll()}
 const setP=fn=>{fn(ST.prof);save();renderAll()};
 
@@ -79,23 +82,24 @@ function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'|
 function stopVoice(){if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
 
 /* ============ NAVIGATION ============ */
-const VIEWS=['accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre'];
-const TABOF={programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
+const VIEWS=['accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
+const TABOF={outils:'moi',outil:'moi',expo:'moi',corps:'moi',consult:'moi',programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
 const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],['elyra','ELYRA','<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>'],
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
 const cur=()=>{const v=(location.hash||'#accueil').slice(1);return VIEWS.includes(v)?v:'accueil'};
-function route(){const v=cur();$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab=TABOF[v]||v;
+function route(){const v=cur();$('#rate').classList.remove('on');$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab=TABOF[v]||v;
   $$('#nav a').forEach(a=>{const on=a.dataset.k===tab;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   if(v!=='calme'&&brMain&&brMain.on)brMain.stop(false);
-  if(v==='accueil')renderHome();window.scrollTo(0,0)}
+  if(v==='outil'&&!TR.k){location.replace('#outils');return}if(v!=='outil')toolStop();if(v!=='expo')xpStop();
+  if(v==='accueil')renderHome();if(v==='outils')renderOutils();if(v==='consult')renderConsult();window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b){location.hash=b.dataset.back;return}
   const x=e.target.closest('[data-ex]');if(x){e.preventDefault();doEx(x.dataset.ex)}
   const f=e.target.closest('[data-fav]');if(f){toggleFav(f.dataset.fav)}});
 
 /* ============ CONVERSATION (lien) ============ */
-const chatHref=mode=>CHAT_URL.replace(/#.*$/,'')+'#'+mode;
+const chatHref=(mode,msg)=>CHAT_URL.replace(/#.*$/,'')+'#'+mode+(ST.prof.ctxShare?'&c='+encodeURIComponent(ctxText()):'')+(msg?'&m='+encodeURIComponent(String(msg).slice(0,600)):'');
 function linkChat(a,mode){a.href=chatHref(mode);a.target='_blank';a.rel='noopener'}
 function openChat(mode){const a=document.createElement('a');linkChat(a,mode);document.body.appendChild(a);a.click();a.remove()}
 async function copyThen(text){try{await navigator.clipboard.writeText(text);toast('Message copié : colle-le dans la conversation.')}catch(e){}}
@@ -108,6 +112,10 @@ function doEx(id){if(!id)return;const [k,v]=id.split(':');
   else if(k==='snd'){location.hash='calme';calTab('sons');SND.on(v,ST.prof.sndVol[v])}
   else if(k==='fiche'){openFiche(v)}
   else if(k==='tag'){openMod(v)}
+  else if(k==='outil'){openTool(v)}
+  else if(k==='calme'){location.hash='calme';calTab(v)}
+  else if(k==='expo'){openExpo()}
+  else if(k==='nuit'){openNuit()}
   else if(k==='programme'){tagOpen=null;location.hash='programme';renderProgramme()}
   else if(k==='chat'){openChat(v)}
   else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},80)}
@@ -126,12 +134,12 @@ $('#qSave').onclick=()=>{if(!qMood)return;const s=+$('#qStress').value;addItem({
   let sg=SUG[qMood];if(s>=8)sg=["Ton stress est haut. Le mode SOS peut t'aider tout de suite, une étape à la fois.",'sos'];
   $('#suggTxt').textContent=sg[0];sugAct=sg[1];$('#sugg').hidden=false;qMood=null;chipsMood('#moodQuick');$('#qStressBox').hidden=true;$('#qStress').value=5;$('#qsv').textContent='5'};
 $('#suggGo').onclick=()=>{if(sugAct==='sos')openSOS();else doEx(sugAct)};
-$('#quick').onclick=()=>{location.hash='calme';calTab('respirer');selP('coh');selD(1);startBr()};
+$('#quick').onclick=()=>{const b=bestBreath();location.hash='calme';calTab('respirer');selP(b);selD(1);startBr()};
 function slot(){const h=new Date().getHours();return h>=5&&h<11?'matin':h>=11&&h<17?'jour':h>=17&&h<21?'soir':'nuit'}
 function homePicks(){const S={matin:['med:matin','br:coh','med:respi','med:minute','med:marche'],jour:['med:pause','med:pression','br:apaise','med:minute','med:marche'],
   soir:['med:soir','med:gratitude','br:vague','med:emotion','story:jardinnuit'],nuit:['med:scandodo','story:phare','br:dodo','med:dodo','story:cabane']}[slot()].slice();
   const recent=ST.items.find(x=>x.mood&&Date.now()-x.t<3*3600e3);if(recent&&recent.mood<=2)S.unshift('med:douceur','med:emotion');
-  const f=ST.prof.favs.filter(x=>EX[x]&&!S.includes(x)).slice(0,2);return [...new Set([...S.slice(0,4),...f,...S.slice(4)])].slice(0,7)}
+  const f=ST.prof.favs.filter(x=>EX[x]&&!S.includes(x)).slice(0,2);return personalise([...new Set([...S.slice(0,4),...f,...S.slice(4)])]).slice(0,7)}
 function sessMin(k){const m=findSess(k);if(!m)return 0;return Math.max(1,Math.round(durs(m).reduce((a,b)=>a+b,0)/60))}
 function tileHTML(ex){const [k,v]=ex.split(':');const lab=EX[ex];
   const meta=k==='br'?`${PRESETS[v].d} min · respiration`:k==='snd'?'son':k==='story'?`${sessMin(v)} min · histoire`:k==='med'?`${sessMin(v)} min`:'';
@@ -140,7 +148,9 @@ function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST
   $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
   $('#hero').className='hero t-'+slot();
   $('#homeTiles').innerHTML=homePicks().map(tileHTML).join('');
-  const now=Date.now();$('#stMin').textContent=ST.items.filter(x=>x.kind==='pratique'&&now-x.t<7*DAY).reduce((a,x)=>a+(+x.min||0),0);
+  const ht=helpTop(1).slice(0,4);$('#homeHelp').innerHTML=ht.length?`<div class="sect"><h2>Ce qui t'aide</h2><a href="#outils">Ma boîte à outils</a></div><div class="tiles">${ht.map(([id])=>tileHTML(id)).join('')}</div>`:'';
+  const hr=new Date().getHours();$('#homeNight').innerHTML=hr<5||hr>=23?`<div class="card nightc"><span class="tag lav">La nuit</span><h3 class="mt">${esc(G(hr<5?'Réveillé{e} cette nuit ?':'Pas encore endormi{e} ?'))}</h3><p class="sub">Un écran sombre et calme, pour te reposer sans pression.</p><button class="main mt" data-ex="nuit:1">Ouvrir l'écran de nuit</button></div>`:'';
+  const now=Date.now();$('#stMin').textContent=ST.items.filter(x=>isPrat(x)&&now-x.t<7*DAY).reduce((a,x)=>a+(+x.min||0),0);
   $('#stDays').textContent=new Set(ST.items.filter(x=>now-x.t<7*DAY).map(x=>dkey(x.t))).size;
   const lm=ST.items.find(x=>x.mood);$('#stMood').textContent=lm?MOODS[lm.mood-1][1]:'–';
   $('#enc').textContent=G(C.enc[doy()%C.enc.length]);
@@ -160,7 +170,7 @@ document.addEventListener('click',e=>{const d=e.target.closest('[data-stepdone]'
 async function prepare(u){await copyThen(`J'ai bientôt quelque chose qui m'inquiète : ${u.txt} (${fmtKey(u.date)}). Tu peux m'aider à m'y préparer en douceur ?`);openChat('accompagne')}
 
 /* ============ ELYRA (lien) ============ */
-function renderElyra(){$('#modes').innerHTML=C.modes.map(([k,n,d])=>`<a class="item" style="text-decoration:none;color:inherit" data-mode="${k}"><span class="go">${covHTML(k==='apaise'?'sos':k==='encourage'?'confiance':k==='comprend'?'visu':k==='accompagne'?'corps':'stress')}<span><h3>${esc(n)}</h3><p>${esc(d)}</p></span></span></a>`).join('');
+function renderElyra(){$('#modes').innerHTML=C.modes.map(([k,n,d])=>`<a class="item" style="text-decoration:none;color:inherit" data-mode="${k}"><span class="go">${covHTML(k==='apaise'?'sos':k==='nuit'?'sommeil':k==='apprendre'?'histoire':k==='encourage'?'confiance':k==='comprend'?'visu':k==='accompagne'?'corps':'stress')}<span><h3>${esc(n)}</h3><p>${esc(d)}</p></span></span></a>`).join('');
   $$('#modes a').forEach(a=>linkChat(a,a.dataset.mode));linkChat($('#talkHome'),'ecoute')}
 
 /* ============ RESPIRATION ============ */
@@ -177,7 +187,7 @@ function Breather(root){
   function start(k,min){SND.ctx();if(o.on)stop(false);o.k=k;o.min=min;o.on=true;i=0;end=Date.now()+min*60000;
     iv=setInterval(()=>{const s=Math.max(0,Math.round((end-Date.now())/1000));left.textContent=`Encore ${mmss(s)}`},500);phase();o.onState&&o.onState(true)}
   function stop(done){const was=o.on;o.on=false;clearTimeout(to);clearInterval(cd);clearInterval(iv);set(.42,1.5);ct.textContent='';stage.style.setProperty('--ph','var(--lav)');
-    if(done&&was){SND.bell();ph.textContent='Bravo';left.textContent=`${o.min} min de calme en plus.`;addItem({kind:'pratique',ex:'br:'+o.k,label:PRESETS[o.k].n,min:o.min})}
+    if(done&&was){SND.bell();ph.textContent='Bravo';left.textContent=`${o.min} min de calme en plus.`;askHelp(addItem({kind:'pratique',ex:'br:'+o.k,label:PRESETS[o.k].n,min:o.min}))}
     else{ph.textContent='On y va ?';left.textContent=''}o.onState&&o.onState(false)}
   o.start=start;o.stop=stop;return o}
 const brMain=Breather($('#brMain'));
@@ -229,7 +239,7 @@ function updBar(){$('#plBar').style.width=Math.min(100,PL.el/PL.tot*100)+'%';$('
 function setPlay(playing){$('#plPlay').innerHTML=`<svg class="icon"><use href="#i-${playing?'pause':'play'}"/></svg>`;$('#plPlay').setAttribute('aria-label',playing?'Pause':'Lecture')}
 function finish(){PL.done=true;clearInterval(PL.iv);stopVoice();SND.bell();const t=isStory(PL.m.k)?'Bonne nuit.':"Merci de t'être offert ce moment.";
   $('#plSay').textContent=t;PL.el=PL.tot;updBar();setPlay(false);
-  setP(p=>{if(p.resume&&p.resume.k===PL.m.k)p.resume=null});addItem({kind:'pratique',ex:PL.key,label:PL.m.t,min:Math.max(1,Math.round(PL.tot/60))})}
+  setP(p=>{if(p.resume&&p.resume.k===PL.m.k)p.resume=null});askHelp(addItem({kind:'pratique',ex:PL.key,label:PL.m.t,min:Math.max(1,Math.round(PL.tot/60))}))}
 function closePlayer(){clearInterval(PL.iv);stopVoice();$('#player').classList.remove('on');document.body.style.overflow=$('#sos').classList.contains('on')?'hidden':'';
   if(PL.m&&!PL.done&&(PL.i>0||PL.stepEl>=10)&&!PL.m.sos)setP(p=>{p.resume={k:PL.m.k,i:PL.i}})}
 $('#plClose').onclick=closePlayer;
@@ -268,33 +278,45 @@ function renderFavs(){const f=ST.prof.favs.filter(x=>EX[x]);$('#favBox').innerHT
 /* ============ SOS ============ */
 const SOSIT={
  crise:{n:'Je sens une crise arriver',m:"Une vague monte. Elle va atteindre un sommet, puis redescendre. Tu n'as rien à réussir : on y va une petite chose à la fois.",o:['souffle','ground','audio','douce','parler'],a:'vague'},
- controle:{n:"J'ai peur de perdre le contrôle",m:"Cette peur accompagne très souvent les fortes angoisses. Tu peux la laisser être là, sans lui obéir. Commençons par sentir le sol sous tes pieds.",o:['ground','audio','douce','parler'],a:'sosvoix'},
- physique:{n:"J'ai des sensations physiques inquiétantes",m:"Tes sensations comptent, et elles méritent d'être prises au sérieux.",warn:1,o:['ground','souffle','audio','parler'],a:'sosvoix'},
- depasse:{n:'Je me sens {dépassé|dépassée}',m:"Tout semble trop à la fois. On met le reste de côté pour quelques minutes. Juste la prochaine petite chose.",o:['audio','ground','kit','parler'],a:'trop'},
  intense:{n:'Je ressens une angoisse intense',m:"C'est très dur, et tu as bien fait de venir ici. Ça ne restera pas à ce niveau-là. Choisis ce qui te semble le plus facile.",o:['audio','souffle','ground','froid','douce','eft','parler'],a:'vague'},
+ controle:{n:"J'ai peur de perdre le contrôle",m:"Cette peur accompagne très souvent les fortes angoisses. Tu peux la laisser être là, sans lui obéir. Commençons par sentir le sol sous tes pieds.",o:['ground','audio','douce','defusion','parler'],a:'sosvoix'},
+ physique:{n:"J'ai des sensations physiques inquiétantes",m:"Tes sensations comptent, et elles méritent d'être prises au sérieux.",warn:1,o:['ground','souffle','audio','corps','parler'],a:'sosvoix'},
+ depasse:{n:'Je me sens {dépassé|dépassée}',m:"Tout semble trop à la fois. On met le reste de côté pour quelques minutes. Juste la prochaine petite chose.",o:['audio','ground','kit','reporter','parler'],a:'trop'},
+ rumine:{n:'Mes pensées tournent en boucle',m:"Ton esprit essaie de résoudre quelque chose, et il tourne en rond. Pas besoin de tout comprendre maintenant : on cherche juste à sortir un peu de la boucle.",o:['ground','defusion','audio','reporter','parler'],a:'nuages'},
+ nuit:{n:"Je n'arrive pas à dormir",m:"La nuit, tout paraît plus lourd. Ce n'est pas le moment de régler quoi que ce soit. On cherche seulement un peu de repos, même sans sommeil.",o:['nuitv','audio','douce','reporter','ground'],a:'reveil'},
  parler:{n:"J'ai besoin de parler",m:"Tu as le droit d'avoir besoin de quelqu'un. Tu peux écrire à ELYRA, ou appeler une personne de confiance.",o:['parler','contacts','ground','audio'],a:'sosvoix'}};
 const SOSOPT={souffle:['Le soupir qui apaise','Quelques longues expirations',()=>sosFlow('souffle')],douce:['Respiration douce','Facultative, sans forcer',()=>sosBreath()],
  ground:['Ancrage 5-4-3-2-1',"Revenir à ce qui t'entoure",()=>sosFlow('ground')],eft:['Tapotements','Tapoter et se rassurer',()=>sosFlow('eft')],froid:['Le froid qui ramène',"De l'eau fraîche sur les mains",()=>sosFlow('froid')],
  audio:['Écouter une voix calme','Quelques minutes guidées',()=>openPlayer(SOSIT[sosSit].a)],kit:['Mon kit de secours','Tes phrases et tes repères',()=>sosKit()],
+ defusion:['Prendre du recul avec une pensée','La regarder au lieu de la croire',()=>openTool('defusion','sos')],reporter:['Ranger une inquiétude',"Lui donner rendez-vous plus tard",()=>openTool('reporter','sos')],
+ nuitv:['L’écran de nuit','Sombre et calme, pour te reposer',()=>{closeSOS();openNuit()}],corps:['Noter ce que je ressens','Pour en parler à ton médecin',()=>{closeSOS();location.hash='corps'}],
  parler:['Parler à ELYRA','Une conversation pour t’apaiser (Internet)',()=>openChat('apaise')],contacts:['Mes contacts de confiance','Appeler quelqu’un',()=>sosKit()]};
+const optEx=o=>({souffle:'sos:souffle',ground:'sos:ground',eft:'sos:eft',froid:'sos:froid',douce:'br:douce',defusion:'outil:defusion',reporter:'outil:reporter',audio:sosSit&&SOSIT[sosSit]?'med:'+SOSIT[sosSit].a:''})[o]||'';
+let sosUsed=[];
 const sosBr={b:null};let sosSit=null;
 function sosRender(html,back){$('#sosBody').innerHTML=html;$('#sosBack').hidden=!back;const h=$('#sosBody h2');if(h){h.setAttribute('tabindex','-1');h.focus()}}
-function openSOS(){if(brMain.on)brMain.stop(false);$('#sos').classList.add('on');document.body.style.overflow='hidden';sosStart();haptic(30)}
-function closeSOS(){if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);stopVoice();$('#sos').classList.remove('on');document.body.style.overflow=''}
-function sosStart(){sosSit=null;sosRender(`<h2 id="sosT">Je suis là.</h2><p class="quote mt">Tu as bien fait d'ouvrir ELYRA. On va y aller doucement, une chose à la fois.</p>
-  <p class="mt" style="font-weight:600">Qu'est-ce qui se passe pour toi ?</p><div class="sitg">${Object.entries(SOSIT).map(([k,s])=>`<button class="opt" data-sit="${k}"><b>${esc(G(s.n))}</b></button>`).join('')}</div>`,false)}
+function openSOS(){$('#rate').classList.remove('on');if(brMain.on)brMain.stop(false);$('#sos').classList.add('on');document.body.style.overflow='hidden';sosStart();haptic(30)}
+function closeSOS(){$('#sos').classList.remove('overlock');toolStop();if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);stopVoice();$('#sos').classList.remove('on');document.body.style.overflow=''}
+function sosStart(){sosSit=null;sosUsed=[];sosRender(`<h2 id="sosT">Je suis là.</h2><p class="quote mt">Tu as bien fait d'ouvrir ELYRA. On va y aller doucement, une chose à la fois.</p>
+  <p class="mt" style="font-weight:600">Qu'est-ce qui se passe pour toi ?</p><div class="sitg">${Object.entries(SOSIT).map(([k,s])=>`<button class="opt" data-sit="${k}"><b>${esc(G(s.n))}</b></button>`).join('')}</div>
+  <button class="opt noir" data-noir="1"><b>J'ai des pensées très sombres</b><span>Des personnes sont là pour t'écouter, 24 h sur 24</span></button>`,false)}
+function sosNoir(){const N=O.noir;sosRender(`<h2 id="sosT">${esc(G(N.t))}</h2><p class="quote mt">${esc(G(N.m))}</p>
+  <div class="urg big">${N.l.map(([n,a,b])=>`<a href="tel:${n.replace(/\s/g,'')}"><b>${esc(n)}</b><span><b>${esc(a)}</b><br>${esc(b)}</span></a>`).join('')}</div>
+  <p class="mt">${esc(G(N.apres))}</p>${ST.prof.kit.con.length?`<p class="mt" style="font-weight:600">Tes contacts</p>${ST.prof.kit.con.map(c=>`<a class="btn ghost" style="justify-content:space-between;width:100%;margin-top:8px" href="tel:${esc(c.p.replace(/[^\d+]/g,''))}"><span>${esc(c.n)}</span><b>${esc(c.p)}</b></a>`).join('')}`:''}
+  <p class="mt">Quand tu te sens prêt{e}, tu peux aussi essayer quelque chose pour traverser les prochaines minutes :</p>
+  <div class="sitg"><button class="opt" data-opt2="ground"><b>Ancrage 5-4-3-2-1</b><span>Revenir à ce qui t'entoure</span></button><button class="opt" data-opt2="audio"><b>Écouter une voix calme</b><span>Quelques minutes guidées</span></button></div>`.replace('prêt{e}',G('prêt{e}')),true)}
 function sosOptions(){const s=SOSIT[sosSit];const k=ST.prof.kit;
-  const pref=s.o.slice().sort((a,b)=>(k.tech.includes('sos:'+b)?1:0)-(k.tech.includes('sos:'+a)?1:0));
+  const sc=o=>(k.tech.includes(optEx(o))?10:0)+helpAvg(optEx(o));const pref=s.o.slice().sort((a,b)=>sc(b)-sc(a));
   const warn=s.warn?`<div class="warnb"><p style="margin:0"><b>D'abord, ta sécurité.</b> Douleur ou oppression dans la poitrine, difficulté à respirer, faiblesse ou engourdissement d'un côté du corps, malaise, ou sensation nouvelle pour toi : <b>appelle le 112 maintenant</b>. Dans le doute, appeler est toujours une bonne décision. Le médecin de garde (1733) peut aussi te conseiller.</p>
     <a class="btn main mt" href="tel:112" style="background:var(--warm)">Appeler le 112</a></div><p class="mt">Si ces sensations te sont connues et ont déjà été vérifiées par un médecin, tu peux essayer :</p>`:'';
   const phr=k.phr.length?`<p class="mt" style="font-weight:600">Tes phrases</p>${k.phr.slice(0,3).map(p=>`<p class="phr">${esc(p)}</p>`).join('')}`:'';
-  sosRender(`<h2 id="sosT">${esc(G(s.n))}</h2><p class="quote mt">${esc(s.m)}</p>${warn}<div class="sitg">${pref.map(o=>`<button class="opt" data-opt="${o}"><b>${esc(SOSOPT[o][0])}</b><span>${esc(SOSOPT[o][1])}</span></button>`).join('')}</div>${phr}
+  sosRender(`<h2 id="sosT">${esc(G(s.n))}</h2><p class="quote mt">${esc(G(s.m))}</p>${warn}<div class="sitg">${pref.map(o=>{const h=helpOf(optEx(o));return `<button class="opt" data-opt="${o}"><b>${esc(SOSOPT[o][0])}</b><span>${esc(SOSOPT[o][1])}</span>${h&&h.avg>=1.4?`<span class="hb">${esc(G('T’aide souvent'))}</span>`:''}</button>`}).join('')}</div>${phr}
     <button class="ghost mt2" data-sosend="1" style="width:100%">Ça va un peu mieux</button>`,true)}
 function sosFlow(key){let i=0;const F=SOSF[key];
   const draw=()=>{const st=F.s[i];sosRender(`<h2 id="sosT">${esc(F.n)}</h2><div class="card"><p class="big">${esc(st[0])}</p><p class="step">${esc(st[1])}</p>
     <div class="row"><button class="ghost" id="fPrev" ${i===0?'disabled':''}>Précédent</button><button class="main" id="fNext">${i===F.s.length-1?'Terminé':'Suivant'}</button></div></div>`,true);
     speak(st[1]);
-    $('#fPrev').onclick=()=>{if(i>0){i--;draw()}};$('#fNext').onclick=()=>{if(i<F.s.length-1){i++;draw()}else{stopVoice();addItem({kind:'pratique',ex:'sos:'+key,label:F.n,min:2});sosEnd()}}};
+    $('#fPrev').onclick=()=>{if(i>0){i--;draw()}};$('#fNext').onclick=()=>{if(i<F.s.length-1){i++;draw()}else{stopVoice();const it=addItem({kind:'pratique',ex:'sos:'+key,label:F.n,min:2});sosUsed.push(it.id);sosEnd()}}};
   draw()}
 function sosBreath(){sosRender(`<h2 id="sosT">Respiration douce</h2><p class="sub">Facultative. Respire par le nez, sans gonfler fort. Si c'est inconfortable, arrête : respirer normalement, c'est très bien.</p><div id="sosBr"></div>
   <div class="row center"><button class="main" id="sbGo">Commencer</button><button class="ghost" id="sbDone">Continuer</button></div>`,true);
@@ -306,15 +328,35 @@ function sosKit(){const k=ST.prof.kit;
   const tech=k.tech.filter(t=>EX[t]).map(t=>`<button data-ex="${esc(t)}">${esc(EX[t])}</button>`).join('');
   sosRender(`<h2 id="sosT">Ton kit de secours</h2>${phr}${tech?`<p class="mt" style="font-weight:600">Ce qui t'aide</p><div class="row chips">${tech}</div>`:''}<p class="mt" style="font-weight:600">Tes contacts</p>${con}${k.notes?`<p class="mt" style="font-weight:600">Tes notes</p><p style="white-space:pre-wrap">${esc(k.notes)}</p>`:''}
    <button class="ghost mt2" data-sosend="1" style="width:100%">Ça va un peu mieux</button>`,true)}
-function sosEnd(){sosRender(`<h2 id="sosT">Retour au calme</h2><p class="quote mt">Tu as traversé ce moment. Prends ton temps avant de reprendre.</p>
+let sosRec=null,sosAct=null;
+function sosEnd(){sosRec=null;sosAct=null;const k=ST.prof.kit;const L=[...k.phr.slice(0,3),...O.recul.map(G)].filter((x,i,a)=>a.indexOf(x)===i);
+  sosRender(`<h2 id="sosT">Prendre du recul</h2><p class="quote mt">Tu as traversé ce moment. Avant de reprendre, choisis une phrase pour toi.</p>
+  <div class="sitg">${L.map((p,i)=>`<button class="opt" data-rec="${i}"><b>${esc(p)}</b></button>`).join('')}</div>
+  <div id="recBox"></div><button class="ghost mt2" data-endnext="1" style="width:100%">Continuer</button>`,true);
+  $$('#sosBody [data-rec]').forEach(b=>b.onclick=()=>{sosRec=L[+b.dataset.rec];$$('#sosBody [data-rec]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    $('#recBox').innerHTML=`<p class="phr mt">${esc(sosRec)}</p>${k.phr.includes(sosRec)?'':`<button class="ghost" id="recKit">Garder cette phrase dans mon kit</button>`}`;
+    const rk=$('#recKit');if(rk)rk.onclick=()=>{setP(p=>{if(!p.kit.phr.includes(sosRec))p.kit.phr.push(sosRec)});rk.outerHTML='<p class="note">Ajoutée à ton kit.</p>'};haptic()});
+  $('#sosBody [data-endnext]').onclick=sosAction}
+function sosAction(){sosRender(`<h2 id="sosT">Une petite chose pour toi</h2><p class="quote mt">Quelque chose de simple, à faire maintenant, à ton rythme.</p>
+  <div class="row chips mt">${O.actions.map(([k,n])=>`<button data-act="${k}" aria-pressed="false">${esc(n)}</button>`).join('')}</div><p id="actMsg" class="mt"></p>
+  <button class="ghost mt2" id="actNext" style="width:100%">Continuer</button>`,true);
+  $$('#sosBody [data-act]').forEach(b=>b.onclick=()=>{sosAct=b.dataset.act;$$('#sosBody [data-act]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#actMsg').textContent='C’est parfait. Fais-le doucement, sans te presser.';haptic()});
+  $('#actNext').onclick=sosLevel}
+function sosLevel(){const used=sosUsed.map(id=>ST.items.find(x=>x.id===id)).filter(Boolean).filter((x,i,a)=>a.findIndex(y=>y.ex===x.ex)===i);
+  sosRender(`<h2 id="sosT">Retour au calme</h2><p class="quote mt">Prends ton temps avant de reprendre.</p>
   <div class="card"><p style="font-weight:600;margin:0">Et maintenant, ton niveau d'angoisse : <span id="seV">5</span>/10</p><input type="range" id="seR" min="0" max="10" value="5" aria-label="Niveau d'angoisse maintenant">
-  <button class="main" id="seSave">Noter et fermer</button></div>
-  <div class="card"><h3>Si tu veux</h3><p>Bois quelques gorgées d'eau. Bouge doucement, étire-toi.</p><p>Note ce qui t'a aidé dans ton kit de secours, pour la prochaine fois.</p><p>Si ces moments reviennent souvent, en parler à ton médecin peut vraiment aider.</p></div>`,true);
+  ${used.length?`<p class="mt" style="font-weight:600">${esc(G("Qu'est-ce qui t'a aidé{e} ?"))}</p><div class="row chips">${used.map(x=>`<button data-helped="${esc(x.id)}" aria-pressed="false">${esc(EX[x.ex]||x.label)}</button>`).join('')}</div>`:''}
+  <button class="main mt" id="seSave">Noter et fermer</button></div>
+  <div class="card"><h3>Si tu veux</h3><p>Note ce qui t'a aidé dans ton kit de secours, pour la prochaine fois.</p><p>Si ces moments reviennent souvent, en parler à ton médecin peut vraiment aider.</p></div>`,true);
   $('#seR').oninput=e=>$('#seV').textContent=e.target.value;
-  $('#seSave').onclick=()=>{addItem({kind:'sos',sit:sosSit||'',stress:+$('#seR').value});closeSOS();toast('Bien joué. Prends soin de toi.')}}
+  $$('#sosBody [data-helped]').forEach(b=>b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'));
+  $('#seSave').onclick=()=>{$$('#sosBody [data-helped]').forEach(b=>{const it=ST.items.find(x=>x.id===b.dataset.helped);if(it)it.help=b.getAttribute('aria-pressed')==='true'?2:1});
+    addItem({kind:'sos',sit:sosSit||'',stress:+$('#seR').value,rec:sosRec||'',act:sosAct||''});closeSOS();toast('Bien joué. Prends soin de toi.')}}
 $('#sosOpen').onclick=openSOS;$('#sosX').onclick=closeSOS;
-$('#sosBack').onclick=()=>{stopVoice();if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);sosSit?sosOptions():sosStart()};
+$('#sosBack').onclick=()=>{stopVoice();toolStop();if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);sosSit?sosOptions():sosStart()};
 $('#sosBody').onclick=e=>{const s=e.target.closest('[data-sit]');if(s){sosSit=s.dataset.sit;sosOptions();return}
+  if(e.target.closest('[data-noir]')){sosSit=null;sosNoir();return}
+  const o2=e.target.closest('[data-opt2]');if(o2){if(o2.dataset.opt2==='audio')openPlayer('sosvoix');else sosFlow('ground');return}
   const o=e.target.closest('[data-opt]');if(o){SOSOPT[o.dataset.opt][2]();return}
   if(e.target.closest('[data-sosend]'))sosEnd();
   if(e.target.closest('[data-ex]'))closeSOS()};
@@ -335,12 +377,12 @@ $('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jSit=togg
 $('#stress').oninput=e=>$('#sv').textContent=e.target.value;
 $('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
   addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
-const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG'};
+const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG',outil:'Outil',expo:'Exposition',corps:'Mon corps'};
 function bars(el,days,key){const today=dstart(Date.now());const out=[];
   for(let i=days-1;i>=0;i--){const dd=dstart(today-i*DAY+432e5);const s=ST.items.filter(x=>x[key]!=null&&x[key]!==''&&dstart(x.t)===dd);const v=s.length?avg(s.map(x=>+x[key])):null;
     const max=key==='mood'?5:10;out.push(v==null?'<div class="z" title="pas de note"></div>':`<div style="height:${Math.max(4,v/max*100)}%" title="${key==='mood'?'humeur':'stress'} ${v.toFixed(1)}/${max}"></div>`)}
   el.innerHTML=out.join('')}
-function entryBody(x){if(x.kind==='tag'){const M=window.ELYRA_TAG.mods.find(m=>m.id===x.mod);if(!M)return '';
+function entryBody(x){if(x.kind==='outil'||x.kind==='expo'||x.kind==='corps')return entryExtra(x);if(x.kind==='tag'){const M=window.ELYRA_TAG.mods.find(m=>m.id===x.mod);if(!M)return '';
   const lines=M.ex.f.map(f=>{let v=x.ans&&x.ans[f.k];if(v==null||v===''||(Array.isArray(v)&&!v.length))return '';if(f.t==='steps')v=v.map(s=>`${s.t} (${s.d}/10)`).join(' · ');else if(Array.isArray(v))v=v.join(', ');else if(f.t==='scale')v=v+'/10';return `<p class="sub" style="margin:2px 0 0"><b>${esc(G(f.l))}</b> ${esc(v)}</p>`}).filter(Boolean).slice(0,4).join('');
   return `<p><b>${esc(M.ex.t)}</b> · ${esc(M.n)}</p>${lines}`}
  if(x.kind==='pensee')return `<p><b>Situation :</b> ${esc(x.sit)}</p><p><b>Pensée :</b> ${esc(x.pen)}</p>${x.emos&&x.emos.length?`<p class="sub" style="margin:2px 0 0">${esc(x.emos.join(', '))} · ${+x.i1}/10 → ${+x.i2}/10</p>`:`<p class="sub" style="margin:2px 0 0">${+x.i1}/10 → ${+x.i2}/10</p>`}
@@ -365,8 +407,8 @@ $('#t3').oninput=e=>$('#t3v').textContent=e.target.value;$('#t7').oninput=e=>$('
 $('#tPrev').onclick=()=>{if(tI>0){tI--;tDraw()}};
 $('#tNext').onclick=()=>{if(tI<TN-1){tI++;tDraw();window.scrollTo(0,0);return}
   const v=id=>$(id).value.trim().slice(0,1000);if(!v('#t1')&&!v('#t2')){toast('Écris au moins la situation ou la pensée.');tI=0;tDraw();return}
-  addItem({kind:'pensee',sit:v('#t1'),pen:v('#t2'),emos:tEmo.slice(),i1:+$('#t3').value,traps:tTrap.slice(),pour:v('#t5a'),contre:v('#t5b'),autre:v('#t6'),i2:+$('#t7').value});
-  ['#t1','#t2','#t5a','#t5b','#t6'].forEach(i=>$(i).value='');tEmo=[];tTrap=[];tI=0;tDraw();toast('Enregistré dans ton journal. Bravo pour ce travail.');location.hash='journal'};
+  const it=addItem({kind:'pensee',ex:'pensee',sit:v('#t1'),pen:v('#t2'),emos:tEmo.slice(),i1:+$('#t3').value,traps:tTrap.slice(),pour:v('#t5a'),contre:v('#t5b'),autre:v('#t6'),i2:+$('#t7').value});
+  ['#t1','#t2','#t5a','#t5b','#t6'].forEach(i=>$(i).value='');tEmo=[];tTrap=[];tI=0;tDraw();toast('Enregistré dans ton journal. Bravo pour ce travail.');location.hash='journal';askHelp(it)};
 tDraw();
 
 /* ============ SOMMEIL ============ */
@@ -428,16 +470,17 @@ function observations(){const out=[];const J=ST.items.filter(x=>x.stress!=null&&
   const all=avg(J.map(x=>+x.stress));const by={};J.filter(x=>x.sits&&x.sits.length).forEach(x=>x.sits.forEach(s=>{(by[s]=by[s]||[]).push(+x.stress)}));
   const top=Object.entries(by).filter(([,a])=>a.length>=3).map(([s,a])=>[s,avg(a),a.length]).sort((a,b)=>b[1]-a[1])[0];
   if(top&&all!=null&&top[1]>=all+1)out.push([`Quand tu notes « ${top[0]} », ton stress déclaré est en moyenne de ${top[1].toFixed(1)}/10, contre ${all.toFixed(1)}/10 en général. Peut-être une situation à préparer un peu plus ?`,`Basé sur ${top[2]} notes avec cette situation.`]);
-  const P=ST.items.filter(x=>x.kind==='pratique'&&x.ex&&EX[x.ex]);const cnt={};P.forEach(x=>cnt[x.ex]=(cnt[x.ex]||0)+1);
+  const P=ST.items.filter(x=>isPrat(x)&&x.ex&&EX[x.ex]);const cnt={};P.forEach(x=>cnt[x.ex]=(cnt[x.ex]||0)+1);
+  const H=helpTop(1);if(H.length){const [id,h]=H[0];out.push([`Ce qui t'aide le plus, d'après tes réponses : ${EX[id]} (« beaucoup » ${h.b} fois sur ${h.n}).${ST.prof.kit.tech.includes(id)?'':' Tu peux l’ajouter à ton kit de secours.'}`,`Basé sur ${helpCount()} réponse(s) à « Ça t'a aidé ? ».`])}
   const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-  if(fav&&fav[1]>=3)out.push([`Ce que tu pratiques le plus : ${EX[fav[0]]} (${fav[1]} fois).${ST.prof.kit.tech.includes(fav[0])?'':' Tu peux l’ajouter à ton kit de secours.'}`,`Basé sur ${P.length} exercices.`]);
+  if(fav&&fav[1]>=3&&!(H.length&&H[0][0]===fav[0]))out.push([`Ce que tu pratiques le plus : ${EX[fav[0]]} (${fav[1]} fois).${ST.prof.kit.tech.includes(fav[0])?'':' Tu peux l’ajouter à ton kit de secours.'}`,`Basé sur ${P.length} exercices.`]);
   const S=ST.items.filter(x=>x.kind==='sommeil');const good=[],bad=[];
   S.forEach(n=>{const ms=ST.items.filter(x=>x.mood&&dkey(x.t)===n.night).map(x=>+x.mood);if(!ms.length)return;const m=avg(ms);if(n.q>=4)good.push(m);else if(n.q<=2)bad.push(m)});
   if(good.length>=3&&bad.length>=3){const g=avg(good),b=avg(bad);if(Math.abs(g-b)>=.5)out.push([`Après les nuits que tu notes comme bonnes, ton humeur moyenne est de ${g.toFixed(1)}/5, contre ${b.toFixed(1)}/5 après les nuits difficiles.`,`Basé sur ${good.length+bad.length} nuits.`])}
   const T=ST.items.filter(x=>x.kind==='pensee');if(T.length>=3){const d=avg(T.map(x=>x.i1-x.i2));if(d>=1)out.push([`Quand tu prends le temps de démêler une pensée, l'intensité de ton émotion baisse en moyenne de ${d.toFixed(1)} point(s).`,`Basé sur ${T.length} pensées démêlées.`])}
   const sos=ST.items.filter(x=>x.kind==='sos'&&Date.now()-x.t<30*DAY);if(sos.length>=3)out.push([`Tu as utilisé le SOS ${sos.length} fois ce mois-ci. C'est bien de t'en servir. Si ces moments reviennent souvent, en parler à ton médecin peut vraiment aider.`,'Basé sur ton utilisation du SOS.']);
   return out}
-function period(from,to){const I=ST.items.filter(x=>x.t>=from&&x.t<to);return{ex:I.filter(x=>x.kind==='pratique'&&x.min>0).length,min:I.filter(x=>x.kind==='pratique').reduce((a,x)=>a+(+x.min||0),0),
+function period(from,to){const I=ST.items.filter(x=>x.t>=from&&x.t<to);return{ex:I.filter(x=>isPrat(x)&&x.min>0).length,min:I.filter(isPrat).reduce((a,x)=>a+(+x.min||0),0),
   st:avg(I.filter(x=>x.stress!=null&&x.kind!=='sos').map(x=>+x.stress)),wins:I.filter(x=>x.kind==='victoire').length,days:new Set(I.map(x=>dkey(x.t))).size}}
 function summary(c,p,label){if(!c.days)return `<p class="sub">Rien de noté ${label}. Ce n'est pas grave : ELYRA est là quand tu en as besoin.</p>`;const o=[];
   o.push(`Tu as pris soin de toi ${c.days} jour(s) ${label}${c.ex?`, avec ${c.ex} exercice(s) et ${c.min} min de calme`:''}.`);
@@ -445,7 +488,7 @@ function summary(c,p,label){if(!c.days)return `<p class="sub">Rien de noté ${la
   else if(c.st!=null)o.push(`Stress déclaré moyen : ${c.st.toFixed(1)}/10.`);
   if(c.wins)o.push(`${c.wins} petite(s) victoire(s) notée(s). Bravo.`);return o.map(x=>`<p>${esc(x)}</p>`).join('')}
 function renderProgres(){const now=Date.now();const I30=ST.items.filter(x=>now-x.t<30*DAY);
-  $('#p30ex').textContent=I30.filter(x=>x.kind==='pratique'&&x.min>0).length;$('#p30min').textContent=I30.filter(x=>x.kind==='pratique').reduce((a,x)=>a+(+x.min||0),0);
+  $('#p30ex').textContent=I30.filter(x=>isPrat(x)&&x.min>0).length;$('#p30min').textContent=I30.filter(isPrat).reduce((a,x)=>a+(+x.min||0),0);
   $('#p30days').textContent=new Set(I30.map(x=>dkey(x.t))).size;bars($('#chMood'),30,'mood');bars($('#chStress'),30,'stress');
   const t0=dstart(now)+DAY;$('#week').innerHTML=summary(period(t0-7*DAY,t0),period(t0-14*DAY,t0-7*DAY),'ces 7 derniers jours');
   $('#month').innerHTML=summary(period(t0-30*DAY,t0),period(t0-60*DAY,t0-30*DAY),'ces 30 derniers jours');
@@ -490,7 +533,7 @@ function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.si
 function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;$('#pVoiceSelBox').hidden=!!CapTTS()||!voices.length||ST.prof.vmode!=='tel';
   s.innerHTML=`<option value="">Voix par défaut</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};
-function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#brVoice').checked=!!P.brVoice;
+function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#pCtx').checked=!!P.ctxShare;$('#brVoice').checked=!!P.brVoice;
   chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
   chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');
   $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est une voix française naturelle, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
@@ -503,7 +546,7 @@ document.addEventListener('click',e=>{const g=e.target.closest('button[data-genr
   const vv=e.target.closest('button[data-vvoice]');if(vv&&vv.dataset.vvoice!==VV()){setP(p=>p.vvoice=vv.dataset.vvoice);loadVoiceIdx().then(()=>{sessVoice=true;speak(TEST,true)})}const r=e.target.closest('button[data-rate]');if(r)setP(p=>p.rate=+r.dataset.rate);
   const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}});
 let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name=e.target.value.trim().slice(0,40)),400)};
-$('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
+$('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pCtx').onchange=e=>setP(p=>p.ctxShare=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
 const TEST="Bonjour. Je suis la voix de tes séances. Prends ton temps, tu n'as rien à réussir.";
 $('#pVoiceTest').onclick=()=>{SND.ctx();sessVoice=true;speak(TEST,true)};
 $('#pOffline').onclick=async()=>{const files=[...new Set(Object.values(VO.idx||{}).map(x=>`voix/${VO.v||VV()}/`+x[0]))];let done=0,fail=0;const msg=$('#pOfflineMsg');
@@ -654,12 +697,377 @@ function renderHomeTag(){const el=$('#homeTag');if(!el)return;const t=tagM();con
     :`<span class="tag lav">Programme TAG</span><h3 class="mt">Les 8 modules sont terminés</h3><p class="sub">Bravo pour ce chemin. Tu peux revenir sur n'importe quel module.</p><a class="btn ghost mt" href="#programme">Revoir le programme</a>`}
 document.addEventListener('click',e=>{const b=e.target.closest('#homeTag [data-mod]');if(b)openMod(b.dataset.mod)});
 
+/* ============ ÇA T'A AIDÉ ? (ELYRA apprend ce qui aide) ============ */
+let helpIt=null,helpT;
+function askHelp(it){if(!it||!it.ex)return;
+  if($('#sos').classList.contains('on')){if(!sosUsed.includes(it.id))sosUsed.push(it.id);return}
+  helpIt=it;$('#rateQ').textContent=G("Ça t'a aidé{e} ?");$('#rateL').textContent=EX[it.ex]||it.label||'';$('#rate').classList.add('on');
+  clearTimeout(helpT);helpT=setTimeout(()=>$('#rate').classList.remove('on'),25000)}
+$('#rate').onclick=e=>{const b=e.target.closest('[data-help]');
+  if(b&&helpIt){const v=+b.dataset.help;helpIt.help=v;save();try{renderHome();renderOutils()}catch(x){}
+    toast(v===2?'Noté. ELYRA te le proposera plus souvent.':v===1?'Noté, merci.':"Noté. ELYRA te proposera d'autres pistes.");haptic()}
+  if(b||e.target.closest('[data-rateclose]')){$('#rate').classList.remove('on');helpIt=null}};
+function helpStats(){const H={};for(const x of ST.items){if(x.help==null||!x.ex)continue;const h=H[x.ex]=H[x.ex]||{n:0,s:0,b:0};h.n++;h.s+=+x.help;if(+x.help===2)h.b++}
+  for(const k in H)H[k].avg=H[k].s/H[k].n;return H}
+function helpOf(id){if(!id)return null;const H=helpStats();
+  if(id==='calme:respirer'||id==='calme:mediter'){const pre=id==='calme:respirer'?'br:':'med:';const a=Object.entries(H).filter(([k])=>k.startsWith(pre)).map(x=>x[1]);if(!a.length)return null;
+    const n=a.reduce((x,y)=>x+y.n,0),s=a.reduce((x,y)=>x+y.s,0),b=a.reduce((x,y)=>x+y.b,0);return{n,s,b,avg:s/n}}
+  return H[id]||null}
+const helpAvg=id=>{const h=helpOf(id);return h?h.avg:1};
+const helpCount=()=>ST.items.filter(x=>x.help!=null).length;
+function helpTop(minB){return Object.entries(helpStats()).filter(([id,h])=>EX[id]&&h.avg>=1.4&&h.b>=(minB||1)).sort((a,b)=>b[1].avg-a[1].avg||b[1].n-a[1].n)}
+function helpBadge(id){const h=helpOf(id);if(!h)return '';
+  const t=h.avg>=1.5?"T'aide beaucoup":h.avg>=.9?"T'aide un peu":h.n>=2?'Pas trop pour toi':"Pas trop, la dernière fois";
+  return `<span class="hb ${h.avg>=1.5?'good':h.avg<.9?'meh':''}">${esc(t)} · ${h.n} avis</span>`}
+function personalise(list){const H=helpStats();const bad=id=>H[id]&&H[id].n>=2&&H[id].avg<.6;
+  const top=helpTop(1).map(x=>x[0]).filter(id=>!list.includes(id)&&/^(br|med|story|sos|outil):/.test(id)&&!(slot()!=='nuit'&&/^story:/.test(id))).slice(0,2);
+  const l=list.filter(x=>!bad(x)).map((x,i)=>[x,i]).sort((a,b)=>(helpAvg(b[0])-helpAvg(a[0]))||a[1]-b[1]).map(x=>x[0]);
+  return [...l.slice(0,1),...top,...l.slice(1)]}
+function bestBreath(){const b=Object.keys(PRESETS).map(k=>[k,helpOf('br:'+k)]).filter(([,h])=>h&&h.avg>=1.2).sort((a,b)=>b[1].avg-a[1].avg||b[1].n-a[1].n)[0];return b?b[0]:'coh'}
+
+/* ============ BOÎTE À OUTILS ============ */
+let outNeed=null;
+const toolCat=id=>{const [k,v]=id.split(':');return k==='calme'?(v==='respirer'?'breath':'stress'):k==='pensee'?'visu':k==='expo'?'confiance':k==='journal'?'quotidien':k==='videtete'?'sommeil':catOf(id)};
+function renderOutils(){const box=$('#outBox');if(!box)return;const top=helpTop(1).slice(0,4);const P=ST.prof;
+  let h=`<h1>Ma boîte à outils</h1><p class="sub">${esc(G("Tous les outils d'ELYRA au même endroit. Après chaque exercice, ELYRA te demande si ça t'a aidé{e} : elle apprend ce qui te convient, à toi, et te le propose en premier."))}</p>`;
+  h+=top.length?`<div class="sect"><h2>Ce qui t'aide le plus</h2></div><div class="tiles">${top.map(([id])=>tileHTML(id)).join('')}</div>`
+    :`<div class="card flat"><p style="margin:0">${esc(G("Pas encore assez de réponses pour savoir ce qui t'aide le plus. Après un exercice, réponds simplement « Pas trop », « Un peu » ou « Beaucoup » : ça suffit."))}</p></div>`;
+  if(P.soucis.length){const r=P.rem.soucis;h+=`<div class="card" style="background:var(--lavs)"><span class="tag lav">Ma boîte à soucis</span><h3 class="mt">${P.soucis.length} inquiétude(s) rangée(s)</h3>
+    <p class="sub">À regarder pendant ton moment d'inquiétude${r&&r.on?` (${esc(r.h||'18:00')})`:''}, pas avant. Si l'une n'est plus d'actualité, tu peux la laisser partir.</p>
+    <details class="sz"><summary>C'est mon moment d'inquiétude</summary>${P.soucis.map(w=>`<div class="entry"><div><small>${esc(fmtD(w.t))}</small><p>${esc(w.txt)}</p>
+      <div class="row"><button class="ghost" data-sz="probleme:${esc(w.id)}">Résoudre</button><button class="ghost" data-sz="defusion:${esc(w.id)}">Prendre du recul</button></div></div><button class="del" data-sz="del:${esc(w.id)}">Plus d'actualité</button></div>`).join('')}</details></div>`}
+  h+=`<p class="mt2" style="font-weight:600">${esc(G("J'ai besoin d'un outil quand…"))}</p><div class="row chips" id="outNeeds">${O.besoins.map(([k,n])=>`<button data-need="${k}" aria-pressed="${outNeed===k}">${esc(G(n))}</button>`).join('')}</div>`;
+  for(const grp of O.boite){const items=grp.i.filter(x=>!outNeed||x[4].includes(outNeed));if(!items.length)continue;
+    h+=`<div class="sect"><h2>${esc(grp.g)}</h2></div><div class="list">${items.map(([id,n,u,src])=>`<div class="tool"><div class="th">${covHTML(toolCat(id))}<div><h3>${esc(n)}</h3><span class="src">${esc(src)}</span></div></div>
+      <p>${esc(G(u))}</p><div class="row between">${helpBadge(id)||'<span></span>'}<button class="ghost" data-ex="${esc(id)}">Ouvrir</button></div></div>`).join('')}</div>`}
+  h+=`<p class="note">Ces outils s'inspirent des thérapies cognitives et comportementales (TCC), de la thérapie d'acceptation et d'engagement (ACT), de la relaxation et de la pleine conscience. Ils ne remplacent pas un accompagnement par un professionnel.</p>`;
+  box.innerHTML=h}
+$('#outBox').addEventListener('click',e=>{const n=e.target.closest('[data-need]');if(n){outNeed=outNeed===n.dataset.need?null:n.dataset.need;renderOutils();return}
+  const z=e.target.closest('[data-sz]');if(z){const [a,id]=z.dataset.sz.split(':');const w=ST.prof.soucis.find(x=>x.id===id);if(!w)return;
+    if(a==='del'){setP(p=>p.soucis=p.soucis.filter(x=>x.id!==id));toast('Elle est partie. Bravo.')}
+    else{setP(p=>p.soucis=p.soucis.filter(x=>x.id!==id));openTool(a,'view',a==='probleme'?{pb:w.txt}:{p:w.txt})}}});
+
+/* ============ OUTILS GUIDÉS ============ */
+const TR={k:null,i:0,ans:{},ctx:'view',iv:null};
+function toolStop(){clearInterval(TR.iv);TR.iv=null}
+function openTool(k,ctx,pre){const T=O.tools[k];if(!T)return;toolStop();Object.assign(TR,{k,i:0,ans:Object.assign({},pre||{}),ctx:ctx||'view'});
+  if(TR.ctx!=='sos'){if(cur()!=='outil')location.hash='outil';window.scrollTo(0,0)}toolDraw()}
+function toolRender(html){if(TR.ctx==='sos'){sosRender(html,true);return}const b=$('#toolBox');b.innerHTML=html;const h=b.querySelector('h2');if(h){h.setAttribute('tabindex','-1');try{h.focus({preventScroll:true})}catch(e){}}}
+const tval=v=>Array.isArray(v)?v.join(', '):String(v);
+const tsub=s=>esc(G(s)).replace(/\{(\w+)\}/g,(m,k)=>{const v=TR.ans[k];return v!=null&&v!==''&&!(Array.isArray(v)&&!v.length)?`<b>${esc(tval(v))}</b>`:'…'});
+const tps=a=>(a||[]).map(x=>`<p>${tsub(x)}</p>`).join('');
+const riverHTML=()=>`<div class="river" id="river" role="img" aria-label="Une rivière où flottent tes pensées"><span class="leaf" style="top:38%">${esc(TR.ans.p||'ma pensée')}</span></div><p class="note">Touche la rivière pour poser une nouvelle feuille.</p>`;
+const timerHTML=sec=>`<div class="tmr" id="tmr" style="--p:0"><b id="tmrV">${sec}</b><span>secondes</span></div><div class="row center"><button class="sage" id="tmGo" data-s="${sec}">Lancer le minuteur</button></div>`;
+function matrixHTML(A){const c=(k,l)=>`<div class="mxc"><small>${l}</small><p>${A[k]?esc(A[k]):'…'}</p></div>`;
+  return `<div class="mx"><div class="mxh">Ce qui m'éloigne</div><div class="mxh">Ce qui me rapproche</div>${c('loin','Ce que je fais')}${c('vers','Ce que je fais')}${c('int','Ce qui se passe en moi')}${c('qui','Ce qui compte pour moi')}</div>
+   <p class="note">En haut : ce qui se voit. En bas : ce qui se passe à l'intérieur.</p>`}
+function toolDraw(){toolStop();const T=O.tools[TR.k];if(!T)return;const N=T.s.length,st=T.s[TR.i],A=TR.ans;let b='';
+  const lab=st.l?`<p class="sub">${tsub(st.l)}</p>`:'';
+  if(st.t==='txt')b=`<h2>${tsub(st.h)}</h2>${tps(st.p)}${st.note?`<p class="note warnn">${esc(G(st.note))}</p>`:''}`;
+  else if(st.t==='in')b=`<h2>${tsub(st.h)}</h2>${lab}${st.area?`<textarea id="trIn" maxlength="1500" placeholder="${esc(G(st.ph||''))}" aria-label="${esc(G(st.h))}">${esc(A[st.k]||'')}</textarea>`:`<input type="text" id="trIn" maxlength="200" placeholder="${esc(G(st.ph||''))}" value="${esc(A[st.k]||'')}" aria-label="${esc(G(st.h))}">`}`;
+  else if(st.t==='scale'){const v=A[st.k]!=null?A[st.k]:5;b=`<h2>${tsub(st.h)}</h2>${lab}<p class="bigv"><span id="trV">${v}</span>/10</p><input type="range" id="trR" min="0" max="10" value="${v}" aria-label="${esc(G(st.h))}">`}
+  else if(st.t==='one'||st.t==='chips'){const a=Array.isArray(A[st.k])?A[st.k]:(A[st.k]?[A[st.k]]:[]);b=`<h2>${tsub(st.h)}</h2>${lab}<div class="row chips mt" id="trCh" data-one="${st.t==='one'?1:''}">${st.o.map(o=>`<button type="button" data-v="${esc(G(o))}" aria-pressed="${a.includes(G(o))}">${esc(G(o))}</button>`).join('')}</div>`}
+  else if(st.t==='pick')b=`<h2>${tsub(st.h)}</h2>${lab}<div class="sitg">${st.o.map((o,i)=>`<button class="opt" data-pick="${i}" aria-pressed="${A[st.k]===i}"><b>${esc(G(o.n))}</b></button>`).join('')}</div>`;
+  else if(st.t==='picked'){const pk=T.s.find(x=>x.t==='pick'&&x.k===st.k);const o=pk.o[A[st.k]||0];b=`<h2>${esc(G(o.n))}</h2>${tps(o.p)}${o.anim==='leaf'?riverHTML():''}${o.timer?timerHTML(o.timer):''}`}
+  else if(st.t==='timer')b=`<h2>${tsub(st.h)}</h2>${tps(st.p)}${timerHTML(st.s)}`;
+  else if(st.t==='matrix')b=`<h2>Ta boussole</h2>${matrixHTML(A)}`;
+  else if(st.t==='sum'){let c='';if(st.cmp){const [x,y,t]=st.cmp;if(A[x]!=null&&A[y]!=null)c=`<p class="bigv sm">${tsub(t)}</p>`}
+    const sh=st.show?`<div class="sumlist">${st.show.filter(([k])=>A[k]!=null&&A[k]!==''&&!(Array.isArray(A[k])&&!A[k].length)).map(([k,l])=>`<div><small>${esc(l)}</small><p>${esc(tval(A[k]))}</p></div>`).join('')}</div>`:'';
+    const g=st.goal&&A[st.goal]?`<button class="ghost mt" id="trGoal">Ajouter à mes objectifs</button>`:'';
+    b=`<h2>${tsub(st.h)}</h2>${c}${sh}${tps(st.p)}${g}`}
+  const last=TR.i===N-1;
+  toolRender(`${TR.ctx==='sos'?'':`<span class="tag lav">${esc(T.n)}</span>`}<div class="dots mt">${T.s.map((_,i)=>`<i class="${i<=TR.i?'on':''}"></i>`).join('')}</div>
+   <div class="card tstepc">${b}</div><div class="row between mt"><button class="ghost" id="trPrev" ${TR.i===0?'disabled':''}>Précédent</button>${st.t==='pick'?'<span></span>':`<button class="main" id="trNext">${last?'Terminer':'Suivant'}</button>`}</div><p class="note" id="trMsg" role="status"></p>`);
+  const R=$('#trR');if(R)R.oninput=e=>{$('#trV').textContent=e.target.value};
+  const ch=$('#trCh');if(ch)ch.onclick=e=>{const x=e.target.closest('button');if(!x)return;if(ch.dataset.one)ch.querySelectorAll('button').forEach(y=>y.setAttribute('aria-pressed',y===x&&y.getAttribute('aria-pressed')!=='true'));else x.setAttribute('aria-pressed',x.getAttribute('aria-pressed')!=='true')};
+  $$('[data-pick]').forEach(x=>x.onclick=()=>{TR.ans[st.k]=+x.dataset.pick;TR.i++;toolDraw()});
+  const rv=$('#river');if(rv)rv.onclick=e=>{const r=rv.getBoundingClientRect();const l=document.createElement('span');l.className='leaf';l.textContent=TR.ans.p||'ma pensée';
+    l.style.top=Math.max(8,Math.min(72,((e.clientY-r.top)/(r.height||1))*100||40))+'%';rv.appendChild(l);l.addEventListener('animationend',()=>l.remove());haptic()};
+  const tg=$('#tmGo');if(tg)tg.onclick=()=>{toolStop();let s=+tg.dataset.s;const tot=s;tg.hidden=true;SND.ctx();
+    TR.iv=setInterval(()=>{const v=$('#tmrV');if(!v){toolStop();return}s--;v.textContent=Math.max(0,s);$('#tmr').style.setProperty('--p',(tot-s)/tot);
+      if(s<=0){toolStop();SND.bell();v.textContent='✓';const n=$('#trMsg');if(n)n.textContent="C'est fini. Prends ton temps avant de continuer."}},1000)};
+  const gl=$('#trGoal');if(gl)gl.onclick=()=>{const t=String(A[st.goal]).slice(0,120);setP(p=>{if(!p.goals.some(g=>g.txt===t))p.goals.push({id:'g'+uid(),txt:t,done:false})});gl.outerHTML='<p class="note">Ajouté à tes objectifs (Mes progrès).</p>'};
+  $('#trPrev').onclick=()=>{toolRead();if(TR.i>0){TR.i--;toolDraw()}};
+  const nx=$('#trNext');if(nx)nx.onclick=()=>{toolRead();if(st.t==='in'&&st.req&&!String(A[st.k]||'').trim()){$('#trMsg').textContent='Écris quelques mots, même imparfaits.';return}
+    if(last)toolFinish();else{TR.i++;toolDraw();if(TR.ctx!=='sos')window.scrollTo(0,0)}}}
+function toolRead(){const T=O.tools[TR.k],st=T.s[TR.i];if(!st||!st.k)return;
+  if(st.t==='in'){const i=$('#trIn');if(i)TR.ans[st.k]=i.value.trim().slice(0,1500)}
+  else if(st.t==='scale'){const r=$('#trR');if(r)TR.ans[st.k]=+r.value}
+  else if(st.t==='one'||st.t==='chips'){const v=$$('#trCh button[aria-pressed=true]').map(b=>b.dataset.v);TR.ans[st.k]=st.t==='one'?(v[0]||''):v}}
+function toolFinish(){const k=TR.k,T=O.tools[k],A=TR.ans,ctx=TR.ctx;const sum=T.s.find(x=>x.t==='sum');toolStop();TR.k=null;
+  if(sum&&sum.souci&&A[sum.souci])ST.prof.soucis.push({id:'w'+uid(),t:Date.now(),txt:String(A[sum.souci]).slice(0,200)});
+  const it=addItem({kind:'outil',ex:'outil:'+k,tool:k,label:T.n,min:T.min,ans:A});
+  if(ctx==='sos'){sosUsed.push(it.id);sosEnd()}else{location.hash='outils';toast(sum&&sum.souci?'Rangée dans ta boîte à soucis.':'Enregistré dans ton journal.');setTimeout(()=>askHelp(it),400)}}
+function entryExtra(x){
+  if(x.kind==='outil'){const T=O.tools[x.tool];if(!T)return `<p><b>${esc(x.label||'Outil')}</b></p>`;const A=x.ans||{};
+    const lines=T.s.filter(s=>s.k&&A[s.k]!=null&&A[s.k]!==''&&!(Array.isArray(A[s.k])&&!A[s.k].length)&&s.t!=='picked').map(s=>{let v=A[s.k];if(s.t==='pick')v=G(s.o[v]?s.o[v].n:'');else if(s.t==='scale')v=v+'/10';return `<p class="sub" style="margin:2px 0 0"><b>${esc(G(s.h))}</b> ${esc(tval(v))}</p>`}).slice(0,5).join('');
+    return `<p><b>${esc(T.n)}</b></p>${lines}`}
+  if(x.kind==='expo')return `<p><b>Exposition</b> · ${esc(x.step||'')}</p><p class="sub" style="margin:2px 0 0">Anxiété prévue ${+x.pred}/10 · au plus fort ${+x.peak}/10${x.stopped?' · arrêtée en cours':''}</p>${x.appris?`<p><b>Ce que j'en retiens :</b> ${esc(x.appris)}</p>`:''}`;
+  if(x.kind==='corps'){const Z=O.corps.zones;return `<p><b>${esc((x.zones||[]).map(z=>(Z.find(y=>y[0]===z)||[0,z])[1]).join(', ')||'Sensation')}</b>${x.sens&&x.sens.length?' · '+esc(x.sens.join(', ')):''}</p>
+    <p class="sub" style="margin:2px 0 0">Intensité ${+x.i}/10${x.ctx&&x.ctx.length?' · '+esc(x.ctx.join(', ')):''}${x.verif==='oui'?' · déjà vérifié par un médecin':''}</p>${x.note?`<p style="white-space:pre-wrap">${esc(x.note)}</p>`:''}`}
+  return ''}
+
+/* ============ COACH D'EXPOSITION ============ */
+const XP={mode:'list',sid:null,ph:0,tr:{},iv:null,t0:0};
+const EXPO=()=>ST.prof.expo;
+const xpSorted=()=>EXPO().steps.slice().sort((a,b)=>a.d-b.d);
+function xpStop(){clearInterval(XP.iv);XP.iv=null}
+function openExpo(){xpStop();XP.mode=EXPO().steps.length?'list':'edit';location.hash='expo';renderExpo();window.scrollTo(0,0)}
+function renderExpo(){const box=$('#expoBox');if(!box)return;const E=EXPO(),X=O.expo;$('#expoBack').textContent=XP.mode==='try'||XP.mode==='edit'&&E.steps.length?'‹ Mon échelle':'‹ Boîte à outils';
+  if(XP.mode==='edit'){const m6=lastEx('m6');const imp=m6&&m6.ans&&Array.isArray(m6.ans.steps)&&m6.ans.steps.length&&!E.steps.length;
+    const rows=E.steps.length?xpSorted():[{t:'',d:2},{t:'',d:4},{t:'',d:6},{t:'',d:8}];
+    box.innerHTML=`<h1>Coach d'exposition</h1><p class="sub">${esc(X.intro)}</p><div class="warnb soft"><p style="margin:0">${esc(G(X.secu))}</p></div>
+     ${imp?`<div class="card flat"><p style="margin:0">Tu as déjà construit une échelle dans le module 6 du programme TAG.</p><button class="ghost mt" id="xpImp">La reprendre ici</button></div>`:''}
+     <div class="card"><h2>Mon échelle</h2><label class="f" for="xpBut">Ton objectif</label><input type="text" id="xpBut" maxlength="160" value="${esc(E.but||'')}" placeholder="Ex. Reprendre le train pour aller travailler">
+      <p class="f mt">Les marches, avec leur difficulté (0 facile, 10 très difficile)</p><div class="steps" id="xpSteps">${rows.map(stepRow).join('')}</div>
+      <button type="button" class="ghost mt" id="xpAdd">Ajouter une marche</button>
+      <div class="row mt"><button class="main" id="xpSave">Enregistrer mon échelle</button>${E.steps.length?'<button class="ghost" id="xpCancel">Annuler</button>':''}</div><p class="note" id="xpMsg" role="status"></p></div>`;
+    const ib=$('#xpImp');if(ib)ib.onclick=()=>{$('#xpBut').value=m6.ans.but||'';$('#xpSteps').innerHTML=m6.ans.steps.map(stepRow).join('')};
+    $('#xpAdd').onclick=()=>$('#xpSteps').insertAdjacentHTML('beforeend',stepRow({t:'',d:5}));
+    const cc=$('#xpCancel');if(cc)cc.onclick=()=>{XP.mode='list';renderExpo()};
+    $('#xpSave').onclick=()=>{const rs=$$('#xpSteps .steprow').map(r=>({t:r.querySelector('input[type=text]').value.trim().slice(0,120),d:+r.querySelector('input[type=range]').value})).filter(s=>s.t);
+      if(!rs.length){$('#xpMsg').textContent='Ajoute au moins une marche.';return}
+      setP(p=>{const old=p.expo.steps;p.expo.but=$('#xpBut').value.trim().slice(0,160);p.expo.steps=rs.map(s=>{const o=old.find(x=>x.t===s.t);return o?Object.assign(o,{d:s.d}):{id:'x'+uid(),t:s.t,d:s.d,tries:[],done:false}})});
+      XP.mode='list';renderExpo();toast('Ton échelle est prête. Commence par la marche la plus facile.')};return}
+  if(XP.mode==='try')return xpTry();
+  const S=xpSorted();const next=S.find(s=>!s.done);
+  box.innerHTML=`<h1>Coach d'exposition</h1>${E.but?`<div class="card qcard"><span class="tag">Mon objectif</span><h3 class="mt">${esc(E.but)}</h3></div>`:''}
+   <div class="ladder">${S.slice().reverse().map(s=>{const l=s.tries[s.tries.length-1];return `<div class="rung ${s.done?'done':''} ${next&&s.id===next.id?'next':''}"><div class="rd">${+s.d}/10</div>
+     <div class="rt"><b>${esc(s.t)}</b><small>${s.done?'Apprivoisée · ':''}${s.tries.length?`${s.tries.length} essai(s) · dernier : prévu ${+l.pred}, ressenti ${+l.peak}`:'Pas encore essayée'}</small></div>
+     <button class="${next&&s.id===next.id?'main':'ghost'}" data-xgo="${esc(s.id)}">${s.tries.length?'Refaire':'Je me lance'}</button></div>`}).join('')}</div>
+   <p class="note">${next?esc(G("Commence par la marche la plus facile, et répète-la jusqu'à ce qu'elle devienne plus légère. Tu avances à ton rythme : rien n'est obligatoire.")):esc(G('Toutes tes marches sont apprivoisées. Bravo pour ce chemin. Tu peux en ajouter de nouvelles.'))}</p>
+   <div class="row"><button class="ghost" id="xpEdit">Modifier mon échelle</button><button class="ghost" data-ex="tag:m6">Relire le module 6</button></div>
+   <div class="warnb soft"><p style="margin:0">${esc(G(X.secu))}</p></div>`;
+  $('#xpEdit').onclick=()=>{XP.mode='edit';renderExpo()}}
+$('#expoBox').addEventListener('click',e=>{const g=e.target.closest('[data-xgo]');if(g){XP.sid=g.dataset.xgo;XP.ph=0;XP.tr={pred:5,drop:[]};XP.mode='try';renderExpo();window.scrollTo(0,0)}});
+$('#expoBox').addEventListener('input',e=>{const r=e.target.closest('.steprow input[type=range]');if(r)r.nextElementSibling.textContent=r.value});
+$('#expoBack').onclick=()=>{xpStop();if(XP.mode==='try'||(XP.mode==='edit'&&EXPO().steps.length)){XP.mode='list';renderExpo()}else location.hash='outils'};
+function xpTry(){const box=$('#expoBox'),X=O.expo,s=EXPO().steps.find(x=>x.id===XP.sid),T=XP.tr;if(!s){XP.mode='list';return renderExpo()}xpStop();
+  const head=(t)=>`<span class="tag lav">${t}</span><h1 class="mt" style="font-size:1.7rem">${esc(s.t)}</h1><div class="dots mt">${[0,1,2,3].map(i=>`<i class="${i<=XP.ph?'on':''}"></i>`).join('')}</div>`;
+  if(XP.ph===0){box.innerHTML=`${head('Avant')}<div class="card"><p style="font-weight:600;margin:0">L'anxiété que tu prévois : <span id="xpPv">${T.pred}</span>/10</p><input type="range" id="xpP" min="0" max="10" value="${T.pred}" aria-label="Anxiété prévue">
+     <label class="f mt" for="xpF">Ce que tu crains qu'il se passe</label><input type="text" id="xpF" maxlength="200" value="${esc(T.fear||'')}" placeholder="Ex. Faire un malaise, ne pas pouvoir sortir">
+     <p class="f mt">${esc(G('Un comportement de sécurité que tu peux essayer de laisser (facultatif)'))}</p><div class="row chips" id="xpD">${X.secur.map(o=>`<button type="button" data-v="${esc(G(o))}" aria-pressed="${T.drop.includes(G(o))}">${esc(G(o))}</button>`).join('')}</div></div>
+     <p class="note">Ne lâche un comportement de sécurité que si tu te sens prêt{e}. Et jamais un traitement sans l'avis de ton médecin.</p>
+     <button class="main" id="xpGo" style="width:100%">J'y vais</button>`.replace('prêt{e}',G('prêt{e}'));
+    $('#xpP').oninput=e=>{T.pred=+e.target.value;$('#xpPv').textContent=e.target.value};$('#xpF').oninput=e=>T.fear=e.target.value.slice(0,200);
+    $('#xpD').onclick=e=>{const b=e.target.closest('button');if(!b)return;T.drop=toggleIn(T.drop,b.dataset.v);b.setAttribute('aria-pressed',T.drop.includes(b.dataset.v))};
+    $('#xpGo').onclick=()=>{XP.ph=1;XP.t0=Date.now();xpTry();window.scrollTo(0,0)};return}
+  if(XP.ph===1){let mi=0;box.innerHTML=`${head('Pendant')}<div class="card qcard"><p class="quote" id="xpMsg1" aria-live="polite">${esc(G(X.pendant[0]))}</p></div>
+     <p class="bigv"><span id="xpEl">0:00</span></p><p class="note center">Le temps passé dans la situation. Pas besoin de regarder : c'est juste un repère.</p>
+     <button class="main" id="xpDone" style="width:100%">J'ai fini</button><div class="row mt"><button class="ghost" id="xpStopB">C'est trop pour aujourd'hui</button><button class="ghost" id="xpSos">Ouvrir le SOS</button></div>`;
+    XP.iv=setInterval(()=>{const el=$('#xpEl');if(!el){xpStop();return}const sec=Math.round((Date.now()-XP.t0)/1000);el.textContent=mmss(sec);
+      if(sec>0&&sec%25===0){mi=(mi+1)%X.pendant.length;const m=$('#xpMsg1');if(m)m.textContent=G(X.pendant[mi])}},1000);
+    $('#xpDone').onclick=()=>{T.stopped=false;T.min=Math.max(1,Math.round((Date.now()-XP.t0)/60000));XP.ph=2;T.peak=T.pred;xpTry();window.scrollTo(0,0)};
+    $('#xpStopB').onclick=()=>{T.stopped=true;T.min=Math.max(1,Math.round((Date.now()-XP.t0)/60000));XP.ph=2;T.peak=T.pred;xpTry();window.scrollTo(0,0)};
+    $('#xpSos').onclick=openSOS;return}
+  if(XP.ph===2){box.innerHTML=`${head('Après')}<div class="card"><p style="font-weight:600;margin:0">Au plus fort, ton anxiété a été de : <span id="xpKv">${T.peak}</span>/10</p><input type="range" id="xpK" min="0" max="10" value="${T.peak}" aria-label="Anxiété au plus fort">
+     ${T.fear?`<p class="f mt">Tu craignais : « ${esc(T.fear)} ». Est-ce que c'est arrivé ?</p>`:`<p class="f mt">Ce que tu craignais est-il arrivé ?</p>`}<div class="row chips" id="xpR">${X.resultat.map(([k,n])=>`<button type="button" data-v="${k}" aria-pressed="${T.res===k}">${esc(n)}</button>`).join('')}</div>
+     <label class="f mt" for="xpW">Ce qui s'est vraiment passé</label><textarea id="xpW" maxlength="1000">${esc(T.what||'')}</textarea>
+     <label class="f mt" for="xpL">Ce que tu en retiens</label><input type="text" id="xpL" maxlength="200" value="${esc(T.learn||'')}" placeholder="Ex. L'anxiété est montée, puis elle a baissé"></div>
+     <button class="main" id="xpSave2" style="width:100%">Faire le bilan</button>`;
+    $('#xpK').oninput=e=>{T.peak=+e.target.value;$('#xpKv').textContent=e.target.value};
+    $('#xpR').onclick=e=>{const b=e.target.closest('button');if(!b)return;T.res=b.dataset.v;$$('#xpR button').forEach(x=>x.setAttribute('aria-pressed',x===b))};
+    $('#xpSave2').onclick=()=>{T.what=$('#xpW').value.trim().slice(0,1000);T.learn=$('#xpL').value.trim().slice(0,200);
+      const tr={t:Date.now(),pred:T.pred,peak:T.peak,fear:T.fear||'',res:T.res||'',what:T.what,learn:T.learn,drop:T.drop,stopped:!!T.stopped,min:T.min||1};
+      s.tries.push(tr);XP.ph=3;addItem({kind:'expo',ex:'expo',step:s.t,pred:tr.pred,peak:tr.peak,res:tr.res,appris:tr.learn,stopped:tr.stopped,min:tr.min});xpTry();window.scrollTo(0,0)};return}
+  const l=s.tries[s.tries.length-1];const M=[];
+  if(l.stopped)M.push(G("Tu t'es {arrêté|arrêtée} quand c'était trop. C'est une information précieuse, pas un échec. La prochaine fois, une marche un peu plus petite peut aider."));
+  else if(l.peak<l.pred)M.push(`Ton anxiété a été moins forte que prévu : ${l.peak}/10 au plus fort, au lieu des ${l.pred}/10 que tu imaginais.`);
+  else if(l.peak===l.pred)M.push(`Ton anxiété a été à peu près celle que tu prévoyais (${l.peak}/10). Et tu l'as traversée.`);
+  else M.push(G(`C'était plus difficile que prévu (${l.peak}/10). Tu es {resté|restée} malgré tout : c'est exactement comme ça que le cerveau apprend.`));
+  if(l.res==='non')M.push("Ce que tu craignais ne s'est pas produit.");else if(l.res==='part')M.push("Ce que tu craignais s'est produit en partie, et tu as pu y faire face.");else if(l.res==='oui')M.push(G("Ce que tu craignais est arrivé, et tu es là. Qu'est-ce qui t'a aidé{e} à le traverser ? Tu peux en parler à ELYRA ou à ton thérapeute."));
+  const S=xpSorted(),nx=S[S.indexOf(s)+1],last2=s.tries.slice(-2);const easy=s.tries.length>=2&&last2.every(x=>x.peak<=4&&!x.stopped);
+  const sug=easy?G(`Cette marche semble plus légère maintenant. Quand tu te sens prêt{e}, tu peux passer à la suivante${nx?` : « ${nx.t} »`:''}.`):"Tu peux refaire cette marche quelques fois. C'est la répétition qui fait baisser l'anxiété, petit à petit.";
+  box.innerHTML=`${head('Bilan')}<div class="card"><div class="cmp"><div><small>Prévu</small><b>${l.pred}</b></div><div><small>Au plus fort</small><b>${l.peak}</b></div></div>${M.map(m=>`<p>${esc(m)}</p>`).join('')}${l.learn?`<p class="phr">${esc(l.learn)}</p>`:''}</div>
+    <div class="card qcard"><p class="quote" style="margin:0">${esc(sug)}</p></div>
+    ${s.done?'':`<button class="sage" id="xpTame" style="width:100%">${esc(G('Cette marche est apprivoisée'))}</button>`}<button class="ghost mt" id="xpList" style="width:100%">Retour à mon échelle</button>`;
+  const tm=$('#xpTame');if(tm)tm.onclick=()=>{setP(p=>{const x=p.expo.steps.find(y=>y.id===s.id);if(x)x.done=true});XP.mode='list';renderExpo();toast('Bravo. Une marche de plus !');haptic(30)};
+  $('#xpList').onclick=()=>{XP.mode='list';renderExpo()}}
+
+/* ============ MON CORPS ============ */
+const CB={z:[],s:[],c:[],v:'',i:4,n:'',msg:''};
+function bodySVG(){const on=z=>CB.z.includes(z)?'on':'';const g=(z,shape)=>`<g class="bz ${on(z)}" data-zone="${z}">${shape}</g>`;
+  return `<svg class="body" viewBox="0 0 160 300" role="img" aria-label="Silhouette : touche une zone">
+   ${g('tete','<circle cx="80" cy="34" r="24"/>')}${g('gorge','<rect x="70" y="58" width="20" height="16" rx="6"/>')}
+   ${g('poitrine','<rect x="48" y="76" width="64" height="52" rx="18"/>')}${g('ventre','<rect x="52" y="130" width="56" height="48" rx="16"/>')}
+   ${g('bras','<rect x="24" y="80" width="20" height="104" rx="10"/><rect x="116" y="80" width="20" height="104" rx="10"/>')}
+   ${g('jambes','<rect x="55" y="182" width="23" height="108" rx="11"/><rect x="82" y="182" width="23" height="108" rx="11"/>')}</svg>`}
+function renderCorps(){const box=$('#corpsBox');if(!box)return;const K=O.corps;const keep=document.activeElement&&document.activeElement.id==='cbN';
+  const H=ST.items.filter(x=>x.kind==='corps'&&Date.now()-x.t<30*DAY);const cz={},cs={};H.forEach(x=>{(x.zones||[]).forEach(z=>cz[z]=(cz[z]||0)+1);(x.sens||[]).forEach(z=>cs[z]=(cs[z]||0)+1)});
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  box.innerHTML=`<h1>Mon corps</h1><p class="sub">Noter ce que tu ressens, comprendre, et prendre soin de ton corps. ELYRA ne dit jamais d'où vient une sensation : seul un médecin peut le faire.</p>
+   <div class="warnb"><p style="margin:0"><b>Appelle le 112 tout de suite si tu as :</b></p><ul class="obj">${K.alerte.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
+    <p>Dans le doute, appeler est toujours une bonne décision. Pour un avis en dehors des heures de ton médecin : <b>1733</b>.</p><div class="row"><a class="btn main" href="tel:112" style="background:var(--warm)">Appeler le 112</a><a class="btn ghost" href="tel:1733">Médecin de garde 1733</a></div></div>
+   <div class="card"><h2>Noter une sensation</h2><div class="bodyw">${bodySVG()}<div><p class="f" style="margin-top:0">Où ?</p><div class="row chips" id="cbZ">${K.zones.map(([k,n])=>`<button type="button" data-v="${k}" aria-pressed="${CB.z.includes(k)}">${esc(n)}</button>`).join('')}</div></div></div>
+    <p class="f mt">Ce que tu ressens</p><div class="row chips" id="cbS">${K.sens.map(n=>`<button type="button" data-v="${esc(n)}" aria-pressed="${CB.s.includes(n)}">${esc(n)}</button>`).join('')}</div>
+    <p class="f mt">Intensité : <span id="cbIv">${CB.i}</span>/10</p><input type="range" id="cbI" min="0" max="10" value="${CB.i}" aria-label="Intensité">
+    <p class="f mt">Quand ?</p><div class="row chips" id="cbC">${K.ctx.map(n=>`<button type="button" data-v="${esc(n)}" aria-pressed="${CB.c.includes(n)}">${esc(n)}</button>`).join('')}</div>
+    <p class="f mt">Cette sensation a-t-elle déjà été vérifiée par un médecin ?</p><div class="row chips" id="cbV">${K.verif.map(([k,n])=>`<button type="button" data-v="${k}" aria-pressed="${CB.v===k}">${esc(n)}</button>`).join('')}</div>
+    <label class="f mt" for="cbN">Une note (facultatif)</label><textarea id="cbN" maxlength="1000">${esc(CB.n)}</textarea>
+    <button class="main mt" id="cbSave">Noter</button>${CB.msg?`<div class="card flat mt" role="status"><p style="margin:0">${esc(CB.msg)}</p></div>`:''}</div>
+   <div class="sect"><h2>Prendre soin de ton corps</h2></div><div class="tiles">${['med:place','outil:accueil','med:etire','med:muscle','med:scan','br:coh','med:marche'].filter(x=>EX[x]).map(tileHTML).join('')}</div>
+   <div class="card"><h2>Comprendre</h2>${K.info.map(([t,p])=>`<div class="blk"><b>${esc(t)}</b><p>${esc(G(p))}</p></div>`).join('')}<button class="ghost mt" data-ex="fiche:panique">Lire : la crise de panique</button></div>
+   <div class="card"><h2>Ces 30 derniers jours</h2>${H.length?`<p>${H.length} sensation(s) notée(s).${top(cz).length?` Surtout : ${esc(top(cz).map(([z,n])=>(K.zones.find(y=>y[0]===z)||[0,z])[1].toLowerCase()+' ('+n+')').join(', '))}.`:''}${top(cs).length?` Le plus souvent : ${esc(top(cs).map(([z,n])=>z.toLowerCase()+' ('+n+')').join(', '))}.`:''}</p>
+     ${H.filter(x=>x.verif!=='oui').length?`<p class="note">${H.filter(x=>x.verif!=='oui').length} note(s) concernent des sensations pas encore vérifiées par un médecin. Parles-en lors de ta prochaine consultation.</p>`:''}
+     <div class="mt">${H.slice(0,8).map(x=>`<div class="entry"><div><small>${esc(fmtDT(x.t))}</small>${entryExtra(x)}</div><button class="del" data-del="${esc(x.id)}">Supprimer</button></div>`).join('')}</div>
+     <a class="btn ghost mt" href="#consult">Préparer une consultation</a>`:'<p class="sub">Rien de noté pour le moment.</p>'}</div>`;
+  CB.msg='';if(keep){const n=$('#cbN');n.focus();n.selectionStart=n.selectionEnd=n.value.length}}
+$('#corpsBox').addEventListener('click',e=>{const z=e.target.closest('[data-zone]');if(z){CB.z=toggleIn(CB.z,z.dataset.zone);renderCorps();haptic();return}
+  const b=e.target.closest('#cbZ button,#cbS button,#cbC button,#cbV button');if(b){const p=b.parentElement.id;
+    if(p==='cbZ')CB.z=toggleIn(CB.z,b.dataset.v);else if(p==='cbS')CB.s=toggleIn(CB.s,b.dataset.v);else if(p==='cbC')CB.c=toggleIn(CB.c,b.dataset.v);else CB.v=CB.v===b.dataset.v?'':b.dataset.v;renderCorps();return}
+  if(e.target.closest('#cbSave')){if(!CB.z.length&&!CB.s.length){toast('Choisis au moins une zone ou une sensation.');return}
+    const urgent=CB.v!=='oui'&&(CB.z.includes('poitrine')||CB.s.includes('Souffle court')||CB.s.includes('Douleur')||CB.s.includes('Palpitations'))&&CB.i>=7;
+    const it={kind:'corps',zones:CB.z.slice(),sens:CB.s.slice(),i:CB.i,ctx:CB.c.slice(),verif:CB.v,note:CB.n.trim().slice(0,1000)};
+    Object.assign(CB,{z:[],s:[],c:[],v:'',i:4,n:''});
+    CB.msg=urgent?"C'est noté. Comme cette sensation est forte et n'a pas encore été vérifiée, n'attends pas : si elle ressemble aux signes ci-dessus, appelle le 112. Sinon, demande l'avis du médecin de garde (1733) ou de ton médecin."
+      :it.verif!=='oui'?"C'est noté. Cette sensation n'a pas encore été vérifiée : parles-en à ton médecin. Si elle devient forte ou nouvelle, appelle le 1733 ou le 112."
+      :"C'est noté. Si tu veux, essaie un des exercices ci-dessous pour prendre soin de toi.";
+    addItem(it);window.scrollTo(0,0)}});
+$('#corpsBox').addEventListener('input',e=>{if(e.target.id==='cbI'){CB.i=+e.target.value;$('#cbIv').textContent=e.target.value}if(e.target.id==='cbN')CB.n=e.target.value});
+
+/* ============ RÉVEIL LA NUIT ============ */
+const NU={b:null};
+function openNuit(){SND.ctx();$('#rate').classList.remove('on');if(brMain.on)brMain.stop(false);$('#nuit').classList.add('on');document.body.style.overflow='hidden';renderNuit();setTimeout(()=>{const h=$('#nuitT');if(h)h.focus()},50)}
+function closeNuit(){if(NU.b&&NU.b.on)NU.b.stop(false);$('#nuit').classList.remove('on');document.body.style.overflow=''}
+function renderNuit(){const N=O.nuit;const rain=SND.active().includes('pluie');
+  $('#nuitBody').innerHTML=`<svg class="moon" viewBox="0 0 60 60" aria-hidden="true"><path d="M40 8a22 22 0 1 0 12 32A18 18 0 0 1 40 8z"/></svg><h1 id="nuitT" tabindex="-1">${esc(G(N.accueil))}</h1><p class="sub">${esc(N.sous)}</p>
+   <div class="nbtns"><button data-n="br">Respirer lentement</button><button data-n="hist">Écouter une histoire</button><button data-n="vt">Déposer ce qui tourne</button>
+    <button data-n="med">Une voix pour le réveil nocturne</button><button data-n="pluie" aria-pressed="${rain}">${rain?'Arrêter la pluie':'Le son de la pluie'}</button></div><div id="nuitZone"></div>
+   <details class="nd"><summary>Si le sommeil ne revient pas</summary>${N.conseils.map(c=>`<p>${esc(G(c))}</p>`).join('')}</details>`}
+$('#nuit').addEventListener('click',e=>{if(e.target.closest('#nuitX')){closeNuit();return}const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n,z=$('#nuitZone');
+  if(NU.b&&NU.b.on)NU.b.stop(false);
+  if(k==='br'){z.innerHTML=`<div id="nuBr"></div><div class="row center"><button class="ghost" id="nuGo">Commencer</button></div><p class="note center">Rythme apaisant 4-6, sans retenir ton souffle. Arrête si c'est inconfortable.</p>`;
+    NU.b=Breather($('#nuBr'));NU.b.onState=on=>{const x=$('#nuGo');if(x)x.textContent=on?'Arrêter':'Commencer'};$('#nuGo').onclick=()=>NU.b.on?NU.b.stop(false):NU.b.start('apaise',5)}
+  else if(k==='hist')z.innerHTML=`<div class="list">${STORIES.map(s=>`<div class="item"><button class="go" data-nst="${s.k}"><span><h3>${esc(s.t)}</h3><p>${esc(s.d)}</p></span></button></div>`).join('')}</div>`;
+  else if(k==='vt'){z.innerHTML=`<label class="f" for="nuVt">Écris ce qui tourne, en vrac. Ça peut attendre demain.</label><textarea id="nuVt" maxlength="3000"></textarea><button class="ghost mt" id="nuVtGo">Poser</button><p class="note" id="nuVtM" role="status"></p>`;
+    $('#nuVtGo').onclick=()=>{const v=$('#nuVt').value.trim();if(!v)return;addItem({kind:'videtete',note:v.slice(0,3000)});$('#nuVt').value='';$('#nuVtM').textContent="C'est posé. Tu peux le laisser là jusqu'à demain."}}
+  else if(k==='med')openPlayer('reveil');
+  else if(k==='pluie'){if(SND.active().includes('pluie'))SND.off('pluie');else SND.on('pluie',ST.prof.sndVol.pluie);renderNuit()}});
+$('#nuit').addEventListener('click',e=>{const s=e.target.closest('[data-nst]');if(s)openPlayer(s.dataset.nst)});
+
+/* ============ PRÉPARER UNE CONSULTATION ============ */
+let conDays=30;
+function consultSections(days){const now=Date.now(),from=dstart(now)-(days-1)*DAY;const I=ST.items.filter(x=>x.t>=from);const out=[];const f1=n=>n.toFixed(1).replace('.',',');
+  const J=I.filter(x=>x.stress!=null&&(x.kind==='journal'||x.kind==='humeur'));const md=I.filter(x=>x.mood);
+  const L=[];if(md.length){const m=avg(md.map(x=>+x.mood));L.push(`Humeur moyenne : ${f1(m)}/5 (${MOODS[Math.max(0,Math.min(4,Math.round(m)-1))][1].toLowerCase()}), sur ${md.length} note(s).`)}
+  if(J.length){const s=avg(J.map(x=>+x.stress));L.push(`Stress déclaré moyen : ${f1(s)}/10.`);const hi=new Set(J.filter(x=>x.stress>=7).map(x=>dkey(x.t))).size;if(hi)L.push(`Jours avec un stress de 7/10 ou plus : ${hi}.`);
+    const mid=from+(now-from)/2,a=avg(J.filter(x=>x.t<mid).map(x=>+x.stress)),b=avg(J.filter(x=>x.t>=mid).map(x=>+x.stress));if(a!=null&&b!=null)L.push(`Tendance : ${Math.abs(b-a)<.5?'plutôt stable':b<a?'plutôt en baisse':'plutôt en hausse'} (${f1(a)} puis ${f1(b)}).`)}
+  out.push(['Humeur et stress',L.length?L:['Pas de note sur cette période.']]);
+  const sos=I.filter(x=>x.kind==='sos');const L2=[];if(sos.length){const c={};sos.forEach(x=>{if(x.sit)c[x.sit]=(c[x.sit]||0)+1});L2.push(`Moments difficiles (mode SOS) : ${sos.length} fois.`);
+    const t=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3).filter(([k])=>SOSIT[k]);if(t.length)L2.push('Le plus souvent : '+t.map(([k,n])=>`« ${G(SOSIT[k].n)} » (${n})`).join(', ')+'.')}
+  const sc={};I.filter(x=>x.sits).forEach(x=>x.sits.forEach(s=>sc[s]=(sc[s]||0)+1));const ts=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,4);if(ts.length)L2.push('Situations souvent notées : '+ts.map(([s,n])=>`${s.toLowerCase()} (${n})`).join(', ')+'.');
+  const ec={};I.filter(x=>x.emos&&x.kind==='journal').forEach(x=>x.emos.forEach(s=>ec[s]=(ec[s]||0)+1));const te=Object.entries(ec).sort((a,b)=>b[1]-a[1]).slice(0,4);if(te.length)L2.push('Émotions souvent notées : '+te.map(([s,n])=>`${s.toLowerCase()} (${n})`).join(', ')+'.');
+  out.push(['Moments difficiles',L2.length?L2:['Rien de noté sur cette période.']]);
+  const sl=I.filter(x=>x.kind==='sommeil');const L3=[];if(sl.length){L3.push(`Nuits notées : ${sl.length}. Qualité moyenne : ${f1(avg(sl.map(x=>+x.q)))}/5.`);const d=sl.map(x=>durMin(x.bed,x.wake)).filter(Boolean);if(d.length){const m=avg(d);L3.push(`Durée moyenne au lit : ${Math.floor(m/60)} h ${pad(Math.round(m%60))}.`)}
+    const w=sl.filter(x=>x.w!=null);if(w.length)L3.push(`Réveils nocturnes : en moyenne ${f1(avg(w.map(x=>+x.w)))} par nuit.`)}
+  out.push(['Sommeil',L3.length?L3:['Pas de nuit notée sur cette période.']]);
+  const co=I.filter(x=>x.kind==='corps');const L4=[];if(co.length){const Z=O.corps.zones,cz={},cs={};co.forEach(x=>{(x.zones||[]).forEach(z=>cz[z]=(cz[z]||0)+1);(x.sens||[]).forEach(s=>cs[s]=(cs[s]||0)+1)});
+    L4.push(`Sensations notées : ${co.length}, intensité moyenne ${f1(avg(co.map(x=>+x.i)))}/10.`);
+    const tz=Object.entries(cz).sort((a,b)=>b[1]-a[1]).slice(0,4);if(tz.length)L4.push('Zones : '+tz.map(([z,n])=>`${(Z.find(y=>y[0]===z)||[0,z])[1].toLowerCase()} (${n})`).join(', ')+'.');
+    const t2=Object.entries(cs).sort((a,b)=>b[1]-a[1]).slice(0,4);if(t2.length)L4.push('Sensations : '+t2.map(([s,n])=>`${s.toLowerCase()} (${n})`).join(', ')+'.');
+    const nv=co.filter(x=>x.verif!=='oui').length;if(nv)L4.push(`${nv} note(s) sur des sensations que je n'ai pas encore fait vérifier.`)}
+  if(L4.length)out.push(['Sensations physiques',L4]);
+  const L5=[];const H=helpTop(1).slice(0,4);if(H.length)L5.push("Ce qui m'aide le plus : "+H.map(([id])=>EX[id]).join(', ')+'.');
+  const P=I.filter(isPrat);if(P.length)L5.push(`Exercices faits : ${P.length} (${P.reduce((a,x)=>a+(+x.min||0),0)} min au total).`);
+  const pe=I.filter(x=>x.kind==='pensee');if(pe.length)L5.push(`Pensées démêlées : ${pe.length}.`);
+  const tg=TAG.mods.filter(m=>modDone(m.id)).length;if(tg)L5.push(`Programme TAG : ${tg} module(s) sur 8 terminé(s).`);
+  const xs=ST.prof.expo.steps;if(xs.length){const tr=xs.reduce((a,s)=>a+s.tries.filter(t=>t.t>=from).length,0);L5.push(`Exposition progressive : ${xs.filter(s=>s.done).length}/${xs.length} marche(s) apprivoisée(s)${tr?`, ${tr} essai(s) sur la période`:''}.`)}
+  out.push(['Ce que je fais pour aller mieux',L5.length?L5:['Rien de noté sur cette période.']]);
+  return{from,out}}
+function consultText(){const {from,out}=consultSections(conDays);const P=ST.prof;
+  return [`Résumé pour ma consultation${P.name?' · '+P.name:''}`,`Du ${new Date(from).toLocaleDateString('fr-BE')} au ${new Date().toLocaleDateString('fr-BE')}`,'',
+    ...out.flatMap(([t,l])=>[t.toUpperCase(),...l.map(x=>'- '+x),'']),...(P.consult?['CE QUE JE VEUX ABORDER',P.consult,'']:[]),
+    "Résumé établi avec l'appli ELYRA, à partir de mes propres notes. Ce n'est pas un document médical et il ne contient aucun diagnostic."].join('\n')}
+function renderConsult(){const box=$('#consultBox');if(!box)return;const {from,out}=consultSections(conDays);const P=ST.prof;if(document.activeElement&&document.activeElement.id==='conQ')return;
+  box.innerHTML=`<h1>Préparer une consultation</h1><p class="sub">Un résumé simple de tes notes, à montrer ou à lire à ton médecin, ton psychologue ou ton psychiatre. C'est toi qui choisis ce que tu partages.</p>
+   <div class="row chips">${[[30,'30 derniers jours'],[90,'3 derniers mois']].map(([d,n])=>`<button data-cond="${d}" aria-pressed="${conDays===d}">${n}</button>`).join('')}</div>
+   <div class="card"><label class="f" for="conQ" style="margin-top:0">Ce que je veux aborder, mes questions</label><textarea id="conQ" maxlength="2000" placeholder="Ex. Mes réveils la nuit. Est-ce que mon traitement peut jouer ? Comment trouver un psychologue ?">${esc(P.consult||'')}</textarea><p class="note" id="conQm"></p></div>
+   <article class="card consult" id="consultDoc"><h2>Résumé pour ma consultation${P.name?` · ${esc(P.name)}`:''}</h2><p class="sub">Du ${esc(new Date(from).toLocaleDateString('fr-BE'))} au ${esc(new Date().toLocaleDateString('fr-BE'))}</p>
+    ${out.map(([t,l])=>`<h3 class="mt">${esc(t)}</h3><ul>${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`).join('')}
+    <div id="conAsk">${P.consult&&P.consult.trim()?`<h3 class="mt">Ce que je veux aborder</h3><p style="white-space:pre-wrap">${esc(P.consult)}</p>`:''}</div>
+    <p class="note">Résumé établi avec l'appli ELYRA, à partir de mes propres notes. Ce n'est pas un document médical et il ne contient aucun diagnostic.</p></article>
+   <div class="row"><button class="main" id="conCopy">Copier le texte</button>${canShare()?'<button class="ghost" id="conShare">Partager</button>':''}${isNative?'':'<button class="ghost" id="conPrint">Imprimer ou PDF</button>'}</div>`;
+  $('#conQ').oninput=e=>{clearTimeout(kT);kT=setTimeout(()=>{ST.prof.consult=e.target.value.slice(0,2000);save();$('#conQm').textContent='Enregistré.';
+    const v=ST.prof.consult.trim();$('#conAsk').innerHTML=v?`<h3 class="mt">Ce que je veux aborder</h3><p style="white-space:pre-wrap">${esc(v)}</p>`:''},500)};
+  $('#conCopy').onclick=async()=>{try{await navigator.clipboard.writeText(consultText());toast('Résumé copié.')}catch(e){toast("La copie n'est pas possible ici.")}};
+  const sh=$('#conShare');if(sh)sh.onclick=()=>shareText('Résumé pour ma consultation',consultText());
+  const pr=$('#conPrint');if(pr)pr.onclick=()=>{document.body.classList.add('printc');setTimeout(()=>{try{print()}catch(e){}document.body.classList.remove('printc')},50)}}
+$('#consultBox').addEventListener('click',e=>{const b=e.target.closest('[data-cond]');if(b){conDays=+b.dataset.cond;renderConsult()}});
+const SharePl=()=>{try{return window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Share||null}catch(e){return null}};
+const canShare=()=>!!(SharePl()||navigator.share);
+async function shareText(title,text){try{const s=SharePl();if(s)await s.share({title,text,dialogTitle:title});else await navigator.share({title,text})}catch(e){}}
+
+/* ============ VERROU PAR CODE ============ */
+async function hashPin(pin,salt){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('elyra:'+salt+':'+pin));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}
+  let h=2166136261;for(const c of 'elyra:'+salt+':'+pin){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return 'f'+(h>>>0).toString(16)}
+const LK={pin:'',fails:0,until:0,away:0,mode:'unlock',first:''};
+function showLock(mode){LK.mode=mode||'unlock';if(LK.mode==='unlock'&&!ST.prof.lock.on)return;LK.pin='';LK.first='';$('#lock').classList.add('on');$('#lockCancel').hidden=LK.mode==='unlock';$('#lockForgot').hidden=LK.mode!=='unlock';drawLock('')}
+function hideLock(){$('#lock').classList.remove('on');LK.pin=''}
+function drawLock(msg){$('#lockT').textContent=LK.mode==='unlock'?'Entre ton code':LK.mode==='off'?'Entre ton code actuel':LK.mode==='set1'?'Choisis un code à 4 chiffres':'Confirme ton code';
+  $('#lockDots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<LK.pin.length?'on':''}"></i>`).join('');$('#lockMsg').textContent=msg||''}
+async function lockDigit(d){if(Date.now()<LK.until){drawLock(`Patiente ${Math.ceil((LK.until-Date.now())/1000)} secondes.`);return}if(LK.pin.length>=4)return;LK.pin+=d;drawLock('');haptic();if(LK.pin.length<4)return;
+  const pin=LK.pin;if(LK.mode==='set1'){LK.first=pin;LK.pin='';LK.mode='set2';drawLock('');return}
+  await new Promise(r=>setTimeout(r,120));
+  if(LK.mode==='set2'){if(pin!==LK.first){LK.mode='set1';LK.pin='';drawLock("Les deux codes ne correspondent pas. On recommence.");return}
+    const s=uid(),h=await hashPin(pin,s);setP(p=>p.lock={on:true,h,s});hideLock();toast('Code activé. ELYRA le demandera à chaque ouverture.');return}
+  const ok=(await hashPin(pin,ST.prof.lock.s))===ST.prof.lock.h;LK.pin='';
+  if(!ok){LK.fails++;if(LK.fails>=5){LK.until=Date.now()+30000;LK.fails=0;drawLock('Trop d’essais. Patiente 30 secondes.')}else drawLock('Ce n’est pas le bon code.');haptic(60);return}
+  LK.fails=0;if(LK.mode==='off'){setP(p=>p.lock={on:false,h:'',s:''});hideLock();toast('Code retiré.');return}hideLock()}
+$('#lockPad').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.d!=null)lockDigit(b.dataset.d);else if(b.dataset.k==='del'){LK.pin=LK.pin.slice(0,-1);drawLock('')}};
+addEventListener('keydown',e=>{if(!$('#lock').classList.contains('on'))return;if(/^\d$/.test(e.key))lockDigit(e.key);else if(e.key==='Backspace'){LK.pin=LK.pin.slice(0,-1);drawLock('')}});
+$('#lockCancel').onclick=hideLock;
+$('#lockSos').onclick=()=>{$('#sos').classList.add('overlock');openSOS()};
+$('#lockForgot').onclick=()=>ask('Code oublié ?',"Pour protéger tes notes, ELYRA ne peut pas retrouver ton code. Tu peux tout effacer et recommencer, puis restaurer une sauvegarde si tu en as une. C'est définitif.",'Tout effacer',()=>{
+  try{localStorage.removeItem(KEY)}catch(e){}ST.items=[];ST.prof=defP();applyPrefs();renderAll();hideLock();location.hash='accueil';$('#onb').classList.add('on')});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')LK.away=Date.now();else if(ST.prof.lock.on&&LK.away&&Date.now()-LK.away>60000&&!$('#lock').classList.contains('on'))showLock()});
+function renderLockBox(){const b=$('#lockBox');if(!b)return;const on=ST.prof.lock.on;
+  b.innerHTML=`<p>${on?'Le code est activé : ELYRA le demande à l’ouverture, et après une minute en arrière-plan.':'Un code à 4 chiffres pour que personne d’autre n’ouvre ELYRA sur ce téléphone.'}</p>
+   <div class="row mt">${on?'<button class="ghost" id="lkChange">Changer le code</button><button class="ghost" id="lkOff">Retirer le code</button>':'<button class="main" id="lkOn">Activer un code</button>'}</div>
+   <p class="note">Le SOS et les numéros d'urgence restent toujours accessibles, même verrouillé. Si tu oublies le code, il faudra tout effacer : pense à faire des sauvegardes.</p>`;
+  const a=$('#lkOn');if(a)a.onclick=()=>showLock('set1');const c=$('#lkChange');if(c)c.onclick=()=>showLock('set1');const o=$('#lkOff');if(o)o.onclick=()=>showLock('off')}
+
+/* ============ RAPPELS DOUX ============ */
+const LN=()=>{try{return window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications||null}catch(e){return null}};
+const remOf=r=>Object.assign({on:false,h:r.h},ST.prof.rem[r.k]||{});
+function renderRappels(){const b=$('#remBox');if(!b)return;const nat=!!LN();
+  b.innerHTML=`<p>${nat?'De petits rappels, jamais insistants. Tu choisis lesquels et à quelle heure.':'Sur iPhone, une appli web ne peut pas envoyer de rappels sans serveur. À la place, ELYRA peut les ajouter à ton calendrier : il te préviendra chaque jour à l’heure choisie.'}</p>
+   ${O.rappels.map(r=>{const v=remOf(r);return `<div class="sw rem"><label style="display:flex;gap:10px;align-items:center;flex:1"><input type="checkbox" data-rem="${r.k}" ${v.on?'checked':''}><span>${esc(r.n)}</span></label><input type="time" data-remh="${r.k}" value="${esc(v.h)}" aria-label="Heure : ${esc(r.n)}"></div>`}).join('')}
+   ${nat?'<p class="note" id="remMsg" role="status"></p>':`<button class="ghost mt" id="remIcs">Ajouter à mon calendrier</button><p class="note">Si rien ne s'ouvre, ouvre ELYRA dans Safari puis réessaie. Pour les retirer, supprime l'événement « ELYRA » de ton calendrier.</p>`}`;
+  const ic=$('#remIcs');if(ic)ic.onclick=downloadIcs}
+$('#remBox').addEventListener('change',e=>{const c=e.target.closest('[data-rem]'),h=e.target.closest('[data-remh]');if(!c&&!h)return;const k=(c||h).dataset[c?'rem':'remh'];const r=O.rappels.find(x=>x.k===k);
+  setP(p=>{p.rem[k]=Object.assign(remOf(r),c?{on:c.checked}:{h:h.value||r.h})});applyRappels(true)});
+async function applyRappels(ui){const ln=LN();if(!ln)return;const msg=t=>{const m=$('#remMsg');if(m&&ui)m.textContent=t};
+  try{await ln.cancel({notifications:O.rappels.map(r=>({id:r.id}))})}catch(e){}
+  const on=O.rappels.filter(r=>remOf(r).on);if(!on.length){msg('Aucun rappel actif.');return}
+  try{let p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted'){msg("Les notifications sont bloquées. Autorise-les pour ELYRA dans les réglages du téléphone.");return}
+    await ln.schedule({notifications:on.map(r=>{const [h,m]=remOf(r).h.split(':').map(Number);return{id:r.id,title:'ELYRA',body:G(r.b),schedule:{on:{hour:h,minute:m},allowWhileIdle:true},extra:{go:r.go}}})});
+    msg(`${on.length} rappel(s) programmé(s).`)}catch(e){msg("Je n'ai pas réussi à programmer les rappels.")}}
+function downloadIcs(){const on=O.rappels.filter(r=>remOf(r).on);if(!on.length){toast('Coche au moins un rappel.');return}
+  const d=new Date(),ymd=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()),st=d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const ev=on.map(r=>{const [h,m]=remOf(r).h.split(':');const b=G(r.b).replace(/[,;]/g,'\\$&');return ['BEGIN:VEVENT',`UID:elyra-${r.k}@elyra.local`,`DTSTAMP:${st}`,`DTSTART:${ymd}T${h}${m}00`,'DURATION:PT5M','RRULE:FREQ=DAILY',`SUMMARY:ELYRA · ${r.n.replace(/[,;]/g,'\\$&')}`,`DESCRIPTION:${b}`,'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:PT0M',`DESCRIPTION:${b}`,'END:VALARM','END:VEVENT'].join('\r\n')});
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ELYRA//Rappels doux//FR','CALSCALE:GREGORIAN',...ev,'END:VCALENDAR'].join('\r\n');
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='elyra-rappels.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}catch(e){toast("Le calendrier n'a pas pu s'ouvrir ici.")}}
+try{const ln=LN();if(ln){ln.addListener('localNotificationActionPerformed',a=>{const g=a&&a.notification&&a.notification.extra&&a.notification.extra.go;if(g)location.hash=g});applyRappels(false)}}catch(e){}
+
+/* ============ CONVERSATION : CONTEXTE ET « PARLE-MOI » ============ */
+function ctxText(){const P=ST.prof;const L=[];if(P.name)L.push('Prénom : '+P.name);L.push(P.genre==='f'?"Elle souhaite qu'on s'adresse à elle au féminin":"Il souhaite qu'on s'adresse à lui au masculin");
+  const H=helpTop(1).slice(0,4).map(([id])=>EX[id]);if(H.length)L.push("Ce qui l'aide le plus dans l'appli : "+H.join(', '));
+  const bad=Object.entries(helpStats()).filter(([id,h])=>h.n>=2&&h.avg<.6&&EX[id]).map(([id])=>EX[id]).slice(0,3);if(bad.length)L.push("Ce qui l'aide peu : "+bad.join(', '));
+  const t=tagM(),cm=TAG.mods.find(m=>m.id===t.cur);if(cm)L.push(`Programme TAG : module « ${cm.n} » en cours, ${TAG.mods.filter(m=>modDone(m.id)).length}/8 terminés`);
+  const lm=ST.items.find(x=>x.mood&&Date.now()-x.t<3*DAY);if(lm)L.push('Humeur récente : '+MOODS[lm.mood-1][1].toLowerCase()+(lm.stress!=null?', stress '+lm.stress+'/10':''));
+  if(P.kit.phr.length)L.push('Ses phrases rassurantes : '+P.kit.phr.slice(0,3).join(' / '));
+  return L.join('. ').slice(0,700)}
+$('#talkBar').onsubmit=e=>{e.preventDefault();const v=$('#talkIn').value.trim();if(!v){openChat('ecoute');return}
+  try{navigator.clipboard.writeText(v).catch(()=>{})}catch(x){}const a=document.createElement('a');a.href=chatHref('ecoute',v);a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
+  $('#talkIn').value='';toast("Ton message t'attend dans la conversation (il est aussi copié).")};
+$('#nuit').addEventListener('keydown',e=>{if(e.key==='Escape')closeNuit()});
+
 /* ============ RENDU GLOBAL ============ */
-function renderAll(){for(const f of [renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace]){try{f()}catch(e){console.error(e)}}}
+function renderAll(){for(const f of [renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace,renderOutils,renderCorps,renderLockBox,renderRappels,renderConsult,()=>{if(XP.mode==='list')renderExpo()}]){try{f()}catch(e){console.error(e)}}}
 
 /* ============ DÉMARRAGE ============ */
 load();applyPrefs();renderAll();route();
-if(!ST.prof.onb)$('#onb').classList.add('on');
+if(!ST.prof.onb)$('#onb').classList.add('on');else showLock();
 loadVoiceIdx();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!isNative){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}

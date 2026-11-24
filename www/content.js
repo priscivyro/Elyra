@@ -76,6 +76,26 @@ meds: [
   ["Monte les épaules vers les oreilles… tiens… et laisse-les retomber.",25],["Plisse le visage, serre les paupières… tiens… et relâche tout le visage.",25],
   ["Rentre le ventre… tiens… et relâche. Laisse le ventre libre.",25],["Serre les cuisses… tiens… et relâche.",25],["Ramène les orteils vers toi… tiens… et relâche les pieds.",25],
   ["Passe en revue tout le corps. Là où il reste une tension, laisse-la fondre à l'expiration.",45],["Reste quelques instants dans cette détente. Puis reviens doucement.",30]]},
+ {k:'etire',c:'corps',t:'Étirements doux',d:"Dénouer les épaules, la nuque et le dos, assis{e} ou debout.",s:[
+  ["Installe-toi assis{e} sur une chaise, ou debout, les pieds bien posés au sol. Chaque mouvement se fait lentement, sans jamais forcer.",20],
+  ["Inspire, et monte doucement les épaules vers les oreilles… Expire, et laisse-les retomber. Encore une fois.",25],
+  ["Fais maintenant de petits cercles avec les épaules, vers l'arrière, lentement. Cinq fois.",30],
+  ["Penche doucement la tête vers l'épaule droite, sans la lever. Reste là, en respirant… puis reviens au centre.",30],
+  ["Et maintenant vers l'épaule gauche. Laisse le poids de la tête faire le travail… puis reviens au centre.",30],
+  ["Croise les doigts devant toi et pousse les paumes vers l'avant. Arrondis un peu le dos, comme pour enlacer un gros ballon.",30],
+  ["Relâche. Pose les mains sur les cuisses et ouvre doucement la poitrine, en regardant légèrement vers le haut.",30],
+  ["Assis{e}, pose une main sur le genou opposé et tourne doucement le buste. Respire… puis de l'autre côté.",40],
+  ["Secoue doucement les mains, les bras, comme pour faire tomber des gouttes d'eau.",20],
+  ["Reste un instant immobile. Remarque ce qui a changé dans ton corps, même un tout petit peu.",25]]},
+ {k:'place',c:'stress',t:'Faire de la place à une sensation',d:"Quand une sensation désagréable est là, lutter un peu moins contre elle.",s:[
+  ["Installe-toi. Si cette sensation est nouvelle, forte ou t'inquiète, fais-la d'abord vérifier par un médecin. Ici, on parle de sensations déjà connues.",22],
+  ["Repère où se trouve la sensation. Dans la gorge, la poitrine, le ventre, ailleurs.",25],
+  ["Observe-la comme si tu la découvrais. Sa taille. Sa forme. Est-ce qu'elle est chaude, froide, serrée, lourde ?",30],
+  ["Remarque l'envie de la faire partir. C'est normal. Tu peux la remarquer, sans la suivre tout de suite.",30],
+  ["Imagine que ton souffle vient l'entourer, doucement, comme pour lui faire un peu de place.",30],
+  ["Tu peux te dire : je n'aime pas cette sensation, et je peux la laisser être là, quelques instants.",30],
+  ["Laisse ton attention s'élargir : tes pieds, tes mains, les sons autour. La sensation n'est qu'une partie de ce qui est là.",30],
+  ["Reviens doucement. Tu as fait de la place, même un peu. C'est déjà beaucoup.",20]]},
  {k:'marche',c:'corps',t:'Marche consciente',d:"À faire en marchant lentement, dedans ou dehors.",s:[
   ["Commence à marcher, plus lentement que d'habitude. Il n'y a nulle part où arriver.",20],
   ["Sens le talon qui se pose… puis la plante du pied… puis les orteils.",30],["Remarque le poids qui passe d'une jambe à l'autre.",30],
@@ -454,6 +474,6 @@ enc: ["Tu n'as pas besoin de tout maîtriser pour avancer.","Un petit pas reste 
 
 kitsug: ["Ça va passer. Ça passe toujours.","Je suis en sécurité, ici et maintenant.","Je n'ai pas besoin de tout maîtriser pour avancer.","C'est une vague. Je la laisse passer.","J'ai déjà traversé des moments comme celui-ci.","Une chose à la fois."],
 routine: ["Écrans rangés 30 minutes avant","Lumière douce","Boisson chaude sans caféine","Le vide-tête","Respiration 4-7-8","Quelques pages d'un livre calme"],
-modes: [['ecoute','ELYRA Écoute','Parler, être écouté, sans jugement.'],['apaise','ELYRA Apaise',"Un moment difficile, maintenant."],['comprend','ELYRA Comprend',"Démêler une situation et les pensées qui vont avec."],['accompagne','ELYRA Accompagne','Exercices et petits pas adaptés.'],['encourage','ELYRA Encourage','Valoriser le chemin parcouru.']],
+modes: [['ecoute','ELYRA Écoute','Parler, être écouté, sans jugement.'],['apaise','ELYRA Apaise',"Un moment difficile, maintenant."],['comprend','ELYRA Comprend',"Démêler une situation et les pensées qui vont avec."],['accompagne','ELYRA Accompagne','Exercices et petits pas adaptés.'],['encourage','ELYRA Encourage','Valoriser le chemin parcouru.'],['apprendre','ELYRA Explique',"Comprendre ce qui se passe dans le corps et la tête, simplement."],['nuit','ELYRA La nuit',"Pour les réveils nocturnes : très doux, très calme."]],
 urg: [['112',"Urgence : ambulance, pompiers. Danger immédiat."],['1733','Médecin de garde, en dehors des heures du médecin traitant.'],['0800 32 123','Centre de Prévention du Suicide. Gratuit, 24h/24.'],['107','Télé-Accueil. Écoute anonyme, 24h/24.']]
 };

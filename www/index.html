@@ -24,6 +24,20 @@
     <ellipse cx="24" cy="20" rx="6.5" ry="13" fill="#e4d2ae" fill-opacity=".85"/>
     <circle cx="24" cy="33" r="4" fill="#fffcf6"/>
   </symbol>
+  <symbol id="face" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="60" fill="#eee8f7"/>
+    <path d="M25 72c-5-31 11-52 35-52s40 21 35 52c-2 13-5 24-9 32H34c-4-8-7-19-9-32z" fill="#8a79bd"/>
+    <path d="M49 84h22v18H49z" fill="#e7cbb3"/>
+    <path d="M20 120c4-17 20-25 40-25s36 8 40 25z" fill="#9db59a"/>
+    <path d="M44 99q16 10 32 0" fill="none" stroke="#e4d2ae" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="60" cy="62" rx="23.5" ry="27" fill="#f2dcc8"/>
+    <path d="M35 60c1-21 15-31 29-29 13 2 22 13 21 29-7-10-18-15-29-13-9 2-16 6-21 13z" fill="#9787c7"/>
+    <path d="M47.5 64.5q5 4.5 10 0M62.5 64.5q5 4.5 10 0" fill="none" stroke="#6d5a50" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M54.5 77q5.5 4.5 11 0" fill="none" stroke="#b8746a" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="45.5" cy="72" r="4.6" fill="#eba497" opacity=".42"/><circle cx="74.5" cy="72" r="4.6" fill="#eba497" opacity=".42"/>
+    <path d="M79 37c5-7 13-8 16-4-4 7-12 8-16 4z" fill="#9db59a"/><path d="M79 37c4-1 9-2 12-3" fill="none" stroke="#7f9b7c" stroke-width="1"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4.5 12.5l15-8-5.5 15-2.5-5.5z"/><path d="M11.5 14l3-3"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
   <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6l-8 6 8 6zM6 6v12"/></symbol>
@@ -78,11 +92,20 @@
         <circle class="mote" cx="200" cy="170" r="2" style="animation-delay:-6s"/>
       </g>
     </svg>
-    <div class="acts">
-      <a class="btn main" id="talkHome" target="_blank" rel="noopener">Parler à ELYRA</a>
-      <button class="sage" id="quick">Respirer 1 minute</button>
-    </div>
+    <nav class="doors" aria-label="Que veux-tu faire ?">
+      <a class="door d1" id="talkHome" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><b>Parler</b><span>à ELYRA</span></a>
+      <a class="door d2" href="#programme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></svg><b>Apprendre</b><span>sur l'anxiété</span></a>
+      <a class="door d3" href="#calme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c0-6 0-9 0-12M12 9c-4 0-6-2-6-5 4 0 6 2 6 5zM12 13c4 0 6-2 6-5-4 0-6 2-6 5z"/></svg><b>Un moment</b><span>pour moi</span></a>
+    </nav>
   </div>
+
+  <form class="talkbar" id="talkBar" autocomplete="off">
+    <svg class="face" aria-hidden="true"><use href="#face"/></svg>
+    <input type="text" id="talkIn" maxlength="600" placeholder="Parle-moi… qu'est-ce qui se passe ?" aria-label="Écrire à ELYRA">
+    <button class="round" aria-label="Envoyer à ELYRA"><svg class="icon"><use href="#i-send"/></svg></button>
+  </form>
+  <div class="row quickrow"><button class="sage" id="quick">Respirer 1 minute</button><a class="btn ghost" href="#outils">Ma boîte à outils</a></div>
+  <div id="homeNight"></div>
 
   <div class="card">
     <h3>Comment ça va, là, maintenant ?</h3>
@@ -99,6 +122,7 @@
 
   <div class="sect"><h2>Pour toi, maintenant</h2></div>
   <div class="tiles" id="homeTiles"></div>
+  <div id="homeHelp"></div>
 
   <div class="card" id="homeTag"></div>
   <div class="card" id="homeProg"></div>
@@ -122,7 +146,7 @@
 
 <!-- ELYRA -->
 <section class="view" id="v-elyra" aria-labelledby="elyT">
-  <h1 id="elyT">Parler à ELYRA</h1>
+  <div class="elyhead"><svg class="face big" aria-hidden="true"><use href="#face"/></svg><h1 id="elyT">Parler à ELYRA</h1></div>
   <p class="sub">La conversation s'ouvre dans Claude, avec ton propre compte. Ce que tu y écris reste dans ton espace privé.</p>
   <div class="list" id="modes"></div>
   <div class="card">
@@ -216,6 +240,9 @@
   <p class="sub">Ton parcours, tes nuits, tes progrès et tes repères.</p>
   <div class="hub">
     <a href="#programme" style="grid-column:1/-1;background:linear-gradient(135deg,var(--lavs),var(--champs));border:0"><svg viewBox="0 0 24 24"><path d="M12 3l2 6 6 .5-4.6 4 1.4 6.5L12 17l-4.8 3 1.4-6.5L4 9.5 10 9z"/></svg><h3>Programme TAG</h3><p>8 modules pour apprivoiser l'anxiété, inspirés des TCC et de l'ACT.</p></a>
+    <a href="#outils" style="grid-column:1/-1;background:linear-gradient(135deg,var(--sages),var(--lavs));border:0"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M9 8V6a3 3 0 0 1 6 0v2M3 13h18M10 13v2h4v-2"/></svg><h3>Ma boîte à outils</h3><p>Tous les outils, et ce qui t'aide, toi.</p></a>
+    <a href="#corps"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 10.5l5-1.5 5 1.5M9.5 21l2.5-6 2.5 6"/></svg><h3>Mon corps</h3><p>Noter, comprendre, prendre soin.</p></a>
+    <a href="#consult"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><h3>Préparer une consultation</h3><p>Un résumé pour ton médecin.</p></a>
     <a href="#parcours"><svg viewBox="0 0 24 24"><path d="M4 19c4 0 4-6 8-6s4-6 8-6"/><circle cx="4" cy="19" r="1.5"/><circle cx="20" cy="7" r="1.5"/></svg><h3>Mon parcours</h3><p>Des programmes courts, à ton rythme.</p></a>
     <a href="#sommeil"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><h3>Sommeil</h3><p>Routine, audios, journal des nuits.</p></a>
     <a href="#progres"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><h3>Mes progrès</h3><p>Évolution, victoires, objectifs.</p></a>
@@ -334,6 +361,9 @@
     <div class="sw"><span>Montrer ce que je remarque dans tes notes (calculé sur ton téléphone)</span><input type="checkbox" id="pAnt"></div></div>
   <div class="card"><h3>Mémoire de l'assistant</h3>
     <p>La mémoire d'ELYRA (ce qu'elle retient de vos conversations) se trouve dans la conversation, dans Claude. Tu peux la consulter, la modifier et l'effacer depuis le bouton « Mémoire » de la conversation.</p></div>
+    <div class="sw mt"><span>Partager un petit résumé avec ELYRA quand j'ouvre la conversation (prénom, ce qui m'aide, programme en cours, humeur récente). Jamais mes notes détaillées.</span><input type="checkbox" id="pCtx"></div></div>
+  <div class="card"><h3>Verrouillage</h3><div id="lockBox"></div></div>
+  <div class="card"><h3>Rappels doux</h3><div id="remBox"></div></div>
   <div class="card"><h3>Confidentialité</h3>
     <p>Tout ce que tu notes dans l'appli reste <b>sur ce téléphone</b>. Rien n'est envoyé ailleurs : pas de compte, pas de serveur, pas de publicité. Personne d'autre ne peut le voir.</p>
     <p class="note" id="persistInfo"></p></div>
@@ -347,8 +377,30 @@
     <textarea id="impBox" placeholder="Colle ta sauvegarde ici…" aria-label="Sauvegarde à restaurer"></textarea>
     <div class="row mt"><button class="ghost" id="impGo">Restaurer depuis le texte</button><label class="btn ghost" for="impFile">Choisir un fichier</label><input type="file" id="impFile" accept=".json,application/json,text/plain" class="sr"></div>
     <p class="note" id="impMsg" role="status"></p></div>
-  <div class="card"><h3>Tout effacer</h3><p>Efface définitivement toutes tes notes et réglages de ce téléphone.</p><button class="ghost mt" id="wipe" style="color:var(--warm)">Effacer toutes mes données</button></div>
+  <div class="card"><h3>Tout effacer</h3><p>Efface définitivement toutes tes notes et réglages de ce téléphone.</p><button class="ghost mt" id="wipe" style="color:var(--warm)">Effacer toutes mes données</button></div></div>
   <p class="note" id="verInfo"></p>
+</section>
+
+<!-- BOÎTE À OUTILS -->
+<section class="view" id="v-outils" aria-label="Ma boîte à outils">
+  <button class="back" data-back="moi">‹ Moi</button>
+  <div id="outBox"></div>
+</section>
+<section class="view" id="v-outil" aria-label="Outil guidé">
+  <button class="back" data-back="outils">‹ Boîte à outils</button>
+  <div id="toolBox"></div>
+</section>
+<section class="view" id="v-expo" aria-label="Coach d'exposition">
+  <button class="back" id="expoBack">‹ Boîte à outils</button>
+  <div id="expoBox"></div>
+</section>
+<section class="view" id="v-corps" aria-label="Mon corps">
+  <button class="back" data-back="moi">‹ Moi</button>
+  <div id="corpsBox"></div>
+</section>
+<section class="view" id="v-consult" aria-label="Préparer une consultation">
+  <button class="back" data-back="moi">‹ Moi</button>
+  <div id="consultBox"></div>
 </section>
 </main>
 
@@ -379,6 +431,32 @@
   <div class="pl-opts"><select id="ambM" aria-label="Ambiance sonore"></select><button class="ghost" id="plVoice" aria-pressed="true">Voix : oui</button><button class="ghost" id="plFav" aria-pressed="false">☆ Favori</button></div>
 </div>
 
+<!-- ÇA T'A AIDÉ ? -->
+<div class="rate" id="rate" role="dialog" aria-labelledby="rateQ">
+  <div class="row between"><div><b id="rateQ">Ça t'a aidé ?</b><small id="rateL"></small></div><button class="x" data-rateclose="1" aria-label="Plus tard">✕</button></div>
+  <div class="rbtns"><button data-help="0">Pas trop</button><button data-help="1">Un peu</button><button data-help="2">Beaucoup</button></div>
+</div>
+
+<!-- NUIT -->
+<div class="nuit" id="nuit" role="dialog" aria-modal="true" aria-labelledby="nuitT">
+  <div class="w"><div class="row between"><span></span><button class="ghost" id="nuitX">Fermer</button></div><div id="nuitBody"></div>
+  <div class="urg mt2" data-urg></div></div>
+</div>
+
+<!-- VERROU -->
+<div class="lock" id="lock" role="dialog" aria-modal="true" aria-labelledby="lockT">
+  <div class="w">
+    <svg style="width:64px;height:64px" aria-hidden="true"><use href="#mk"/></svg>
+    <h2 id="lockT" class="mt">Entre ton code</h2>
+    <div class="ldots" id="lockDots" aria-hidden="true"></div>
+    <p class="note" id="lockMsg" role="status" style="min-height:1.4em"></p>
+    <div class="pad" id="lockPad"><button data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button><button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button><button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button><span></span><button data-d="0">0</button><button data-k="del" aria-label="Effacer">⌫</button></div>
+    <div class="row center mt"><button class="ghost" id="lockCancel">Annuler</button><button class="ghost" id="lockForgot">Code oublié ?</button></div>
+    <button class="sosb big" id="lockSos">SOS, j'ai besoin d'aide</button>
+    <div class="urg mt" data-urg></div>
+  </div>
+</div>
+
 <!-- BIENVENUE -->
 <div class="player" id="onb" role="dialog" aria-modal="true" aria-labelledby="onbT" style="z-index:60">
   <div class="aura"></div>
@@ -403,6 +481,7 @@
 
 <script src="content.js"></script>
 <script src="tag.js"></script>
+<script src="outils.js"></script>
 <script src="sons.js"></script>
 <script src="app.js"></script>
 </body>

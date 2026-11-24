@@ -25,5 +25,9 @@ setTimeout(async()=>{try{
   click('#memOpen');ok(/Ce qui a aidé/.test($('#memList').textContent),'mémoire consultable');
   const inp=$('[data-edit]');inp.value='Modifié';inp.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,700));ok(store.memoire.items[0].txt==='Modifié','mémoire modifiable');
   click($('[data-rm]'));await new Promise(r=>setTimeout(r,700));ok(store.memoire.items.length===0,'mémoire supprimable');
+  w.location.hash='#nuit&c=Pr%C3%A9nom%20%3A%20Pri&m=Je%20me%20suis%20r%C3%A9veill%C3%A9e';w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+  ok(/La nuit/.test($('#modes [aria-pressed="true"]').textContent),'mode nuit depuis le lien');ok($('#inp').value==='Je me suis réveillée','message prérempli depuis l\'appli');
+  $('#form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await new Promise(r=>setTimeout(r,400));
+  ok(lastMsgs[0].content.includes('Prénom : Pri')&&lastMsgs[0].content.includes('ELYRA LA NUIT'),'contexte partagé transmis');ok(lastMsgs[0].content.includes('Réassurance'),'consigne anti-réassurance');
   click('#newC');click('#dlgOk');await new Promise(r=>setTimeout(r,300));ok(!store.chat,'nouvelle conversation efface l\'ancienne');
 }catch(e){errors.push(e.stack)}console.log(errors.length?errors.join('\n'):'TOUT EST OK');process.exit(0)},500);

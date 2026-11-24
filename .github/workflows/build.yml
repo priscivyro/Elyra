@@ -1,4 +1,5 @@
 name: Construire ELYRA
+# 0. Teste l'appli (si un test échoue, rien n'est publié).
 # 1. Génère la voix ELYRA (Piper, gratuit) — seules les nouvelles phrases sont calculées.
 # 2. Publie l'appli iPhone sur https://priscivyro.github.io/Elyra/
 # 3. Fabrique l'APK Android et le publie dans « Releases ».
@@ -18,6 +19,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tester l'appli et la conversation
+        run: |
+          mkdir -p /tmp/t && cd /tmp/t && npm init -y >/dev/null && npm i jsdom@24 >/dev/null
+          cp $GITHUB_WORKSPACE/tests/*.js /tmp/t/
+          (cd $GITHUB_WORKSPACE/www && python3 -m http.server 8766 >/dev/null 2>&1 &)
+          sleep 2
+          node app.test.js http://localhost:8766/index.html
+          node chat.test.js $GITHUB_WORKSPACE/chat/index.html | tee chat.log
+          grep -q "TOUT EST OK" chat.log
+
   voix:
     runs-on: ubuntu-latest
     steps:
@@ -52,8 +70,8 @@ jobs:
           retention-days: 7
 
   web:
-    needs: voix
-    if: always()
+    needs: [voix, tests]
+    if: always() && needs.tests.result == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -73,8 +91,8 @@ jobs:
         uses: actions/deploy-pages@v4
 
   apk:
-    needs: voix
-    if: always()
+    needs: [voix, tests]
+    if: always() && needs.tests.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,7 +117,7 @@ jobs:
           npx cap sync android
       # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
       - name: Signature fixe et numéro de version
-        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.1.${{ github.run_number }}
+        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.3.${{ github.run_number }}
       - name: Construire l'APK
         working-directory: android
         run: |
@@ -117,8 +135,8 @@ jobs:
       - name: Publier la version
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.${{ github.run_number }}
-          name: ELYRA pour Android (version 1.1.${{ github.run_number }})
+          tag_name: v1.3.${{ github.run_number }}
+          name: ELYRA pour Android (version 1.3.${{ github.run_number }})
           make_latest: true
           files: ELYRA.apk
           body: |

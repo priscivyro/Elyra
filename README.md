@@ -33,9 +33,15 @@ Pour qu'un proche y ait accès, partage la page depuis Claude (bouton Partager d
 
 | Module | Où | Hors ligne |
 |---|---|---|
-| Accueil (humeur, stress, suggestion, programme du jour, à venir, progrès, encouragement) | Appli | Oui |
-| Mode SOS (6 situations, accompagnement pas à pas, ancrage, respiration facultative, audio, kit, numéros d'urgence) | Appli | Oui |
-| Bulle de calme : 6 respirations, 27 séances guidées, 4 histoires pour s'endormir, 10 sons d'ambiance à mélanger, minuterie, favoris, reprise | Appli | Oui |
+| Accueil : « Parler / Apprendre / Un moment pour moi », barre « Parle-moi », humeur, ce qui t'aide, programme du jour, écran de nuit | Appli | Oui |
+| Mode SOS (8 situations + « pensées très sombres », pas à pas, ancrage, respiration facultative, audio, défusion, prendre du recul, petite action finale, kit, numéros d'urgence) | Appli | Oui |
+| Ma boîte à outils : 24 outils classés par besoin, « Ça t'a aidé ? » après chaque exercice, suggestions personnalisées (accueil, SOS, respiration rapide) | Appli | Oui |
+| Outils guidés : défusion, faire de la place (ACT), valeurs et prochain pas, boussole ACT, résoudre un problème, reporter ses inquiétudes (boîte à soucis) | Appli | Oui |
+| Coach d'exposition : échelle, avant / pendant / après, bilan après chaque essai | Appli | Oui |
+| Mon corps : quand appeler le 112, noter une sensation sur une silhouette, comprendre, soins du corps | Appli | Oui |
+| Préparer une consultation : résumé 30 jours / 3 mois à copier, partager ou imprimer | Appli | Oui |
+| Verrou par code (SOS toujours accessible), rappels doux (Android) ou calendrier (iPhone) | Appli | Oui |
+| Bulle de calme : 6 respirations, 29 séances guidées, 4 histoires pour s'endormir, 10 sons d'ambiance à mélanger, minuterie, favoris, reprise | Appli | Oui |
 | Voix ELYRA : voix française naturelle (Piper, neuronale) générée gratuitement par GitHub, intégrée à l'appli | Appli | Oui |
 | Comprendre : 11 fiches (anxiété, panique, ruminations, pièges de pensée, sommeil, demander de l'aide en Belgique…) | Appli | Oui |
 | Démêler une pensée : outil pas à pas inspiré des thérapies cognitives | Appli | Oui |
@@ -46,7 +52,7 @@ Pour qu'un proche y ait accès, partage la page depuis Claude (bouton Partager d
 | ELYRA Anticipation : observations prudentes calculées sur le téléphone + situations à venir | Appli | Oui |
 | Kit de secours : phrases, techniques, contacts de confiance, notes | Appli | Oui |
 | Mon espace : prénom, voix, taille du texte, mode sombre, sauvegarde, restauration, effacement | Appli | Oui |
-| Assistant ELYRA (5 modes : Écoute, Apaise, Comprend, Accompagne, Encourage) + mémoire consultable, modifiable, effaçable | Claude | Non |
+| Assistant ELYRA (7 modes : Écoute, Apaise, Comprend, Accompagne, Encourage, Explique, La nuit) + mémoire consultable, modifiable, effaçable, résumé de l'appli partagé seulement si tu l'acceptes | Claude | Non |
 
 ---
 
@@ -67,6 +73,8 @@ www/                  L'appli (sans dépendance externe)
   index.html          La structure des écrans
   styles.css          Le design (charte ELYRA)
   content.js          TOUS les textes : séances, histoires, parcours, fiches… (à modifier ici)
+  outils.js           Les textes de la boîte à outils, des outils guidés, de Mon corps, de la nuit et des rappels
+  tag.js              Le programme TAG en 8 modules
   app.js              Le fonctionnement de l'appli
   sons.js             Le moteur de sons d'ambiance (généré en direct, hors ligne)
   sw.js               Fonctionnement hors ligne (iPhone / navigateur)
@@ -77,7 +85,7 @@ chat/index.html       Source de la conversation ELYRA publiée dans Claude
 assets/               Icône et écran de démarrage Android
 signing/debug.keystore  Clé de signature fixe de l'APK (voir plus bas)
 tests/                Tests automatisés
-.github/workflows/    build.yml : voix → appli iPhone → APK
+.github/workflows/    build.yml : tests → voix → appli iPhone → APK (rien n'est publié si un test échoue)
 ```
 
 ### Choix techniques

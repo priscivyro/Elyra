@@ -32,18 +32,22 @@ w.addEventListener('load',async()=>{try{
   await wait(400);ok(JSON.parse(w.localStorage.getItem('elyra.v1')).items.length===1,'humeur enregistrée sur le téléphone');
   for(const v of ['elyra','calme','journal','pensee','moi','parcours','sommeil','progres','kit','espace','comprendre','accueil']){go(v);ok($('#v-'+v).classList.contains('on'),'vue '+v)}
   // SOS
-  click('#sosOpen');ok(d.querySelectorAll('#sosBody [data-sit]').length===6,'SOS : 6 situations');
+  click('#sosOpen');ok(d.querySelectorAll('#sosBody [data-sit]').length===8,'SOS : 8 situations');ok(!!$('#sosBody [data-noir]'),'SOS : accès « pensées très sombres »');
+  click($('#sosBody [data-noir]'));ok(/0800 32 123/.test($('#sosBody').textContent)&&/24 h sur 24/.test($('#sosBody').textContent),'SOS : pensées sombres → Centre de Prévention du Suicide');click('#sosBack');
   ok(/dépassée/.test($('#sosBody').textContent),'SOS : accord au féminin');
   ok(d.querySelectorAll('#sos .urg a').length===4,'SOS : 4 numéros d\'urgence');
   click($('#sosBody [data-sit="physique"]'));ok(/112/.test($('#sosBody').textContent),'SOS : alerte 112 pour sensations physiques');
-  click($('#sosBody [data-opt="ground"]'));for(let i=0;i<6;i++)click('#fNext');ok(/Retour au calme/.test($('#sosBody').textContent),'SOS : ancrage puis retour au calme');
+  click($('#sosBody [data-opt="ground"]'));for(let i=0;i<6;i++)click('#fNext');ok(/Prendre du recul/.test($('#sosBody').textContent),'SOS : ancrage puis « prendre du recul »');
+  click($('#sosBody [data-rec="0"]'));ok(!!$('#recKit'),'SOS : garder la phrase dans le kit');click('#recKit');
+  click($('#sosBody [data-endnext]'));ok(/petite chose/.test($('#sosBody').textContent),'SOS : petite action finale');click($('#sosBody [data-act="eau"]'));click('#actNext');
+  ok(/Retour au calme/.test($('#sosBody').textContent)&&!!$('#sosBody [data-helped]'),'SOS : retour au calme et « ce qui t\'a aidé »');click($('#sosBody [data-helped]'));
   click('#seSave');ok(!$('#sos').classList.contains('on'),'SOS fermé');
   click('#sosOpen');click($('#sosBody [data-sit="intense"]'));click($('#sosBody [data-opt="audio"]'));ok($('#player').classList.contains('on')&&/vague/i.test($('#plT').textContent),'SOS : audio « Traverser la vague »');
   click('#plClose');click($('#sosBody [data-opt="froid"]'));ok(/fraîche/.test($('#sosBody').textContent),'SOS : le froid qui ramène');click('#sosX');
   // Calme
   go('calme');click($('#presets [data-k="vague"]'));click('#brBtn');ok($('#brBtn').textContent==='Arrêter','respiration démarre');click('#brBtn');
   click('#brFav');ok(/Vague/.test($('#favBox').textContent),'favori affiché');
-  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===27,'27 séances');
+  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===29,'29 séances');
   click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===3,'filtre sommeil');
   click($('#meds [data-ex="med:scandodo"]'));ok($('#player').classList.contains('on'),'lecteur ouvert');
   await wait(600);ok($('#plSay').textContent.length>5,'texte de la séance affiché');
@@ -93,9 +97,64 @@ w.addEventListener('load',async()=>{try{
   go('progres');$('#goalTxt').value='Respirer';submit('#goalForm');ok(/Respirer/.test($('#goals').textContent),'objectif');
   $('#winTxt').value='Osé';submit('#winForm');ok(/Osé/.test($('#wins').textContent),'victoire');
   // Kit
-  go('kit');click($('#kSug button'));ok(d.querySelectorAll('#kPhr .entry').length===1,'phrase ajoutée');
+  go('kit');click($('#kSug button'));ok(d.querySelectorAll('#kPhr .entry').length===2,'phrase ajoutée (en plus de celle gardée depuis le SOS)');
   $('#kConN').value='Philou';$('#kConP').value='0470 12 34 56';submit('#kConF');ok(/Philou/.test($('#kCon').textContent),'contact');
   click('#sosOpen');click($('#sosBody [data-sit="parler"]'));click($('#sosBody [data-opt="contacts"]'));ok(/Philou/.test($('#sosBody').textContent),'contacts dans le SOS');click('#sosX');
+  // Boîte à outils et « ça t'a aidé ? »
+  go('outils');ok(d.querySelectorAll('#outBox .tool').length>=22,'boîte à outils : '+d.querySelectorAll('#outBox .tool').length+' outils');
+  click($('#outNeeds [data-need="pensees"]'));ok(d.querySelectorAll('#outBox .tool').length<12&&/Prendre du recul/.test($('#outBox').textContent),'filtre « mes pensées tournent »');click($('#outNeeds [data-need="pensees"]'));
+  click($('#outBox [data-ex="outil:defusion"]'));await wait(30);ok($('#v-outil').classList.contains('on'),'outil de défusion ouvert');
+  click('#trNext');click('#trNext');ok(/quelques mots/.test($('#trMsg').textContent),'champ obligatoire');
+  $('#trIn').value='Je vais craquer';click('#trNext');$('#trR').value='8';click('#trNext');
+  click($('#toolBox [data-pick="1"]'));ok(/Je vais craquer/.test($('#river').textContent),'défusion : la feuille sur la rivière');
+  click('#river');ok(d.querySelectorAll('#river .leaf').length===2,'nouvelle feuille');
+  click('#trNext');$('#trR').value='4';click('#trNext');ok(/8\/10, maintenant à 4\/10/.test($('#toolBox').textContent),'défusion : avant / après');
+  click('#trNext');await wait(600);ok($('#rate').classList.contains('on')&&/aidée/.test($('#rateQ').textContent),'« Ça t\'a aidée ? » après l\'exercice');
+  click($('#rate [data-help="2"]'));ok(!$('#rate').classList.contains('on'),'réponse enregistrée');
+  ok(/Ce qui t'aide le plus/.test($('#outBox').textContent)&&/T'aide beaucoup/.test($('#outBox').textContent),'boîte à outils personnalisée');
+  go('accueil');ok(/Prendre du recul/.test($('#homeHelp').textContent),'accueil : « Ce qui t\'aide »');
+  click('#sosOpen');click($('#sosBody [data-sit="rumine"]'));ok(['defusion','ground'].includes($('#sosBody [data-opt]').dataset.opt)&&/T’aide souvent/.test($('#sosBody').textContent),'SOS : ce qui aide proposé en premier');
+  click($('#sosBody [data-opt="defusion"]'));ok(!!$('#sosBody #trNext'),'SOS : outil de défusion dans le SOS');click('#sosX');
+  go('journal');ok(/Prendre du recul avec une pensée/.test($('#entries').textContent),'outil visible dans le journal');
+  go('outils');click($('#outBox [data-ex="outil:reporter"]'));await wait(30);click('#trNext');$('#trIn').value='Et si je rate mon examen';click('#trNext');click('#trNext');await wait(50);
+  ok(/boîte à soucis/i.test($('#outBox').textContent)&&/rate mon examen/.test($('#outBox').textContent),'inquiétude rangée dans la boîte à soucis');click('[data-rateclose]');
+  click($('#outBox [data-sz^="probleme:"]'));await wait(30);click('#trNext');ok($('#trIn').value==='Et si je rate mon examen','boîte à soucis → résoudre un problème (prérempli)');
+  go('outils');click($('#outBox [data-ex="outil:valeurs"]'));await wait(30);click('#trNext');click($('#trCh button'));click('#trNext');click($('#trCh button'));click('#trNext');
+  $('#trIn').value='Voir mes amis';click('#trNext');$('#trIn').value='Appeler Philou jeudi';click('#trNext');click('#trNext');click('#trNext');
+  ok(/Appeler Philou jeudi/.test($('#toolBox').textContent)&&!!$('#trGoal'),'valeurs : résumé et prochain pas');click('#trGoal');go('progres');ok(/Appeler Philou/.test($('#goals').textContent),'pas ajouté aux objectifs');
+  go('outils');click($('#outBox [data-ex="outil:matrice"]'));await wait(30);click('#trNext');for(const t of ['Ma famille','Sortir','La peur','Rester chez moi']){$('#trIn').value=t;click('#trNext')}
+  ok(d.querySelectorAll('#toolBox .mxc').length===4&&/Rester chez moi/.test($('#toolBox .mx').textContent),'boussole ACT en 4 cases');
+  // Coach d'exposition
+  go('outils');click($('#outBox [data-ex="expo"]'));await wait(30);ok($('#v-expo').classList.contains('on')&&!!$('#xpImp'),'coach : reprendre l\'échelle du module 6');
+  click('#xpImp');click('#xpSave');ok(d.querySelectorAll('#expoBox .rung').length>=1,'coach : échelle enregistrée');
+  click($('#expoBox .rung.next [data-xgo]'));$('#xpP').value='7';$('#xpP').dispatchEvent(new w.Event('input',{bubbles:true}));click($('#xpD button'));click('#xpGo');
+  ok(!!$('#xpEl')&&/Pendant/.test($('#expoBox').textContent),'coach : pendant');click('#xpDone');
+  $('#xpK').value='3';$('#xpK').dispatchEvent(new w.Event('input',{bubbles:true}));click($('#xpR [data-v="non"]'));$('#xpL').value='Ça redescend';click('#xpSave2');
+  ok(/moins forte que prévu/.test($('#expoBox').textContent)&&/ne s'est pas produit/.test($('#expoBox').textContent),'coach : bilan après l\'essai');
+  click('#xpTame');ok(!!$('#expoBox .rung.done'),'coach : marche apprivoisée');
+  go('journal');ok(/Exposition/.test($('#entries').textContent)&&/Ça redescend/.test($('#entries').textContent),'essai visible dans le journal');
+  // Mon corps
+  go('corps');ok(/112/.test($('#corpsBox .warnb').textContent),'Mon corps : quand appeler le 112');
+  click($('#corpsBox [data-zone="poitrine"]'));ok(!!$('#corpsBox .bz.on'),'silhouette : zone choisie');click($('#cbS [data-v="Palpitations"]'));
+  $('#cbI').value='8';$('#cbI').dispatchEvent(new w.Event('input',{bubbles:true}));click('#cbSave');ok(/n'attends pas/.test($('#corpsBox').textContent),'sensation forte non vérifiée : orientation 112 / 1733');
+  ok(/1 sensation/.test($('#corpsBox').textContent),'historique des sensations');
+  // Consultation
+  go('consult');ok(/Humeur et stress/.test($('#consultDoc').textContent)&&/Sensations physiques/.test($('#consultDoc').textContent)&&/aucun diagnostic/.test($('#consultDoc').textContent),'résumé pour la consultation');
+  click($('#consultBox [data-cond="90"]'));ok(/3 derniers mois/.test($('#consultBox [aria-pressed=true]').textContent),'période 3 mois');
+  // Nuit
+  click('#sosOpen');click($('#sosBody [data-sit="nuit"]'));click($('#sosBody [data-opt="nuitv"]'));ok($('#nuit').classList.contains('on')&&!$('#sos').classList.contains('on'),'écran de nuit');
+  click($('#nuit [data-n="br"]'));ok(!!$('#nuBr .stage'),'nuit : respiration');click($('#nuit [data-n="vt"]'));$('#nuVt').value='demain';click('#nuVtGo');ok(/posé/.test($('#nuVtM').textContent),'nuit : vide-tête');
+  click($('#nuit [data-n="hist"]'));ok(d.querySelectorAll('#nuitZone [data-nst]').length===4,'nuit : histoires');click('#nuitX');ok(!$('#nuit').classList.contains('on'),'nuit fermée');
+  // Verrou, rappels, contexte
+  go('espace');click('#lkOn');ok($('#lock').classList.contains('on'),'verrou : choisir un code');for(const k of '1234')click($(`#lockPad [data-d="${k}"]`));await wait(50);ok(/Confirme/.test($('#lockT').textContent),'verrou : confirmer le code');for(const k of '1234')click($(`#lockPad [data-d="${k}"]`));await wait(500);
+  ok(!$('#lock').classList.contains('on')&&JSON.parse(w.localStorage.getItem('elyra.v1')).prof.lock.on,'verrou activé (code enregistré, pas en clair)');
+  ok(!/1234/.test(JSON.stringify(JSON.parse(w.localStorage.getItem('elyra.v1')).prof.lock)),'code non stocké en clair');
+  click('#lkOff');for(const k of '9999')click($(`#lockPad [data-d="${k}"]`));await wait(400);ok(/pas le bon/.test($('#lockMsg').textContent),'mauvais code refusé');
+  ok(!!$('#lockSos')&&d.querySelectorAll('#lock .urg a').length===4,'SOS et urgences accessibles sur l\'écran verrouillé');
+  for(const k of '1234')click($(`#lockPad [data-d="${k}"]`));await wait(400);ok(!JSON.parse(w.localStorage.getItem('elyra.v1')).prof.lock.on,'code retiré');
+  const rc=$('#remBox [data-rem="humeur"]');rc.checked=true;rc.dispatchEvent(new w.Event('change',{bubbles:true}));await wait(300);ok(JSON.parse(w.localStorage.getItem('elyra.v1')).prof.rem.humeur.on&&!!$('#remIcs'),'rappels : calendrier sur iPhone');
+  const cx=$('#pCtx');cx.checked=true;cx.dispatchEvent(new w.Event('change',{bubbles:true}));ok(/&c=/.test($('#talkHome').href)&&/Programme%20TAG|aide/.test($('#talkHome').href),'contexte partagé avec ELYRA (si accepté)');
+  cx.checked=false;cx.dispatchEvent(new w.Event('change',{bubbles:true}));ok(!/&c=/.test($('#talkHome').href),'contexte non partagé par défaut');
   // Espace
   go('espace');ok(d.querySelectorAll('#pVVoice button').length===2,'choix voix féminine / masculine');click($('#pVoiceMode [data-vmode="off"]'));ok(/sans être lues/.test($('#pVoiceInfo').textContent),'mode sans voix');click($('#pVoiceMode [data-vmode="elyra"]'));
   click($('#pSize [data-size="l"]'));ok(d.documentElement.dataset.size==='l','taille du texte');
