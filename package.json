@@ -1,0 +1,18 @@
+{
+  "name": "elyra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ELYRA, compagnon anti-stress personnel (usage privé, famille).",
+  "scripts": {
+    "android:prepare": "cap add android && capacitor-assets generate --android && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor-community/text-to-speech": "^8.0.2",
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.2"
+  }
+}

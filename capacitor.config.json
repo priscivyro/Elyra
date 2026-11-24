@@ -1,0 +1,8 @@
+{
+  "appId": "be.elyra.compagnon",
+  "appName": "ELYRA",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#f7f2e9"
+  }
+}
