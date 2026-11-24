@@ -253,3 +253,26 @@ nav.tabs a.on{color:var(--lavd)}nav.tabs a.on svg{background:var(--lavs)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media(max-width:380px){.hero .acts{grid-template-columns:1fr}.stat b{font-size:1.35rem}.seg button{font-size:.82rem}}
+
+/* programme TAG */
+details.sec{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-top:12px;box-shadow:var(--sh);overflow:hidden}
+details.sec>summary{list-style:none;cursor:pointer;padding:16px 18px;font-family:Fraunces,serif;font-size:1.12rem;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--soft);border-bottom:2px solid var(--soft);transform:rotate(45deg);flex:none;margin-left:auto;transition:transform .25s}
+details.sec[open]>summary::after{transform:rotate(-135deg)}
+details.sec .ok{font-family:Figtree,sans-serif;font-size:.85rem;font-weight:700;color:var(--saged);background:var(--sages);border-radius:999px;padding:2px 9px}
+details.sec .ok:empty{display:none}
+.sbody{padding:0 18px 18px;animation:vin .3s ease}
+.sbody p{line-height:1.65}
+.blk{background:var(--bg2);border-radius:16px;padding:12px 14px;margin-top:12px}
+.blk b{display:block;font-family:Fraunces,serif;font-weight:500;font-size:1.05rem;margin-bottom:2px}.blk p{margin:0}
+.schema{margin:16px 0 0;background:var(--bg);border-radius:18px;padding:10px}.schema svg{display:block;width:100%;height:auto;font-family:Figtree,sans-serif}
+ul.obj{margin:6px 0 0;padding-left:1.2em}ul.obj li{margin-top:4px}
+p.f{font-weight:600;margin-top:14px}
+.qz{border:0;padding:0;margin:16px 0 0}.qz legend{font-weight:600;padding:0}
+.qo{display:flex;gap:10px;align-items:center;min-height:44px;padding:4px 10px;border:1.5px solid var(--line);border-radius:14px;margin-top:6px;cursor:pointer}
+.qo input{width:20px;height:20px;accent-color:var(--lavd);flex:none}
+.qe{border-radius:12px;padding:10px 12px;margin-top:8px}.qe.good{background:var(--sages)}.qe.bad{background:var(--champs)}
+.steps{display:grid;gap:8px;margin-top:8px}
+.steprow{display:grid;grid-template-columns:minmax(0,1fr) 96px 26px;gap:8px;align-items:center}
+.steprow b{text-align:right;font-variant-numeric:tabular-nums}

@@ -32,18 +32,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: voix-cache
-          key: voix-v1-${{ hashFiles('www/content.js', 'tools/voix/**') }}
-          restore-keys: voix-v1-
+          key: voix-v2-${{ hashFiles('www/content.js', 'tools/voix/**') }}
+          restore-keys: voix-v2-
       - name: Installer Piper et ffmpeg
         run: |
           pip install piper-tts==1.8.0
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          mkdir -p modeles && python -m piper.download_voices fr_FR-siwis-medium --data-dir modeles
-      - name: Générer la voix
+          mkdir -p modeles && python -m piper.download_voices fr_FR-siwis-medium fr_FR-tom-medium --data-dir modeles
+      - name: Générer les voix (féminine et masculine)
         run: |
           node tools/voix/lignes.mjs > lignes.json
-          python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache
-          du -sh voix-cache
+          python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache/siwis 1.18
+          python tools/voix/render.py modeles/fr_FR-tom-medium.onnx lignes.json voix-cache/tom 1.12
+          du -sh voix-cache/*
       - uses: actions/upload-artifact@v4
         with:
           name: voix

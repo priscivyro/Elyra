@@ -20,6 +20,7 @@ const click=s=>{const e=typeof s==='string'?$(s):s;if(!e)throw new Error('introu
 const go=h=>{w.location.hash=h;w.dispatchEvent(new w.HashChangeEvent('hashchange'))};
 const submit=s=>$(s).dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const modOk=(id,k)=>{const t=JSON.parse(w.localStorage.getItem('elyra.v1')||'{}');return !!(t.prof&&t.prof.tag&&t.prof.tag.m[id]&&t.prof.tag.m[id][k])};
 const ok=(c,m)=>{if(!c)errors.push('ÉCHEC: '+m);else console.log('✓',m)};
 w.addEventListener('load',async()=>{try{
   ok($('#onb').classList.contains('on'),'écran de bienvenue au premier lancement');
@@ -66,6 +67,24 @@ w.addEventListener('load',async()=>{try{
   // Parcours
   go('parcours');ok(d.querySelectorAll('#progBox .item').length===12,'12 parcours');click($('#progBox [data-prog="elan"]'));click('#progPick');go('accueil');ok(/élan/.test($('#homeProg').textContent),'programme du jour');
   click($('#homeProg [data-stepdone]'));ok(/étape 2/.test($('#homeProg').textContent),'étape suivante');
+  // Programme TAG
+  go('programme');ok(d.querySelectorAll('#tagBox .item').length===8,'programme : 8 modules');
+  click($('#tagBox [data-mod="m5"]'));ok(/anticipatoire/.test($('#tagBox h1').textContent),'module 5 ouvert');
+  ok(!!$('#tagBox .schema svg'),'schéma affiché');
+  $('#tf-sit').value='Prendre la voiture';$('#tf-pire').value='Me sentir mal';$('#tf-date').value=new Date(Date.now()+2*864e5).toISOString().slice(0,10);
+  $('#tagBox details[data-sec="ex"]').open=true;click('#tagExSave');await wait(350);ok(modOk('m5','ex'),'exercice enregistré');
+  ok($('#tagBox details[data-sec="ex"]').open,'section restée ouverte après enregistrement');
+  go('journal');ok(/Programme TAG/.test($('#entries').textContent)&&/Prendre la voiture/.test($('#entries').textContent),'exercice visible dans le journal');
+  go('accueil');ok(/Prendre la voiture/.test($('#homeUp').textContent),'situation ajoutée à « bientôt »');
+  ok(/Module 5/.test($('#homeTag').textContent),'carte du programme sur l\'accueil');
+  click($('#homeTag [data-mod]'));ok(/anticipatoire/.test($('#tagBox h1').textContent),'reprise depuis l\'accueil');
+  click('#tagMiseGo');ok(!$('#tagMiseA').hidden,'piste de la mise en situation');
+  click('#tagDefi');go('progres');ok(/Défi :/.test($('#goals').textContent),'défi ajouté aux objectifs');go('programme');
+  $('#tagBox details[data-sec="quiz"]').open=true;d.querySelectorAll('#tagBox .qz').forEach(fs=>{fs.querySelector('input').checked=true});click('#tagQuiz');ok(/sur 3/.test($('#tagQuizMsg').textContent)&&!d.querySelector('#tagBox .qe').hidden,'quiz corrigé avec explications');
+  $('#tagNote').value='Préparer a une fin';click('#tagNoteSave');ok(/terminé/.test($('#tagBox').textContent),'module terminé (exercice + synthèse)');
+  click($('#tagBox [data-mod="m6"]'));$('#tagBox details[data-sec="ex"]').open=true;click($('#tagBox [data-addstep]'));ok(d.querySelectorAll('#tagBox .steprow').length===4,'échelle : ajout d\'étape');
+  d.querySelector('#tagBox .steprow input[type=text]').value='Photo de station';click('#tagExSave');await wait(350);ok(modOk('m6','ex'),'échelle enregistrée');
+  click('#tagBack');ok(/1 module\(s\) terminé/.test($('#tagBox').textContent),'progression du programme');
   // Comprendre
   go('comprendre');ok(d.querySelectorAll('#comBox .item').length===11,'11 fiches');click($('#comBox [data-ex="fiche:aide"]'));ok(/0800 32 123/.test($('#comBox').textContent)&&/11 €/.test($('#comBox').textContent),'fiche « Demander de l\'aide »');
   click('#ficheNext');ok(/proche/.test($('#comBox').textContent),'fiche suivante');click('#comBack');ok(d.querySelectorAll('#comBox .item').length===11,'retour à la liste');
@@ -78,7 +97,7 @@ w.addEventListener('load',async()=>{try{
   $('#kConN').value='Philou';$('#kConP').value='0470 12 34 56';submit('#kConF');ok(/Philou/.test($('#kCon').textContent),'contact');
   click('#sosOpen');click($('#sosBody [data-sit="parler"]'));click($('#sosBody [data-opt="contacts"]'));ok(/Philou/.test($('#sosBody').textContent),'contacts dans le SOS');click('#sosX');
   // Espace
-  go('espace');click($('#pVoiceMode [data-vmode="off"]'));ok(/sans être lues/.test($('#pVoiceInfo').textContent),'mode sans voix');click($('#pVoiceMode [data-vmode="elyra"]'));
+  go('espace');ok(d.querySelectorAll('#pVVoice button').length===2,'choix voix féminine / masculine');click($('#pVoiceMode [data-vmode="off"]'));ok(/sans être lues/.test($('#pVoiceInfo').textContent),'mode sans voix');click($('#pVoiceMode [data-vmode="elyra"]'));
   click($('#pSize [data-size="l"]'));ok(d.documentElement.dataset.size==='l','taille du texte');
   click($('#pTheme [data-theme="dark"]'));ok(d.documentElement.dataset.theme==='dark','mode sombre');click($('#pTheme [data-theme="auto"]'));
   click($('#pGenre [data-genre="m"]'));click('#sosOpen');ok(/dépassé\b/.test($('#sosBody').textContent)&&!/dépassée/.test($('#sosBody').textContent),'accord au masculin');click('#sosX');

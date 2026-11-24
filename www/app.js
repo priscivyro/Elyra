@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.1.0";
+const APP_VERSION="1.2.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons;
 
 /* ============ OUTILS ============ */
@@ -31,7 +31,8 @@ const MOODS=C.moods, PRESETS=C.presets, MEDS=C.meds, STORIES=C.stories, SOSF=C.s
 const EX={};
 for(const k in PRESETS)EX['br:'+k]=PRESETS[k].n;MEDS.forEach(m=>EX['med:'+m.k]=m.t);STORIES.forEach(s=>EX['story:'+s.k]=s.t);
 for(const k in SOSF)EX['sos:'+k]=SOSF[k].n;C.sounds.forEach(s=>EX['snd:'+s[0]]=s[1]);FICHES.forEach(f=>EX['fiche:'+f.k]='Lire : '+f.t);
-Object.assign(EX,{journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
+window.ELYRA_TAG.mods.forEach((m,i)=>EX['tag:'+m.id]=`Module ${i+1} : ${m.n}`);
+Object.assign(EX,{programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
   'chat:comprend':'En parler avec ELYRA','chat:accompagne':'En parler avec ELYRA','chat:encourage':'En parler avec ELYRA','chat:ecoute':'En parler avec ELYRA'});
 const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
 const isStory=k=>STORIES.some(s=>s.k===k);
@@ -41,12 +42,12 @@ const covHTML=(cat,cls='')=>`<span class="cov ${cls}" data-c="${esc(cat)}" aria-
 /* ============ DONNÉES (sur le téléphone) ============ */
 const KEY='elyra.v1';
 const defP=()=>({name:'',genre:'',vmode:'elyra',rate:1,vname:'',brVoice:false,size:'m',theme:'auto',anticip:true,kit:{phr:[],con:[],notes:'',tech:[]},favs:[],goals:[],prog:{id:null,done:{}},
-  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',sndVol:{}});
+  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',sndVol:{},tag:{cur:null,m:{}},vvoice:'siwis'});
 const ST={prof:defP(),items:[]};
 let storageOK=true;
 function merge(base,o){const r=Object.assign(base,o);r.kit=Object.assign(defP().kit,o.kit||{});r.prog=Object.assign({id:null,done:{}},o.prog||{});
   r.routine=Object.assign({items:C.routine.slice(),checks:{}},o.routine||{});for(const k of ['favs','goals','up'])if(!Array.isArray(r[k]))r[k]=[];
-  if(!r.sndVol||typeof r.sndVol!=='object')r.sndVol={};return r}
+  if(!r.sndVol||typeof r.sndVol!=='object')r.sndVol={};if(!r.tag||typeof r.tag!=='object'||!r.tag.m)r.tag={cur:null,m:{}};return r}
 function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const o=JSON.parse(raw);ST.items=Array.isArray(o.items)?o.items.filter(x=>x&&x.t&&x.kind):[];ST.prof=merge(defP(),o.prof||{})}catch(e){storageOK=false}}
 let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250)}
 function saveNow(){try{localStorage.setItem(KEY,JSON.stringify({v:1,prof:ST.prof,items:ST.items.slice(0,6000)}));storageOK=true}catch(e){storageOK=false;toast("Impossible d'enregistrer sur ce téléphone.")}}
@@ -61,7 +62,8 @@ const isNative=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Ca
 let voices=[];
 function loadVoices(){try{if(window.speechSynthesis){voices=speechSynthesis.getVoices().filter(v=>/^fr/i.test(v.lang));renderVoiceSel()}}catch(e){}}
 try{if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}}catch(e){}
-async function loadVoiceIdx(){try{const r=await fetch('voix/index.json',{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items){VO.idx=j.items;renderEspace();renderMeds();renderStories();renderHome()}}}catch(e){}}
+const VV=()=>ST.prof.vvoice==='tom'?'tom':'siwis';
+async function loadVoiceIdx(){const v=VV();VO.idx=null;VO.v=v;try{const r=await fetch(`voix/${v}/index.json`,{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items&&VV()===v){VO.idx=j.items}}}catch(e){}try{renderEspace();renderMeds();renderStories();renderHome()}catch(e){}}
 const clip=t=>VO.idx&&VO.idx[t];
 const est=t=>String(t).split(/\s+/).length/2.3+1;
 let sessVoice=true;
@@ -72,13 +74,13 @@ function ttsSpeak(t,rate){const cap=CapTTS();
     const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/(premium|enhanced|améliorée|neural|natural)/i.test(v.name))||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
 function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'||!sessVoice))return 0;const rate=+P.rate||1;
   const c=P.vmode!=='tel'?clip(t):null;
-  if(c){const el=audioEl();el.src='voix/'+c[0];el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>{});return c[1]/rate}
+  if(c){const el=audioEl();el.src=`voix/${VO.v||VV()}/`+c[0];el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>{});return c[1]/rate}
   ttsSpeak(t,rate);return est(t)/rate}
 function stopVoice(){if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
 
 /* ============ NAVIGATION ============ */
-const VIEWS=['accueil','elyra','calme','journal','pensee','moi','parcours','sommeil','progres','kit','espace','comprendre'];
-const TABOF={parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
+const VIEWS=['accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre'];
+const TABOF={programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
 const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],['elyra','ELYRA','<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>'],
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
@@ -105,6 +107,8 @@ function doEx(id){if(!id)return;const [k,v]=id.split(':');
   else if(k==='sos'&&SOSF[v]){openSOS();sosFlow(v)}
   else if(k==='snd'){location.hash='calme';calTab('sons');SND.on(v,ST.prof.sndVol[v])}
   else if(k==='fiche'){openFiche(v)}
+  else if(k==='tag'){openMod(v)}
+  else if(k==='programme'){tagOpen=null;location.hash='programme';renderProgramme()}
   else if(k==='chat'){openChat(v)}
   else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},80)}
   else if(VIEWS.includes(k))location.hash=k}
@@ -331,12 +335,15 @@ $('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jSit=togg
 $('#stress').oninput=e=>$('#sv').textContent=e.target.value;
 $('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
   addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
-const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée'};
+const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG'};
 function bars(el,days,key){const today=dstart(Date.now());const out=[];
   for(let i=days-1;i>=0;i--){const dd=dstart(today-i*DAY+432e5);const s=ST.items.filter(x=>x[key]!=null&&x[key]!==''&&dstart(x.t)===dd);const v=s.length?avg(s.map(x=>+x[key])):null;
     const max=key==='mood'?5:10;out.push(v==null?'<div class="z" title="pas de note"></div>':`<div style="height:${Math.max(4,v/max*100)}%" title="${key==='mood'?'humeur':'stress'} ${v.toFixed(1)}/${max}"></div>`)}
   el.innerHTML=out.join('')}
-function entryBody(x){if(x.kind==='pensee')return `<p><b>Situation :</b> ${esc(x.sit)}</p><p><b>Pensée :</b> ${esc(x.pen)}</p>${x.emos&&x.emos.length?`<p class="sub" style="margin:2px 0 0">${esc(x.emos.join(', '))} · ${+x.i1}/10 → ${+x.i2}/10</p>`:`<p class="sub" style="margin:2px 0 0">${+x.i1}/10 → ${+x.i2}/10</p>`}
+function entryBody(x){if(x.kind==='tag'){const M=window.ELYRA_TAG.mods.find(m=>m.id===x.mod);if(!M)return '';
+  const lines=M.ex.f.map(f=>{let v=x.ans&&x.ans[f.k];if(v==null||v===''||(Array.isArray(v)&&!v.length))return '';if(f.t==='steps')v=v.map(s=>`${s.t} (${s.d}/10)`).join(' · ');else if(Array.isArray(v))v=v.join(', ');else if(f.t==='scale')v=v+'/10';return `<p class="sub" style="margin:2px 0 0"><b>${esc(G(f.l))}</b> ${esc(v)}</p>`}).filter(Boolean).slice(0,4).join('');
+  return `<p><b>${esc(M.ex.t)}</b> · ${esc(M.n)}</p>${lines}`}
+ if(x.kind==='pensee')return `<p><b>Situation :</b> ${esc(x.sit)}</p><p><b>Pensée :</b> ${esc(x.pen)}</p>${x.emos&&x.emos.length?`<p class="sub" style="margin:2px 0 0">${esc(x.emos.join(', '))} · ${+x.i1}/10 → ${+x.i2}/10</p>`:`<p class="sub" style="margin:2px 0 0">${+x.i1}/10 → ${+x.i2}/10</p>`}
   ${x.traps&&x.traps.length?`<p class="sub" style="margin:2px 0 0">${esc(x.traps.join(', '))}</p>`:''}${x.autre?`<p><b>Autre regard :</b> ${esc(x.autre)}</p>`:''}`;
   return `<p>${x.mood?`<span class="dot m${+x.mood}"></span>${esc(MOODS[x.mood-1][1])}`:''}${x.stress!=null?`${x.mood?' · ':''}stress ${+x.stress}/10`:''}</p>
     ${x.emos&&x.emos.length?`<p class="sub" style="margin:2px 0 0">${esc(x.emos.join(', '))}</p>`:''}${x.sits&&x.sits.length?`<p class="sub" style="margin:2px 0 0">${esc(x.sits.join(', '))}</p>`:''}
@@ -476,6 +483,7 @@ let kT;$('#kNotes').oninput=e=>{clearTimeout(kT);kT=setTimeout(()=>{ST.prof.kit.
 
 /* ============ ESPACE PERSO ============ */
 const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']],GENRES=[['f','Au féminin'],['m','Au masculin']];
+const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
 function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.size||'m';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
@@ -483,21 +491,22 @@ function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;$('#pVoiceSelBox'
   s.innerHTML=`<option value="">Voix par défaut</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};
 function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#brVoice').checked=!!P.brVoice;
-  chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pRate',RATES,String(+P.rate||1),'rate');
+  chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
   chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');
   $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est une voix française naturelle, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
   $('#pOffline').hidden=isNative||!VO.idx||!('caches' in window);
   renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
   $('#persistInfo').textContent=storageOK?'':"Attention : ce navigateur n'autorise pas l'enregistrement. Installe l'appli sur l'écran d'accueil.";
   $('#verInfo').textContent=`ELYRA · version personnelle ${APP_VERSION}. ELYRA ne pose pas de diagnostic et ne remplace pas un professionnel de santé.`}
-document.addEventListener('click',e=>{const g=e.target.closest('[data-genre]');if(g)setP(p=>p.genre=g.dataset.genre);
-  const v=e.target.closest('[data-vmode]');if(v)setP(p=>p.vmode=v.dataset.vmode);const r=e.target.closest('[data-rate]');if(r)setP(p=>p.rate=+r.dataset.rate);
-  const s=e.target.closest('[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}});
+document.addEventListener('click',e=>{const g=e.target.closest('button[data-genre]');if(g)setP(p=>p.genre=g.dataset.genre);
+  const v=e.target.closest('button[data-vmode]');if(v)setP(p=>p.vmode=v.dataset.vmode);
+  const vv=e.target.closest('button[data-vvoice]');if(vv&&vv.dataset.vvoice!==VV()){setP(p=>p.vvoice=vv.dataset.vvoice);loadVoiceIdx().then(()=>{sessVoice=true;speak(TEST,true)})}const r=e.target.closest('button[data-rate]');if(r)setP(p=>p.rate=+r.dataset.rate);
+  const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}});
 let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name=e.target.value.trim().slice(0,40)),400)};
 $('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
 const TEST="Bonjour. Je suis la voix de tes séances. Prends ton temps, tu n'as rien à réussir.";
 $('#pVoiceTest').onclick=()=>{SND.ctx();sessVoice=true;speak(TEST,true)};
-$('#pOffline').onclick=async()=>{const files=[...new Set(Object.values(VO.idx||{}).map(x=>'voix/'+x[0]))];let done=0,fail=0;const msg=$('#pOfflineMsg');
+$('#pOffline').onclick=async()=>{const files=[...new Set(Object.values(VO.idx||{}).map(x=>`voix/${VO.v||VV()}/`+x[0]))];let done=0,fail=0;const msg=$('#pOfflineMsg');
   const run=async()=>{while(files.length){const f=files.pop();try{const r=await fetch(f);if(!r.ok)fail++}catch(e){fail++}done++;if(done%10===0)msg.textContent=`Téléchargement : ${done} audios…`}};
   msg.textContent='Téléchargement en cours…';await Promise.all([run(),run(),run(),run()]);msg.textContent=fail?`Terminé, mais ${fail} audio(s) n'ont pas pu être gardés. Réessaie avec une meilleure connexion.`:`C'est fait : les ${done} audios sont gardés sur ce téléphone.`};
 const backupText=()=>JSON.stringify({app:'ELYRA',version:APP_VERSION,date:new Date().toISOString(),prof:ST.prof,items:ST.items});
@@ -516,8 +525,137 @@ $('#wipe').onclick=()=>ask('Effacer toutes tes données ?',"Tes notes, ton kit, 
 /* ============ BIENVENUE ============ */
 $('#onbGo').onclick=()=>{setP(p=>{p.name=$('#onbName').value.trim().slice(0,40);if(!p.genre)p.genre='m';p.onb=true});$('#onb').classList.remove('on');SND.ctx()};
 
+/* ============ PROGRAMME TAG ============ */
+const TAG=window.ELYRA_TAG;
+const tagM=()=>{if(!ST.prof.tag||typeof ST.prof.tag!=='object')ST.prof.tag={cur:null,m:{}};if(!ST.prof.tag.m)ST.prof.tag.m={};return ST.prof.tag};
+const SECS=[['learn','Comprendre'],['ex','Exercice'],['mise','Mise en situation'],['defi','Défi de la semaine'],['quiz','Quiz (facultatif)'],['synth','Ce que je retiens']];
+const modSt=id=>tagM().m[id]||{};
+const modDone=id=>{const s=modSt(id);return !!(s.fini||(s.ex&&s.synth))};
+const modCount=id=>SECS.filter(([k])=>modSt(id)[k]).length;
+function setSec(id,k,v){const t=tagM();t.m[id]=Object.assign({},t.m[id],{[k]:v===undefined?true:v});t.cur=id;save();
+  const S=modSt(id);$$('#tagBox [data-ok]').forEach(e=>{const kk=e.dataset.ok;e.textContent=kk==='quiz'?(S.quiz||''):(S[kk]?'✓':'')});try{renderHomeTag()}catch(e){}}
+let tagOpen=null;
+function openMod(id){tagOpen=id;setP(p=>{tagM();p.tag.cur=id});location.hash='programme';renderProgramme();window.scrollTo(0,0)}
+/* schémas */
+const T=(x,y,s,o={})=>`<text x="${x}" y="${y}" text-anchor="${o.a||'middle'}" font-size="${o.fs||12}" font-weight="${o.w||400}" fill="${o.c||'var(--ink)'}">${String(s).split('|').map((l,i)=>`<tspan x="${x}" dy="${i?15:0}">${esc(l)}</tspan>`).join('')}</text>`;
+const ARW='<defs><marker id="ta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--soft)"/></marker></defs>';
+function svgCycle(L,center){const P=[[170,38],[282,125],[170,212],[58,125]];
+  const node=([x,y],l)=>`<rect x="${x-62}" y="${y-22}" width="124" height="44" rx="22" fill="var(--card)" stroke="var(--line)" stroke-width="1.5"/>${T(x,y+(l.includes('|')?-3:4),l)}`;
+  return `<svg viewBox="0 0 340 250" role="img" aria-label="Schéma en cercle">${ARW}<circle cx="170" cy="125" r="44" fill="var(--lavs)"/>${T(170,center.includes('|')?121:129,center,{fs:12,w:600,c:'var(--lavd)'})}
+   <g fill="none" stroke="var(--soft)" stroke-width="1.4" marker-end="url(#ta)"><path d="M232 46 Q282 52 282 101"/><path d="M282 149 Q282 200 234 206"/><path d="M106 206 Q58 200 58 149"/><path d="M58 101 Q58 50 107 45"/></g>
+   ${P.map((p,i)=>node(p,L[i])).join('')}</svg>`}
+const SCHEMAS={
+ cycle1:()=>svgCycle(['Déclencheur','« Et si… »','Émotions|et sensations','Éviter,|vérifier'],'Soulagement|court'),
+ cycle3:()=>svgCycle(['Une sensation','Attention|fixée','Inquiétude','Vérifier'],'Sensation|amplifiée'),
+ defusion:()=>`<svg viewBox="0 0 340 230" role="img" aria-label="Prendre de la distance avec une pensée">
+   <circle cx="44" cy="62" r="22" fill="var(--sage)"/><rect x="72" y="40" width="250" height="44" rx="22" fill="var(--lav)" opacity=".85"/>${T(197,67,'« Je vais tout rater »',{w:600})}${T(30,112,'Collé à la pensée : elle décide pour toi',{a:'start',fs:11.5,c:'var(--soft)'})}
+   <circle cx="44" cy="170" r="22" fill="var(--sage)"/><line x1="70" y1="170" x2="112" y2="170" stroke="var(--soft)" stroke-dasharray="3 5"/><rect x="116" y="148" width="210" height="44" rx="22" fill="var(--lavs)" stroke="var(--lav)"/>${T(221,166,"« J'ai la pensée que|je vais tout rater »",{fs:11.5})}${T(30,218,'Avec un peu de recul : elle passe',{a:'start',fs:11.5,c:'var(--soft)'})}</svg>`,
+ incert:()=>`<svg viewBox="0 0 340 170" role="img" aria-label="De la certitude à la tolérance">${ARW}<line x1="40" y1="92" x2="300" y2="92" stroke="var(--soft)" stroke-width="1.6" marker-end="url(#ta)"/>
+   ${T(30,40,'Besoin de|tout contrôler',{a:'start',w:600})}${T(310,40,'Tolérer|l’incertitude',{a:'end',w:600,c:'var(--saged)'})}
+   ${[[86,'Ne pas|relire'],[170,'Ne pas tout|planifier'],[254,'Choisir sans|être sûr']].map(([x,l])=>`<circle cx="${x}" cy="92" r="7" fill="var(--lav)"/>${T(x,122,l,{fs:11})}`).join('')}</svg>`,
+ anticip:()=>`<svg viewBox="0 0 340 220" role="img" aria-label="La courbe de l'anticipation">
+   <line x1="30" y1="180" x2="320" y2="180" stroke="var(--line)" stroke-width="1.5"/><line x1="30" y1="30" x2="30" y2="180" stroke="var(--line)" stroke-width="1.5"/>
+   ${T(14,105,'Anxiété',{fs:10.5,c:'var(--soft)'}).replace('<text','<text transform="rotate(-90 14 105)"')}
+   <line x1="190" y1="30" x2="190" y2="180" stroke="var(--champ)" stroke-dasharray="4 4"/>${T(190,24,'La situation',{fs:11,w:600})}
+   <path d="M40 165 C100 150 150 60 185 52 C210 48 230 120 310 160" fill="none" stroke="var(--lavd)" stroke-width="2.4"/>
+   <path d="M40 168 C100 156 140 92 176 74" fill="none" stroke="var(--warm)" stroke-width="2" stroke-dasharray="5 5"/>${T(176,70,'×',{fs:18,c:'var(--warm)',w:700})}
+   ${T(70,200,'Avant',{fs:11,c:'var(--soft)'})}${T(190,200,'Pendant',{fs:11,c:'var(--soft)'})}${T(290,200,'Après',{fs:11,c:'var(--soft)'})}
+   ${T(244,104,'Ça redescend',{fs:11,c:'var(--lavd)',a:'start'})}${T(42,44,'En pointillés : si on évite,|on ne voit jamais la descente',{fs:10.5,c:'var(--warm)',a:'start'})}</svg>`,
+ echelle:()=>`<svg viewBox="0 0 340 210" role="img" aria-label="L'échelle d'exposition">
+   ${[[2,0],[4,1],[5,2],[7,3],[9,4]].map(([d,i])=>{const x=24+i*60,h=36+i*30;return `<rect x="${x}" y="${190-h}" width="56" height="${h}" rx="8" fill="var(--sage)" opacity="${.35+i*.13}"/>${T(x+28,190-h+20,d+'/10',{fs:12,w:600,c:'var(--ink)'})}`}).join('')}
+   ${T(24,22,'Une marche à la fois, à ton rythme',{a:'start',fs:12,w:600})}</svg>`,
+ balance:()=>`<svg viewBox="0 0 340 200" role="img" aria-label="La balance d'énergie">
+   <path d="M170 70 L150 180 H190 Z" fill="var(--champ)"/><line x1="60" y1="84" x2="280" y2="62" stroke="var(--soft)" stroke-width="3" stroke-linecap="round"/>
+   <path d="M30 120 Q60 140 90 120 Z" fill="var(--warms)" stroke="var(--warm)"/><line x1="60" y1="84" x2="36" y2="120" stroke="var(--soft)"/><line x1="60" y1="84" x2="84" y2="120" stroke="var(--soft)"/>
+   <path d="M250 98 Q280 118 310 98 Z" fill="var(--sages)" stroke="var(--saged)"/><line x1="280" y1="62" x2="256" y2="98" stroke="var(--soft)"/><line x1="280" y1="62" x2="304" y2="98" stroke="var(--soft)"/>
+   ${T(60,160,'Ce qui épuise',{fs:12,w:600,c:'var(--warm)'})}${T(280,138,'Ce qui ressource',{fs:12,w:600,c:'var(--saged)'})}${T(170,26,'Protéger ce qui recharge la batterie',{fs:12,w:600})}</svg>`,
+ sommeil:()=>`<svg viewBox="0 0 340 230" role="img" aria-label="Le plan du soir">
+   <path d="M300 34 a20 20 0 1 1 -16 32 a16 16 0 0 0 16 -32z" fill="var(--lav)"/><line x1="40" y1="30" x2="40" y2="210" stroke="var(--line)" stroke-width="2"/>
+   ${[[44,'En début de soirée','Le moment d’inquiétude'],[90,'Avant le coucher','Le vide-tête, un rituel doux'],[136,'Au lit','Le lit, c’est pour dormir'],[182,'La nuit','Ne pas regarder l’heure']].map(([y,a,b],i)=>`<circle cx="40" cy="${y}" r="8" fill="${i<2?'var(--champ)':'var(--lav)'}"/>${T(60,y-2,a,{a:'start',fs:11,c:'var(--soft)'})}${T(60,y+14,b,{a:'start',fs:12.5,w:600})}`).join('')}</svg>`
+};
+/* champs d'exercice */
+function fieldHTML(f,v){const id='tf-'+f.k,l=`<label class="f" for="${id}">${esc(G(f.l))}</label>`;
+  if(f.t==='area')return `${l}<textarea id="${id}" data-k="${f.k}" maxlength="1500">${esc(v||'')}</textarea>`;
+  if(f.t==='text')return `${l}<input type="text" id="${id}" data-k="${f.k}" maxlength="200" value="${esc(v||'')}">`;
+  if(f.t==='scale'){const n=v==null?5:+v;return `<p class="f">${esc(G(f.l))} : <span data-sv="${f.k}">${n}</span>/10</p><input type="range" min="0" max="10" value="${n}" data-k="${f.k}" data-scale="1" aria-label="${esc(G(f.l))}">`}
+  if(f.t==='chips'||f.t==='one'){const a=Array.isArray(v)?v:(v?[v]:[]);return `<p class="f">${esc(G(f.l))}</p><div class="row chips" data-k="${f.k}" data-one="${f.t==='one'?1:''}">${f.o.map(o=>`<button type="button" data-v="${esc(G(o))}" aria-pressed="${a.includes(G(o))}">${esc(G(o))}</button>`).join('')}</div>`}
+  if(f.t==='steps'){const a=Array.isArray(v)&&v.length?v:[{t:'',d:3},{t:'',d:5},{t:'',d:8}];return `<p class="f">${esc(G(f.l))}</p><div class="steps" data-k="${f.k}">${a.map(stepRow).join('')}</div><button type="button" class="ghost mt" data-addstep="1">Ajouter une étape</button>`}
+  if(f.t==='up')return `${l}<input type="date" id="${id}" data-k="${f.k}" value="${esc(v||'')}">`;
+  return ''}
+const stepRow=s=>`<div class="steprow"><input type="text" maxlength="120" placeholder="Une étape" value="${esc(s.t||'')}" aria-label="Étape"><input type="range" min="0" max="10" value="${+s.d||0}" aria-label="Difficulté"><b>${+s.d||0}</b></div>`;
+function readForm(box,M){const ans={};for(const f of M.ex.f){
+  if(f.t==='chips'||f.t==='one')ans[f.k]=[...box.querySelectorAll(`[data-k="${f.k}"] button[aria-pressed=true]`)].map(b=>b.dataset.v);
+  else if(f.t==='steps')ans[f.k]=[...box.querySelectorAll(`[data-k="${f.k}"] .steprow`)].map(r=>({t:r.querySelector('input[type=text]').value.trim().slice(0,120),d:+r.querySelector('input[type=range]').value})).filter(s=>s.t);
+  else{const el=box.querySelector(`[data-k="${f.k}"]`);ans[f.k]=el?(f.t==='scale'?+el.value:el.value.trim().slice(0,1500)):''}
+  if(f.t==='one')ans[f.k]=ans[f.k][0]||''}
+  return ans}
+const lastEx=id=>ST.items.find(x=>x.kind==='tag'&&x.mod===id);
+let tagRendered=null;
+function renderProgramme(){const box=$('#tagBox');if(!box)return;const keep=tagOpen&&tagRendered===tagOpen?[...box.querySelectorAll('details.sec[open]')].map(d=>d.dataset.sec):null;tagRendered=tagOpen;
+  if(!tagOpen){const done=TAG.mods.filter(m=>modDone(m.id)).length;
+    box.innerHTML=`<h1>Programme TAG</h1><p class="sub">${esc(TAG.intro)}</p>
+     <div class="card qcard"><p class="quote" style="margin:0">${esc(TAG.devise)}</p></div>
+     <div class="card flat"><div class="row between"><b>${done} module(s) terminé(s) sur ${TAG.mods.length}</b><span class="note" style="margin:0">Aucune durée imposée</span></div><div class="prog mt"><div class="bar"><i style="width:${done/TAG.mods.length*100}%"></i></div></div></div>
+     <div class="list">${TAG.mods.map((m,i)=>{const c=modCount(m.id),d=modDone(m.id);return `<div class="item" aria-current="${tagM().cur===m.id}"><button class="go" data-mod="${m.id}">${covHTML(m.c)}<span><span class="meta" style="margin:0 0 2px">Module ${i+1}${d?' · terminé':c?` · ${c}/${SECS.length}`:''}</span><h3>${esc(m.n)}</h3><p>${esc(m.d)}</p></span></button></div>`}).join('')}</div>
+     <p class="note">${esc(TAG.note)}</p>`;return}
+  const i=TAG.mods.findIndex(m=>m.id===tagOpen),M=TAG.mods[i],S=modSt(M.id),last=lastEx(M.id),A=last?last.ans:{};
+  const chk=k=>`<span class="ok" data-ok="${k}">${S[k]?'✓':''}</span>`;
+  const quizHTML=M.quiz.map((q,qi)=>`<fieldset class="qz" data-q="${qi}"><legend>${qi+1}. ${esc(G(q.q))}</legend>${q.o.map((o,oi)=>`<label class="qo"><input type="radio" name="q${qi}" value="${oi}"> <span>${esc(G(o))}</span></label>`).join('')}<p class="qe" hidden></p></fieldset>`).join('');
+  box.innerHTML=`<button class="back" id="tagBack">‹ Tous les modules</button>
+   <div class="card" style="background:linear-gradient(135deg,var(--lavs),var(--champs));border:0"><div class="row" style="gap:14px;flex-wrap:nowrap">${covHTML(M.c)}<div><span class="tag lav">Module ${i+1} sur ${TAG.mods.length}</span><h1 class="mt" style="font-size:1.7rem">${esc(M.n)}</h1></div></div>
+     <p class="mt" style="font-weight:600">Objectifs</p><ul class="obj">${M.obj.map(o=>`<li>${esc(G(o))}</li>`).join('')}</ul></div>
+   <details class="sec" data-sec="learn" ${S.learn?'':'open'}><summary>1. Comprendre ${chk('learn')}</summary><div class="sbody">
+     ${M.learn.map(x=>Array.isArray(x)?`<div class="blk"><b>${esc(x[0])}</b><p>${esc(G(x[1]))}</p></div>`:`<p>${esc(G(x))}</p>`).join('')}
+     <figure class="schema">${SCHEMAS[M.schema]?SCHEMAS[M.schema]():''}</figure>
+     <button class="ghost mt" data-secdone="learn">J'ai lu</button></div></details>
+   <details class="sec" data-sec="ex"><summary>2. Exercice : ${esc(M.ex.t)} ${chk('ex')}</summary><div class="sbody" id="tagEx">
+     <p class="sub">${esc(G(M.ex.i))}</p>${M.ex.f.map(f=>fieldHTML(f,A[f.k])).join('')}
+     <div class="row mt"><button class="main" id="tagExSave">Enregistrer</button><span class="note" id="tagExMsg" style="margin:0">${last?'Ton dernier exercice est prérempli : tu peux le refaire quand tu veux.':''}</span></div></div></details>
+   <details class="sec" data-sec="mise"><summary>3. Mise en situation ${chk('mise')}</summary><div class="sbody">
+     <p class="quote" style="font-size:1.08rem">${esc(G(M.mise.t))}</p><p class="mt" style="font-weight:600">${esc(G(M.mise.q))}</p>
+     <textarea id="tagMise" maxlength="1000" placeholder="Ce que tu en penses (facultatif)">${esc(S.miseTxt||'')}</textarea>
+     <button class="ghost mt" id="tagMiseGo">Voir une piste</button><div class="blk" id="tagMiseA" ${S.mise?'':'hidden'}><b>Une piste</b><p>${esc(G(M.mise.a))}</p></div></div></details>
+   <details class="sec" data-sec="defi"><summary>4. Défi de la semaine ${chk('defi')}</summary><div class="sbody">
+     <p>${esc(G(M.defi))}</p><p class="note">Sans obligation de réussite : essayer, c'est déjà avancer.</p>
+     <button class="${S.defi?'ghost':'main'} mt" id="tagDefi">${S.defi?'Défi ajouté à mes objectifs':'Je relève le défi'}</button></div></details>
+   <details class="sec" data-sec="quiz"><summary>5. Quiz (facultatif) <span class="ok" data-ok="quiz">${esc(S.quiz||'')}</span></summary><div class="sbody">
+     <p class="sub">Pour vérifier ce que tu as compris. Ce n'est pas un test sur toi.</p>${quizHTML}<button class="main mt" id="tagQuiz">Vérifier mes réponses</button><p class="note" id="tagQuizMsg"></p></div></details>
+   <details class="sec" data-sec="synth"><summary>6. Ce que je retiens ${chk('synth')}</summary><div class="sbody">
+     <ul class="obj">${M.synth.map(o=>`<li>${esc(G(o))}</li>`).join('')}</ul>
+     <label class="f" for="tagNote">Avec tes mots, ce que tu veux garder de ce module</label><textarea id="tagNote" maxlength="1500">${esc(S.note||'')}</textarea>
+     <button class="main mt" id="tagNoteSave">Enregistrer</button>
+     <p class="mt" style="font-weight:600">Pour aller plus loin</p><div class="row chips">${M.next.filter(x=>EX[x]).map(x=>`<button data-ex="${esc(x)}">${esc(EX[x])}</button>`).join('')}</div></div></details>
+   <div class="row between mt2">${modDone(M.id)?'<span class="tag">Module terminé</span>':`<button class="ghost" id="tagFini">Marquer comme terminé</button>`}${i<TAG.mods.length-1?`<button class="main" data-mod="${TAG.mods[i+1].id}">Module suivant</button>`:''}</div>
+   <p class="note">${esc(TAG.note)}</p>`;
+  if(keep)box.querySelectorAll('details.sec').forEach(d=>d.open=keep.includes(d.dataset.sec));
+  const id=M.id,ex=$('#tagEx');
+  $('#tagBack').onclick=()=>{tagOpen=null;renderProgramme();window.scrollTo(0,0)};
+  box.querySelectorAll('details.sec').forEach(d=>d.addEventListener('toggle',()=>{if(d.open&&d.dataset.sec==='learn'&&!modSt(id).learn)setSec(id,'learn')}));
+  ex.addEventListener('click',e=>{const b=e.target.closest('.chips button');if(b){const wrap=b.parentElement;if(wrap.dataset.one)wrap.querySelectorAll('button').forEach(x=>x!==b&&x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')}
+    if(e.target.closest('[data-addstep]')){const s=ex.querySelector('.steps');if(s.children.length<10)s.insertAdjacentHTML('beforeend',stepRow({t:'',d:5}))}});
+  ex.addEventListener('input',e=>{const r=e.target;if(r.dataset.scale)ex.querySelector(`[data-sv="${r.dataset.k}"]`).textContent=r.value;if(r.closest('.steprow')&&r.type==='range')r.nextElementSibling.textContent=r.value});
+  $('#tagExSave').onclick=()=>{const ans=readForm(ex,M);const filled=Object.values(ans).some(v=>Array.isArray(v)?v.length:(typeof v==='number'?false:!!v));
+    if(!filled){$('#tagExMsg').textContent='Remplis au moins une partie, même brièvement.';return}
+    const upF=M.ex.f.find(f=>f.t==='up');if(upF&&ans[upF.k]&&ans[upF.k]>=dkey()){const txt=(ans.sit||M.n).slice(0,140);setP(p=>{if(!p.up.some(u=>u.date===ans[upF.k]&&u.txt===txt))p.up.push({id:'u'+uid(),date:ans[upF.k],txt})})}
+    addItem({kind:'tag',mod:id,ans});setSec(id,'ex');toast('Exercice enregistré dans ton journal.');haptic(20)};
+  $('#tagMiseGo').onclick=()=>{$('#tagMiseA').hidden=false;setSec(id,'miseTxt',$('#tagMise').value.trim().slice(0,1000));setSec(id,'mise')};
+  $('#tagDefi').onclick=e=>{if(modSt(id).defi)return;ST.prof.goals.push({id:'g'+uid(),txt:('Défi : '+G(M.defi)).slice(0,200),done:false});setSec(id,'defi');try{renderProgres()}catch(x){}
+    e.target.textContent='Défi ajouté à mes objectifs';e.target.className='ghost mt';toast('Défi ajouté à tes objectifs (Mes progrès).')};
+  $('#tagQuiz').onclick=()=>{let ok=0,ans=0;M.quiz.forEach((q,qi)=>{const fs=box.querySelector(`[data-q="${qi}"]`),r=fs.querySelector('input:checked'),e=fs.querySelector('.qe');if(!r)return;ans++;const good=+r.value===q.c;if(good)ok++;
+      e.hidden=false;e.textContent=(good?'Oui. ':'Pas tout à fait. ')+G(q.e);e.className='qe '+(good?'good':'bad')});
+    if(!ans){$('#tagQuizMsg').textContent='Choisis au moins une réponse.';return}$('#tagQuizMsg').textContent=`${ok} bonne(s) réponse(s) sur ${M.quiz.length}. L'important, ce sont les explications.`;setSec(id,'quiz',`${ok}/${M.quiz.length}`)};
+  $('#tagNoteSave').onclick=()=>{const v=$('#tagNote').value.trim();setSec(id,'note',v.slice(0,1500));setSec(id,'synth');toast('Enregistré.')};
+  const fb=$('#tagFini');if(fb)fb.onclick=()=>{setSec(id,'fini');renderProgramme();toast('Bravo pour ce module !');haptic(30)}}
+$('#tagBox').addEventListener('click',e=>{const b=e.target.closest('[data-mod]');if(b)openMod(b.dataset.mod);const s=e.target.closest('[data-secdone]');if(s){setSec(tagOpen,s.dataset.secdone);toast('Noté.')}});
+function renderHomeTag(){const el=$('#homeTag');if(!el)return;const t=tagM();const started=TAG.mods.filter(m=>modCount(m.id)>0);const done=TAG.mods.filter(m=>modDone(m.id)).length;
+  if(!started.length){el.innerHTML=`<span class="tag lav">Programme TAG</span><h3 class="mt">Apprivoiser l'anxiété, pas à pas</h3><p class="sub">8 modules inspirés des TCC et de l'ACT, à ton rythme.</p><button class="main mt" data-mod="m1">Commencer le module 1</button>`;return}
+  const cur=TAG.mods.find(m=>m.id===t.cur&&!modDone(m.id))||TAG.mods.find(m=>!modDone(m.id));
+  el.innerHTML=cur?`<span class="tag lav">Programme TAG · ${done}/8 terminé(s)</span><h3 class="mt">Module ${TAG.mods.indexOf(cur)+1} : ${esc(cur.n)}</h3><p class="sub">${modCount(cur.id)}/${SECS.length} étapes faites. Reprends où tu en étais.</p><button class="main mt" data-mod="${cur.id}">Continuer</button>`
+    :`<span class="tag lav">Programme TAG</span><h3 class="mt">Les 8 modules sont terminés</h3><p class="sub">Bravo pour ce chemin. Tu peux revenir sur n'importe quel module.</p><a class="btn ghost mt" href="#programme">Revoir le programme</a>`}
+document.addEventListener('click',e=>{const b=e.target.closest('#homeTag [data-mod]');if(b)openMod(b.dataset.mod)});
+
 /* ============ RENDU GLOBAL ============ */
-function renderAll(){for(const f of [renderHome,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace]){try{f()}catch(e){console.error(e)}}}
+function renderAll(){for(const f of [renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace]){try{f()}catch(e){console.error(e)}}}
 
 /* ============ DÉMARRAGE ============ */
 load();applyPrefs();renderAll();route();

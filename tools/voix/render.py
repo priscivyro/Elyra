@@ -1,5 +1,5 @@
 """Génère les audios de la voix ELYRA avec Piper (synthèse vocale neuronale, gratuite, hors ligne).
-Usage : python tools/voix/render.py <modele.onnx> <lignes.json> <dossier_sortie>
+Usage : python tools/voix/render.py <modele.onnx> <lignes.json> <dossier_sortie> [lenteur, ex. 1.18]
 Les fichiers déjà présents sont réutilisés : seules les nouvelles phrases sont générées."""
 import hashlib, json, os, subprocess, sys, tempfile, wave
 from piper import PiperVoice, SynthesisConfig
@@ -8,7 +8,8 @@ model, lines_path, out_dir = sys.argv[1], sys.argv[2], sys.argv[3]
 os.makedirs(out_dir, exist_ok=True)
 lines = json.load(open(lines_path, encoding='utf-8'))
 voice = PiperVoice.load(model)
-cfg = SynthesisConfig(length_scale=1.18, noise_scale=0.55, noise_w_scale=0.75)
+slow = float(sys.argv[4]) if len(sys.argv) > 4 else 1.18
+cfg = SynthesisConfig(length_scale=slow, noise_scale=0.55, noise_w_scale=0.75)
 
 def name(text):
     return hashlib.sha1(('v1|' + text).encode('utf-8')).hexdigest()[:14] + '.mp3'
