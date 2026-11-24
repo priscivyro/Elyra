@@ -97,14 +97,18 @@ jobs:
           npx capacitor-assets generate --android --iconBackgroundColor '#f7f2e9' --iconBackgroundColorDark '#1c1a20' --splashBackgroundColor '#f7f2e9' --splashBackgroundColorDark '#1c1a20'
           npx cap sync android
       # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
-      - name: Clé de signature fixe
-        run: mkdir -p ~/.android && cp signing/debug.keystore ~/.android/debug.keystore
+      - name: Signature fixe et numéro de version
+        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.1.${{ github.run_number }}
       - name: Construire l'APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../ELYRA.apk
+      - name: Vérifier la signature
+        run: |
+          keytool -exportcert -keystore signing/debug.keystore -storepass android -alias androiddebugkey -file cle.der
+          python3 -c "import sys;sys.exit(0 if open('cle.der','rb').read() in open('ELYRA.apk','rb').read() else 'APK pas signé avec la clé ELYRA')"
       - uses: actions/upload-artifact@v4
         with:
           name: ELYRA-apk
