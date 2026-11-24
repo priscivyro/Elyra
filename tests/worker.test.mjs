@@ -1,0 +1,28 @@
+// Test du petit serveur ELYRA avec une fausse IA. Usage : node tests/worker.test.mjs
+import W, { systemPrompt, MODEL_STT, MODEL_CHAT } from '../worker/src/index.js';
+const errors = [];const ok = (c, m) => { if (!c) errors.push('ÉCHEC: ' + m); else console.log('✓', m) };
+let last = null;
+const env = { AI: { run: async (model, input) => { last = { model, input };
+  if (model === MODEL_STT) return { text: ' Je me sens oppressée ce soir. ' };
+  if (input.stream) return new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('data: {"response":"Je suis là."}\n\ndata: [DONE]\n\n')); c.close() } });
+  if (input.messages[0].content.startsWith('Résume')) return { response: 'Tu parlais de ton travail.' };
+  throw new Error('?') } } };
+const O = 'https://priscivyro.github.io';
+const rq = (path, body, origin = O, method = 'POST') => new Request('https://elyra-voix.x.workers.dev' + path, { method, headers: { Origin: origin, 'Content-Type': 'application/json' }, body: method === 'POST' ? (body instanceof Uint8Array ? body : JSON.stringify(body)) : undefined });
+let r = await W.fetch(rq('/ping', null, O, 'GET'), env); ok(r.status === 200, 'ping');
+r = await W.fetch(rq('/chat', { messages: [{ role: 'user', content: 'x' }] }, 'https://pirate.example'), env); ok(r.status === 403, 'origine inconnue refusée');
+r = await W.fetch(new Request('https://x/chat', { method: 'OPTIONS', headers: { Origin: 'capacitor://localhost' } }), env); ok(r.status === 204 && r.headers.get('Access-Control-Allow-Origin') === 'capacitor://localhost', 'CORS appli Android/iPhone');
+r = await W.fetch(rq('/stt', new Uint8Array(5000)), env); const j = await r.json(); ok(j.text === 'Je me sens oppressée ce soir.' && last.input.language === 'fr' && typeof last.input.audio === 'string', 'voix → texte (Whisper, français)');
+r = await W.fetch(rq('/stt', new Uint8Array(100)), env); ok((await r.json()).text === '', 'son trop court ignoré');
+r = await W.fetch(rq('/chat', { mode: 'apaise', name: 'Priscilla', genre: 'f', memOn: true, mem: ['La marche t’aide'], last: 'ton travail', lastWhen: 'mardi', ex: [['sos:ground', 'Ancrage 5-4-3-2-1']], messages: [{ role: 'assistant', content: 'Bonjour' }, { role: 'user', content: 'Ça monte' }] }), env);
+ok(r.headers.get('Content-Type').includes('event-stream') && /Je suis là/.test(await r.text()), 'réponse en flux');
+const sys = last.input.messages[0].content;
+ok(last.model === MODEL_CHAT && last.input.messages[1].role === 'user', 'historique commence par la personne');
+ok(/APAISE/.test(sys) && /0800 32 123/.test(sys) && /112/.test(sys) && /N'invente jamais de souvenir/.test(sys) && /dépendance/.test(sys), 'consignes de sécurité');
+ok(/La marche t’aide/.test(sys) && /ton travail/.test(sys) && /féminin/.test(sys) && /sos:ground/.test(sys), 'mémoire, dernière fois, exercices transmis');
+r = await W.fetch(rq('/chat', { memOn: false, messages: [{ role: 'user', content: 'a' }] }), env); await r.text(); ok(/N'écris jamais de ligne MEMOIRE/.test(last.input.messages[0].content), 'pas de mémoire sans accord');
+r = await W.fetch(rq('/chat', { summary: true, messages: [{ role: 'user', content: 'mon boulot' }] }), env); ok((await r.json()).text === 'Tu parlais de ton travail.', 'résumé pour la prochaine fois');
+const env2 = { AI: { run: async () => { throw new Error('4006: you have used up your daily free allocation of 10,000 neurons') } } };
+r = await W.fetch(rq('/chat', { messages: [{ role: 'user', content: 'a' }] }), env2); ok(r.status === 429 && (await r.json()).error === 'quota', 'limite gratuite du jour signalée');
+ok(!/MEMOIRE/.test(systemPrompt({ memOn: false }).replace("N'écris jamais de ligne MEMOIRE", '')), 'prompt sans mémoire');
+console.log(errors.length ? '\n' + errors.join('\n') : '\nTOUT EST OK'); process.exit(errors.length ? 1 : 0);

@@ -38,6 +38,12 @@
     <path d="M79 37c5-7 13-8 16-4-4 7-12 8-16 4z" fill="#9db59a"/><path d="M79 37c4-1 9-2 12-3" fill="none" stroke="#7f9b7c" stroke-width="1"/>
   </symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M4.5 12.5l15-8-5.5 15-2.5-5.5z"/><path d="M11.5 14l3-3"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5h4l5-4v13l-5-4H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h4l5-4v13l-5-4H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></symbol>
+  <symbol id="i-cc" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M10.5 10.5a2.2 2.2 0 1 0 0 3M17 10.5a2.2 2.2 0 1 0 0 3"/></symbol>
+  <symbol id="i-hist" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 9"/><path d="M4.5 4.5V9H9M12 8v4.5l3 2"/></symbol>
+  <symbol id="i-kb" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M7 14h10"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
   <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6l-8 6 8 6zM6 6v12"/></symbol>
@@ -148,6 +154,9 @@
 <section class="view" id="v-elyra" aria-labelledby="elyT">
   <div class="elyhead"><svg class="face big" aria-hidden="true"><use href="#face"/></svg><h1 id="elyT">Parler à ELYRA</h1></div>
   <p class="sub">La conversation s'ouvre dans Claude, avec ton propre compte. Ce que tu y écris reste dans ton espace privé.</p>
+  <div class="card elylive"><div id="elyFace" class="elyface"></div><div><h3>Parler à voix haute</h3><p class="sub">ELYRA t'écoute et te répond avec sa voix, sans appuyer à chaque phrase. Tu peux aussi lui écrire.</p><button class="main mt" id="elyLive">Commencer</button><p class="note" id="elyLiveNote"></p></div></div>
+  <div class="sect"><h2>Dans Claude</h2></div>
+  <p class="sub">Pour les conversations plus longues, avec ton compte Claude.</p>
   <div class="list" id="modes"></div>
   <div class="card">
     <h3>Bon à savoir</h3>
@@ -362,6 +371,7 @@
   <div class="card"><h3>Mémoire de l'assistant</h3>
     <p>La mémoire d'ELYRA (ce qu'elle retient de vos conversations) se trouve dans la conversation, dans Claude. Tu peux la consulter, la modifier et l'effacer depuis le bouton « Mémoire » de la conversation.</p></div>
     <div class="sw mt"><span>Partager un petit résumé avec ELYRA quand j'ouvre la conversation (prénom, ce qui m'aide, programme en cours, humeur récente). Jamais mes notes détaillées.</span><input type="checkbox" id="pCtx"></div></div>
+  <div class="card"><h3>Conversation à voix haute</h3><div id="cvMemBox"></div></div>
   <div class="card"><h3>Verrouillage</h3><div id="lockBox"></div></div>
   <div class="card"><h3>Rappels doux</h3><div id="remBox"></div></div>
   <div class="card"><h3>Confidentialité</h3>
@@ -431,6 +441,26 @@
   <div class="pl-opts"><select id="ambM" aria-label="Ambiance sonore"></select><button class="ghost" id="plVoice" aria-pressed="true">Voix : oui</button><button class="ghost" id="plFav" aria-pressed="false">☆ Favori</button></div>
 </div>
 
+<!-- CONVERSATION À VOIX HAUTE -->
+<div class="conv" id="conv" role="dialog" aria-modal="true" aria-labelledby="convT" data-state="idle">
+  <div class="cv-w">
+    <div class="cv-top"><button class="ghost" id="cvEnd">Terminer</button><h2 id="convT" class="vh">Conversation avec ELYRA</h2>
+      <div class="row"><button class="round sm" id="cvMute" aria-pressed="false" aria-label="Couper le son"></button><button class="round sm" id="cvSub" aria-pressed="true" aria-label="Sous-titres"><svg class="icon"><use href="#i-cc"/></svg></button><button class="round sm" id="cvHist" aria-label="Historique"><svg class="icon"><use href="#i-hist"/></svg></button></div></div>
+    <div class="row chips cv-modes" id="cvModes" role="group" aria-label="Façon d'accompagner"></div>
+    <div class="cv-face" id="cvFace" title="Touche le visage pour interrompre ELYRA"></div>
+    <p class="cv-status" id="cvStatus" aria-live="polite"></p>
+    <div class="cv-sub" id="cvSubBox" aria-live="polite"><p class="cv-you" id="cvYou"></p><p class="cv-ely" id="cvEly"></p></div>
+    <div id="cvExtra"></div>
+    <div class="cv-bottom" id="cvMicW"><button class="round" id="cvKb" aria-label="Écrire à ELYRA"><svg class="icon"><use href="#i-kb"/></svg></button>
+      <button class="cv-mic" id="cvMic" aria-pressed="false" aria-label="Micro : parler à ELYRA"><svg class="icon"><use href="#i-mic"/></svg></button>
+      <button class="sosb" id="cvSos">SOS</button></div>
+    <form class="talkbar cv-text" id="cvForm" hidden autocomplete="off"><input type="text" id="cvIn" maxlength="1500" placeholder="Écris à ELYRA…" aria-label="Message à ELYRA"><button class="round" aria-label="Envoyer"><svg class="icon"><use href="#i-send"/></svg></button></form>
+    <a class="cv-claude" id="cvClaude" target="_blank" rel="noopener">Continuer dans Claude, pour une conversation plus longue</a>
+    <p class="note center">ELYRA est une intelligence artificielle. Elle ne remplace pas un professionnel. Urgence : 112.</p>
+    <div class="cv-hist" id="cvHistBox" hidden></div>
+  </div>
+</div>
+
 <!-- ÇA T'A AIDÉ ? -->
 <div class="rate" id="rate" role="dialog" aria-labelledby="rateQ">
   <div class="row between"><div><b id="rateQ">Ça t'a aidé ?</b><small id="rateL"></small></div><button class="x" data-rateclose="1" aria-label="Plus tard">✕</button></div>
@@ -482,6 +512,8 @@
 <script src="content.js"></script>
 <script src="tag.js"></script>
 <script src="outils.js"></script>
+<script src="config.js"></script>
+<script src="live.js"></script>
 <script src="sons.js"></script>
 <script src="app.js"></script>
 </body>

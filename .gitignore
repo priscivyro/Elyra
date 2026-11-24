@@ -3,3 +3,7 @@ node_modules/
 /ios/
 *.apk
 .DS_Store
+
+# Cloudflare (local)
+/worker/.wrangler/
+/worker/node_modules/

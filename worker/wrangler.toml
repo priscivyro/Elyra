@@ -1,0 +1,12 @@
+# ELYRA · petit serveur gratuit sur Cloudflare (offre gratuite, sans carte bancaire).
+# Déployé automatiquement par GitHub si les secrets CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID existent.
+name = "elyra-voix"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+[observability]
+enabled = false

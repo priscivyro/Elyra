@@ -52,9 +52,31 @@ Pour qu'un proche y ait accès, partage la page depuis Claude (bouton Partager d
 | ELYRA Anticipation : observations prudentes calculées sur le téléphone + situations à venir | Appli | Oui |
 | Kit de secours : phrases, techniques, contacts de confiance, notes | Appli | Oui |
 | Mon espace : prénom, voix, taille du texte, mode sombre, sauvegarde, restauration, effacement | Appli | Oui |
-| Assistant ELYRA (7 modes : Écoute, Apaise, Comprend, Accompagne, Encourage, Explique, La nuit) + mémoire consultable, modifiable, effaçable, résumé de l'appli partagé seulement si tu l'acceptes | Claude | Non |
+| Conversation à voix haute : visage dessiné animé (regard, clignements, expressions, lèvres), micro mains libres (détection de la parole et des silences, interruption), sous-titres, mode texte, historique, mémoire avec accord, exercices proposés, protocole de crise | Appli + serveur gratuit | Non |
+| Assistant ELYRA dans Claude (7 modes : Écoute, Apaise, Comprend, Accompagne, Encourage, Explique, La nuit) + mémoire consultable, modifiable, effaçable, résumé de l'appli partagé seulement si tu l'acceptes | Claude | Non |
 
 ---
+
+## Activer la conversation à voix haute
+
+La conversation à voix haute (le visage d'ELYRA qui t'écoute et te répond) passe par un **petit serveur gratuit chez Cloudflare**. Il sert à deux choses : transformer ta voix en texte (Whisper) et trouver la réponse d'ELYRA (Mistral Small). La voix d'ELYRA est celle du téléphone.
+
+**Gratuit, sans carte bancaire.** L'offre gratuite donne 10 000 « neurones » par jour, soit environ 100 échanges par jour pour toute la famille. Au-delà, ELYRA le dit gentiment et ça revient le lendemain (à 1 h du matin en hiver). Sans carte enregistrée, aucune facture n'est possible.
+
+**Confidentialité.** Cloudflare ne garde pas les conversations et ne s'en sert pas pour entraîner des modèles. Le serveur n'enregistre rien. L'historique et la mémoire restent sur ton téléphone (Mon espace › Conversation à voix haute).
+
+À faire **une seule fois** (plus facile sur un ordinateur) :
+
+1. Crée un compte gratuit sur https://dash.cloudflare.com/sign-up (e-mail et mot de passe, pas de carte).
+2. Dans le menu, ouvre **Workers & Pages** (parfois appelé **Compute › Workers**). Si Cloudflare te demande de choisir un sous-domaine « workers.dev », choisis par exemple `priscivyro`.
+3. Copie ton **Account ID** : il est affiché sur la page d'accueil du compte ou de Workers & Pages (colonne de droite).
+4. Crée une clé : icône du profil › **My Profile** › **API Tokens** › **Create Token** › modèle **Edit Cloudflare Workers** › *Account Resources* : ton compte › *Zone Resources* : All zones › **Continue to summary** › **Create Token**. Copie la clé affichée (elle ne s'affiche qu'une fois).
+5. Sur GitHub, dans le dépôt **Elyra** : **Settings › Secrets and variables › Actions › New repository secret**. Crée deux secrets :
+   - `CLOUDFLARE_API_TOKEN` : la clé de l'étape 4 ;
+   - `CLOUDFLARE_ACCOUNT_ID` : l'identifiant de l'étape 3.
+6. Onglet **Actions › Construire ELYRA › Run workflow**. Environ 5 minutes plus tard, l'appli iPhone et l'APK savent parler à voix haute.
+
+Tant que ce n'est pas fait, « Parler » ouvre la conversation dans Claude, comme avant.
 
 ## Données et confidentialité
 
@@ -75,6 +97,8 @@ www/                  L'appli (sans dépendance externe)
   content.js          TOUS les textes : séances, histoires, parcours, fiches… (à modifier ici)
   outils.js           Les textes de la boîte à outils, des outils guidés, de Mon corps, de la nuit et des rappels
   tag.js              Le programme TAG en 8 modules
+  live.js             Le visage animé d'ELYRA et le micro mains libres
+  config.js           L'adresse du petit serveur (remplie par GitHub)
   app.js              Le fonctionnement de l'appli
   sons.js             Le moteur de sons d'ambiance (généré en direct, hors ligne)
   sw.js               Fonctionnement hors ligne (iPhone / navigateur)
@@ -82,6 +106,7 @@ www/                  L'appli (sans dépendance externe)
 tools/voix/           Génération de la voix (Piper, voix fr_FR-siwis-medium)
   manifest.webmanifest, icons/, fonts/ (polices embarquées)
 chat/index.html       Source de la conversation ELYRA publiée dans Claude
+worker/               Le petit serveur gratuit (Cloudflare) de la conversation à voix haute
 assets/               Icône et écran de démarrage Android
 signing/debug.keystore  Clé de signature fixe de l'APK (voir plus bas)
 tests/                Tests automatisés
@@ -119,4 +144,6 @@ cd tests && npm install jsdom@24
 (cd ../www && python3 -m http.server 8766 &)
 node app.test.js http://localhost:8766/index.html
 node chat.test.js ../chat/index.html
+node voix.test.js http://localhost:8766/index.html
+node worker.test.mjs
 ```

@@ -35,6 +35,34 @@ jobs:
           node app.test.js http://localhost:8766/index.html
           node chat.test.js $GITHUB_WORKSPACE/chat/index.html | tee chat.log
           grep -q "TOUT EST OK" chat.log
+          node voix.test.js http://localhost:8766/index.html
+          node $GITHUB_WORKSPACE/tests/worker.test.mjs
+
+  # Petit serveur gratuit (Cloudflare) pour la conversation à voix haute.
+  # Ne fait rien tant que les secrets CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID n'existent pas.
+  serveur:
+    needs: tests
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.dep.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: dep
+        name: Déployer le serveur ELYRA
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "Pas de clé Cloudflare : la conversation à voix haute n'est pas encore activée."; exit 0; fi
+          cd worker
+          npx --yes wrangler@4 deploy 2>&1 | tee ../deploy.log
+          URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.workers\.dev' ../deploy.log | head -1)
+          echo "Adresse : $URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
 
   voix:
     runs-on: ubuntu-latest
@@ -70,7 +98,7 @@ jobs:
           retention-days: 7
 
   web:
-    needs: [voix, tests]
+    needs: [voix, tests, serveur]
     if: always() && needs.tests.result == 'success'
     runs-on: ubuntu-latest
     environment:
@@ -83,6 +111,9 @@ jobs:
         with:
           name: voix
           path: www/voix
+      - name: Adresse du serveur ELYRA
+        if: needs.serveur.outputs.url != ''
+        run: echo "window.ELYRA_CONFIG={voix:'${{ needs.serveur.outputs.url }}'};" > www/config.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -91,7 +122,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   apk:
-    needs: [voix, tests]
+    needs: [voix, tests, serveur]
     if: always() && needs.tests.result == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -101,6 +132,9 @@ jobs:
         with:
           name: voix
           path: www/voix
+      - name: Adresse du serveur ELYRA
+        if: needs.serveur.outputs.url != ''
+        run: echo "window.ELYRA_CONFIG={voix:'${{ needs.serveur.outputs.url }}'};" > www/config.js
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -117,7 +151,7 @@ jobs:
           npx cap sync android
       # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
       - name: Signature fixe et numéro de version
-        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.3.${{ github.run_number }}
+        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.4.${{ github.run_number }}
       - name: Construire l'APK
         working-directory: android
         run: |
@@ -135,8 +169,8 @@ jobs:
       - name: Publier la version
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.${{ github.run_number }}
-          name: ELYRA pour Android (version 1.3.${{ github.run_number }})
+          tag_name: v1.4.${{ github.run_number }}
+          name: ELYRA pour Android (version 1.4.${{ github.run_number }})
           make_latest: true
           files: ELYRA.apk
           body: |

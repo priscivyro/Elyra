@@ -32,3 +32,12 @@ d = pathlib.Path('android/app/src/main/res/drawable'); d.mkdir(parents=True, exi
   <path android:fillColor="#FFFFFFFF" android:pathData="M12,3C10.2,5 9.3,7.6 9.4,10.4C7.6,9 5.4,8.5 3.5,8.8C3.7,13.6 6.9,17.3 11,18.2L11,21L13,21L13,18.2C17.1,17.3 20.3,13.6 20.5,8.8C18.6,8.5 16.4,9 14.6,10.4C14.7,7.6 13.8,5 12,3Z"/>
 </vector>''')
 print('icône de notification ajoutée')
+
+# Micro pour la conversation à voix haute (la permission est demandée à la première utilisation).
+m = pathlib.Path('android/app/src/main/AndroidManifest.xml')
+x = m.read_text()
+for perm in ('android.permission.RECORD_AUDIO', 'android.permission.MODIFY_AUDIO_SETTINGS'):
+    if perm not in x:
+        x = x.replace('</manifest>', f'    <uses-permission android:name="{perm}" />\n</manifest>', 1)
+m.write_text(x)
+print('permissions micro ajoutées')
