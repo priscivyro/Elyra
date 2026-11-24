@@ -1,4 +1,5 @@
 name: Appli web (iPhone)
+# Publie le dossier www/ sur https://priscivyro.github.io/Elyra/
 
 on:
   push:
