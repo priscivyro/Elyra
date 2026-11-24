@@ -1,0 +1,121 @@
+name: Construire ELYRA
+# 1. Génère la voix ELYRA (Piper, gratuit) — seules les nouvelles phrases sont calculées.
+# 2. Publie l'appli iPhone sur https://priscivyro.github.io/Elyra/
+# 3. Fabrique l'APK Android et le publie dans « Releases ».
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  voix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reprendre les audios déjà générés
+        uses: actions/cache@v4
+        with:
+          path: voix-cache
+          key: voix-v1-${{ hashFiles('www/content.js', 'tools/voix/**') }}
+          restore-keys: voix-v1-
+      - name: Installer Piper et ffmpeg
+        run: |
+          pip install piper-tts==1.8.0
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          mkdir -p modeles && python -m piper.download_voices fr_FR-siwis-medium --data-dir modeles
+      - name: Générer la voix
+        run: |
+          node tools/voix/lignes.mjs > lignes.json
+          python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache
+          du -sh voix-cache
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voix
+          path: voix-cache
+          retention-days: 7
+
+  web:
+    needs: voix
+    if: always()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: voix
+          path: www/voix
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  apk:
+    needs: voix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: voix
+          path: www/voix
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Installer les dépendances
+        run: npm ci
+      - name: Préparer le projet Android
+        run: |
+          npx cap add android
+          npx capacitor-assets generate --android --iconBackgroundColor '#f7f2e9' --iconBackgroundColorDark '#1c1a20' --splashBackgroundColor '#f7f2e9' --splashBackgroundColorDark '#1c1a20'
+          npx cap sync android
+      # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
+      - name: Clé de signature fixe
+        run: mkdir -p ~/.android && cp signing/debug.keystore ~/.android/debug.keystore
+      - name: Construire l'APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../ELYRA.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ELYRA-apk
+          path: ELYRA.apk
+      - name: Publier la version
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.${{ github.run_number }}
+          name: ELYRA pour Android (version 1.1.${{ github.run_number }})
+          make_latest: true
+          files: ELYRA.apk
+          body: |
+            Télécharge **ELYRA.apk** sur ton téléphone Android et ouvre-le pour l'installer (par-dessus l'ancienne version, tes données sont gardées).
+            Lien direct toujours à jour : https://github.com/${{ github.repository }}/releases/latest/download/ELYRA.apk

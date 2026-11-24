@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f2e9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1c1a20" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1b1920" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -13,164 +13,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
 <title>ELYRA</title>
-<style>
-/* VOICE: douce, chaleureuse, rassurante — une appli qui accompagne sans jamais presser.
-   IDEA: un bourgeon qui respire — deux pétales (lavande, sauge) autour d'un cœur champagne.
-   PICTURE: le bourgeon ELYRA en grand sur l'accueil, qui respire lentement; la bulle de respiration.
-   COLOUR and TYPE: ivoire chaleureux, lavande poudrée, vert sauge, beige champagne, texte gris chaud; Fraunces + Figtree (embarquées, hors ligne).
-   LAYOUT: colonne d'appli 600px, en-tête avec SOS permanent, barre d'onglets en bas, une vue à la fois. */
-@font-face{font-family:Fraunces;src:url(fonts/fraunces-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
-@font-face{font-family:Fraunces;src:url(fonts/fraunces-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
-@font-face{font-family:Figtree;src:url(fonts/figtree-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
-@font-face{font-family:Figtree;src:url(fonts/figtree-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
-@font-face{font-family:Figtree;src:url(fonts/figtree-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
-:root{color-scheme:light dark;font-size:16px;
---bg:light-dark(#f7f2e9,#1c1a20);--card:light-dark(#fffcf6,#26232b);--ink:light-dark(#3f3833,#eee7dc);--soft:light-dark(#776d65,#b2a99e);
---lav:light-dark(#b8a8d9,#8f7fbd);--lavd:light-dark(#6a5996,#cbbff0);--lavs:light-dark(#ede7f6,#302a3d);
---sage:light-dark(#9db59a,#7c987a);--saged:light-dark(#4f6d49,#a9c7a3);--sages:light-dark(#e5ede1,#25302a);
---champ:light-dark(#e4d2ae,#7d6d52);--champs:light-dark(#f3ead8,#312b22);--line:light-dark(#e6dccb,#3a3541);
---onp:light-dark(#fff,#1c1a20);--warm:light-dark(#94452f,#eba08a);--warms:light-dark(#f8e5dc,#3a2724)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-:root[data-size=l]{font-size:18px}:root[data-size=xl]{font-size:20px}
-*{box-sizing:border-box;min-width:0}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.55 Figtree,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
-h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:400;line-height:1.12;margin:0;text-wrap:balance}
-h1{font-size:clamp(2rem,8vw,2.6rem)}h2{font-size:1.55rem}h3{font-size:1.18rem}
-p{margin:.45em 0 0}
-a{color:var(--lavd)}
-.app{max-width:600px;margin:0 auto;padding:6px 18px calc(110px + env(safe-area-inset-bottom))}
-.top{position:sticky;top:0;z-index:15;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top)}
-.top .in{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 18px}
-.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-family:Fraunces,serif;font-size:1.4rem;letter-spacing:.02em}
-.brand svg{width:32px;height:32px;flex:none}
-button,select,input,textarea{font:inherit;color:inherit}
-button,.btn{cursor:pointer;border:0;border-radius:999px;min-height:44px;padding:0 18px;background:var(--lavs);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink);font-size:1rem;line-height:1.2;text-align:center}
-button:disabled{opacity:.45;cursor:default}
-:focus-visible{outline:3px solid var(--lav);outline-offset:2px}
-.main{background:var(--lavd);color:var(--onp)}
-.sage{background:var(--saged);color:var(--onp)}
-.ghost{background:transparent;border:1.5px solid var(--line)}
-.sosb{background:var(--warms);color:var(--warm);border:1.5px solid color-mix(in srgb,var(--warm) 30%,transparent);font-weight:700;padding:0 16px}
-.sosb svg{width:18px;height:18px}
-.view{display:none;padding-top:8px}.view.on{display:block}
-.sub{color:var(--soft);margin:6px 0 0}
-.card{background:var(--card);border-radius:22px;padding:18px;margin-top:14px;border:1px solid var(--line)}
-.card h3+p{margin-top:6px}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.center{justify-content:center}.between{justify-content:space-between}
-.mt{margin-top:12px}.mt2{margin-top:20px}
-.chips button{background:var(--card);border:1.5px solid var(--line);font-weight:600;padding:0 14px}
-.chips button[aria-pressed=true]{background:var(--lavd);color:var(--onp);border-color:var(--lavd)}
-.note{font-size:.85rem;color:var(--soft);margin-top:10px}
-label.f{display:block;font-weight:600;margin-top:12px}
-label.f input,label.f select{display:block;width:100%;margin-top:6px}
-input[type=text],input[type=tel],input[type=date],input[type=time],select{min-height:44px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 12px;font-size:1rem;width:100%}
-textarea{width:100%;min-height:92px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);padding:12px;font-size:1rem;resize:vertical;margin-top:10px}
-input[type=range]{width:100%;accent-color:var(--lavd);height:44px}
-.inl{display:flex;gap:8px;margin-top:10px}.inl input{flex:1}.inl button{flex:none}
-.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-.sw:first-of-type{border-top:0}
-.sw input{width:24px;height:24px;accent-color:var(--lavd);flex:none}
-/* accueil */
-.hero{position:relative;margin:4px -18px 0;padding:6px 18px 0;background:linear-gradient(180deg,var(--bg),var(--lavs) 70%,var(--bg));}
-.hero .sig{font-family:Fraunces,serif;font-size:1.12rem;color:var(--soft);margin-top:6px}
-.bloom{display:block;width:100%;height:230px}
-.breathe{transform-box:fill-box;transform-origin:50% 80%;animation:br 9s ease-in-out infinite}
-@keyframes br{0%,100%{transform:scale(.94)}50%{transform:scale(1.05)}}
-.hero .acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding-bottom:6px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
-.stat b{display:block;font-family:Fraunces,serif;font-weight:400;font-size:1.7rem;line-height:1.1}
-.stat span{font-size:.82rem;color:var(--soft)}
-.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:-1px;flex:none}
-.m1{background:#8c7fa8}.m2{background:#c49484}.m3{background:#cdb68a}.m4{background:#8fb0a3}.m5{background:#7f9f72}
-.quote{font-family:Fraunces,serif;font-size:1.2rem;line-height:1.35;color:var(--ink)}
-.tag{display:inline-block;font-size:.8rem;font-weight:600;color:var(--saged);background:var(--sages);border-radius:999px;padding:3px 10px}
-/* respiration */
-.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--champs);border-radius:999px;padding:4px;margin-top:14px}
-.seg button{background:transparent;min-height:40px;padding:0 6px}
-.seg button[aria-selected=true]{background:var(--card);box-shadow:0 1px 3px rgb(0 0 0/.08)}
-.pane{display:none}.pane.on{display:block}
-.stage{position:relative;height:min(64vw,330px);min-height:250px;display:grid;place-items:center;margin-top:10px}
-.ring{position:absolute;width:min(56vw,290px);aspect-ratio:1;border-radius:50%;border:2px dashed var(--line)}
-.bub{width:min(56vw,290px);aspect-ratio:1;border-radius:50%;transform:scale(.42);transition:transform 1.5s ease-in-out;
-background:radial-gradient(circle at 35% 30%,light-dark(#fff,#e9e2f7) 0,var(--lav) 52%,var(--sage) 100%);box-shadow:0 18px 40px rgb(80 60 110/.22)}
-.lbl{position:absolute;text-align:center;pointer-events:none}
-.lbl b{display:block;font-family:Fraunces,serif;font-weight:400;font-size:1.55rem;color:var(--ink)}
-.lbl span{font-size:.95rem;color:var(--soft)}
-.left{text-align:center;color:var(--soft);font-size:.9rem;min-height:22px;margin:0}
-.list{display:grid;gap:10px;margin-top:14px}
-.item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:10px 10px 10px 14px}
-.item .go{display:flex;gap:14px;align-items:center;text-align:left;background:transparent;border:0;padding:4px 0;min-height:60px;flex:1;font-weight:400;justify-content:flex-start}
-.item .min{flex:none;width:50px;height:50px;border-radius:50%;background:var(--sages);color:var(--saged);display:grid;place-items:center;font-weight:700;font-size:.85rem}
-.item p{margin:2px 0 0;color:var(--soft);font-size:.9rem}
-.item[aria-current=true]{border-color:var(--lavd);background:var(--lavs)}
-.star{flex:none;width:44px;padding:0;background:transparent;font-size:1.35rem;color:var(--champ);line-height:1}
-.star[aria-pressed=true]{color:light-dark(#b8913e,#e4c27a)}
-/* feuilles plein écran */
-.sheet{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));overflow:auto}
-.sheet.on{display:flex}
-.sheet .say{flex:1;display:grid;place-items:center;text-align:center;max-width:520px;margin:0 auto;font-family:Fraunces,serif;font-size:clamp(1.35rem,6vw,1.85rem);line-height:1.32;text-wrap:balance;padding:20px 0}
-.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;max-width:520px;width:100%;margin:0 auto 16px}
-.bar i{display:block;height:100%;width:0;background:var(--lav);transition:width 1s linear}
-.w{max-width:520px;width:100%;margin:0 auto}
-/* SOS */
-.sos{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;display:none;padding:calc(14px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom))}
-.sos.on{display:block}
-.sos .w>h2{margin-top:10px}
-.opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;border-radius:20px;padding:14px 16px;background:var(--card);border:1.5px solid var(--line);min-height:64px;font-weight:400}
-.opt b{font-weight:700}.opt span{color:var(--soft);font-size:.9rem}
-.sitg{display:grid;gap:10px;margin-top:16px}
-.step{font-family:Fraunces,serif;font-size:1.35rem;line-height:1.35;margin:10px 0 16px;min-height:96px}
-.big{font-size:2.6rem;color:var(--lavd);font-family:Fraunces,serif;line-height:1;margin:0}
-.warnb{background:var(--warms);border:1.5px solid color-mix(in srgb,var(--warm) 35%,transparent);border-radius:20px;padding:16px;margin-top:14px}
-.warnb b{color:var(--warm)}
-.urg{display:grid;gap:8px;margin-top:10px}
-.urg a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;min-height:52px}
-.urg a b{font-family:Fraunces,serif;font-weight:500;font-size:1.25rem;color:var(--warm);white-space:nowrap;flex:none;min-width:5.6em}
-.urg a span{font-size:.9rem;line-height:1.3}
-.phr{font-family:Fraunces,serif;font-size:1.15rem;background:var(--lavs);border-radius:16px;padding:12px 14px;margin-top:8px}
-/* journal / graphiques */
-.chart{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;align-items:end;height:110px;margin-top:10px}
-.chart.c30{grid-template-columns:repeat(30,minmax(0,1fr));gap:2px}
-.chart div{background:var(--lav);border-radius:5px 5px 2px 2px;min-height:3px}
-.chart.mood div{background:var(--sage)}
-.chart div.z{background:var(--line)}
-.axis{display:flex;justify-content:space-between;font-size:.8rem;color:var(--soft);margin-top:4px}
-.entry{border-top:1px solid var(--line);padding:12px 0;display:flex;gap:10px;align-items:flex-start}.entry:first-child{border:0}
-.entry>div{flex:1}
-.entry small{color:var(--soft);font-size:.82rem}.entry p{margin:2px 0 0}
-.del{flex:none;min-height:36px;padding:0 12px;font-size:.85rem;background:transparent;border:1px solid var(--line);color:var(--soft)}
-/* moi */
-.hub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
-.hub a{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;min-height:132px}
-.hub a svg{width:30px;height:30px;fill:none;stroke:var(--saged);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.hub a p{margin:0;font-size:.88rem;color:var(--soft)}
-.hub a:last-child:nth-child(odd){grid-column:1/-1;min-height:0}
-.back{background:transparent;padding:0 4px;color:var(--soft);min-height:40px;font-weight:600}
-.stepl{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:14px 0}
-.stepl:first-child{border:0}
-.stepl input{width:26px;height:26px;accent-color:var(--saged);flex:none;margin-top:2px}
-.stepl.done h3{color:var(--soft)}
-.obs{background:var(--sages);border-radius:16px;padding:12px 14px;margin-top:8px}
-.obs small{display:block;color:var(--soft);font-size:.8rem;margin-top:2px}
-/* nav */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
-nav.tabs div{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
-nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:.78rem;color:var(--soft);text-decoration:none;font-weight:600}
-nav.tabs a svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-nav.tabs a.on{color:var(--lavd)}
-.dlg{position:fixed;inset:0;z-index:70;background:rgb(30 25 35/.45);display:none;place-items:center;padding:20px}
-.dlg.on{display:grid}
-.dlg .card{max-width:420px;width:100%}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.92rem;z-index:80;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90vw;text-align:center}
-.toast.on{opacity:1}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-@media(prefers-reduced-motion:reduce){.breathe{animation:none}.bar i,.bub{transition:none}}
-@media(max-width:380px){.hero .acts{grid-template-columns:1fr}.stat b{font-size:1.4rem}}
-</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -180,6 +24,21 @@ nav.tabs a.on{color:var(--lavd)}
     <ellipse cx="24" cy="20" rx="6.5" ry="13" fill="#e4d2ae" fill-opacity=".85"/>
     <circle cx="24" cy="33" r="4" fill="#fffcf6"/>
   </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6l-8 6 8 6zM6 6v12"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6zM18 6v12"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="g-stress" viewBox="0 0 24 24"><path d="M3 13c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M3 8c2-3 4-3 6 0s4 3 6 0 4-3 6 0" opacity=".6"/></symbol>
+  <symbol id="g-sos" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></symbol>
+  <symbol id="g-sommeil" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z"/><path d="M16 4h3l-3 3h3" stroke-width="1.3"/></symbol>
+  <symbol id="g-corps" viewBox="0 0 24 24"><path d="M12 21c0-6 0-9 0-12M12 9c-4 0-6-2-6-5 4 0 6 2 6 5zM12 13c4 0 6-2 6-5-4 0-6 2-6 5z"/></symbol>
+  <symbol id="g-visu" viewBox="0 0 24 24"><path d="M2 19l6-8 4 5 3-4 7 7z"/><circle cx="17" cy="6" r="2.5"/></symbol>
+  <symbol id="g-confiance" viewBox="0 0 24 24"><path d="M12 3l2 6 6 .5-4.6 4 1.4 6.5L12 17l-4.8 3 1.4-6.5L4 9.5 10 9z"/></symbol>
+  <symbol id="g-quotidien" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></symbol>
+  <symbol id="g-histoire" viewBox="0 0 24 24"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></symbol>
+  <symbol id="g-breath" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></symbol>
+  <symbol id="g-son" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></symbol>
 </svg>
 
 <header class="top"><div class="in">
@@ -189,28 +48,34 @@ nav.tabs a.on{color:var(--lavd)}
 
 <main class="app">
 
-<!-- ================= ACCUEIL ================= -->
+<!-- ACCUEIL -->
 <section class="view" id="v-accueil" aria-labelledby="hello">
-  <div class="hero">
+  <div class="hero" id="hero">
     <h1 id="hello">Bonsoir</h1>
     <p class="sig">Tu n'as pas besoin de tout maîtriser pour avancer.</p>
-    <svg class="bloom" viewBox="0 0 320 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <svg class="bloom" viewBox="0 0 340 236" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
-        <radialGradient id="halo"><stop offset="0" style="stop-color:var(--champ);stop-opacity:.75"/><stop offset="1" style="stop-color:var(--champ);stop-opacity:0"/></radialGradient>
+        <radialGradient id="halo"><stop offset="0" style="stop-color:var(--champ);stop-opacity:.8"/><stop offset="1" style="stop-color:var(--champ);stop-opacity:0"/></radialGradient>
         <linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--lav)"/><stop offset="1" style="stop-color:var(--lav);stop-opacity:.55"/></linearGradient>
         <linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sage)"/><stop offset="1" style="stop-color:var(--sage);stop-opacity:.5"/></linearGradient>
         <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--champ)"/><stop offset="1" style="stop-color:var(--champ);stop-opacity:.4"/></linearGradient>
       </defs>
-      <circle cx="160" cy="118" r="112" fill="url(#halo)"/>
-      <circle cx="160" cy="118" r="92" fill="none" style="stroke:var(--line)" stroke-width="1.5" stroke-dasharray="2 7"/>
-      <ellipse cx="160" cy="214" rx="64" ry="6" style="fill:var(--ink)" opacity=".07"/>
+      <path d="M-400 196 C-200 176 -40 190 60 182 C120 176 150 190 200 192 S300 172 380 184 S600 198 740 186 V260 H-400Z" style="fill:var(--sage)" opacity=".14"/>
+      <path d="M-400 214 C-250 200 -60 212 40 206 C120 200 160 212 220 214 S330 202 420 208 S620 216 740 206 V260 H-400Z" style="fill:var(--sage)" opacity=".2"/>
+      <circle cx="170" cy="112" r="108" fill="url(#halo)"/>
+      <circle cx="170" cy="112" r="90" fill="none" style="stroke:var(--line)" stroke-width="1.5" stroke-dasharray="2 7"/>
       <g class="breathe">
-        <ellipse cx="160" cy="112" rx="34" ry="66" transform="rotate(-32 160 168)" fill="url(#gl)"/>
-        <ellipse cx="160" cy="112" rx="34" ry="66" transform="rotate(32 160 168)" fill="url(#gs)"/>
-        <ellipse cx="160" cy="106" rx="24" ry="56" fill="url(#gc)"/>
-        <path d="M148 70 q12 -26 24 0" fill="none" style="stroke:var(--card)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
-        <circle cx="160" cy="160" r="13" style="fill:var(--card)"/>
-        <circle cx="160" cy="160" r="5" style="fill:var(--champ)"/>
+        <ellipse cx="170" cy="108" rx="34" ry="66" transform="rotate(-32 170 164)" fill="url(#gl)"/>
+        <ellipse cx="170" cy="108" rx="34" ry="66" transform="rotate(32 170 164)" fill="url(#gs)"/>
+        <ellipse cx="170" cy="102" rx="24" ry="56" fill="url(#gc)"/>
+        <path d="M158 66 q12 -26 24 0" fill="none" style="stroke:var(--card)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+        <circle cx="170" cy="156" r="13" style="fill:var(--card)"/>
+        <circle cx="170" cy="156" r="5" style="fill:var(--champ)"/>
+      </g>
+      <g style="fill:var(--card)">
+        <circle class="mote" cx="92" cy="150" r="3"/><circle class="mote" cx="250" cy="130" r="2.5" style="animation-delay:-4s"/>
+        <circle class="mote" cx="118" cy="96" r="2" style="animation-delay:-8s"/><circle class="mote" cx="232" cy="78" r="3" style="animation-delay:-11s"/>
+        <circle class="mote" cx="200" cy="170" r="2" style="animation-delay:-6s"/>
       </g>
     </svg>
     <div class="acts">
@@ -231,14 +96,11 @@ nav.tabs a.on{color:var(--lavd)}
   </div>
 
   <div id="homeUp"></div>
-  <div class="card" id="homeProg"></div>
 
-  <div class="card">
-    <span class="tag" id="sugTag">Suggestion</span>
-    <h3 class="mt" id="sugT"></h3>
-    <p class="sub" id="sugD"></p>
-    <button class="ghost mt" id="sugBtn">Commencer</button>
-  </div>
+  <div class="sect"><h2>Pour toi, maintenant</h2></div>
+  <div class="tiles" id="homeTiles"></div>
+
+  <div class="card" id="homeProg"></div>
 
   <div class="card row between">
     <div><h3>Mon kit de secours</h3><p class="sub" id="kitHint">Tes phrases, tes contacts, ce qui t'aide.</p></div>
@@ -252,24 +114,24 @@ nav.tabs a.on{color:var(--lavd)}
     <div class="stat"><b id="stMood">–</b><span>dernière humeur</span></div>
   </div></a>
 
-  <div class="card" style="background:var(--champs)"><p class="quote" id="enc"></p></div>
+  <div class="card qcard"><span class="tag ch">Pensée du jour</span><p class="quote mt" id="enc"></p></div>
+  <div class="card row between"><div><span class="tag">Comprendre</span><h3 class="mt" id="ficheDayT"></h3><p class="sub" id="ficheDayD"></p></div><button class="ghost" id="ficheDayGo">Lire</button></div>
   <p class="note">ELYRA ne pose pas de diagnostic et ne remplace pas un professionnel de santé. En cas d'urgence : <b>112</b>.</p>
 </section>
 
-<!-- ================= ELYRA (conversation) ================= -->
+<!-- ELYRA -->
 <section class="view" id="v-elyra" aria-labelledby="elyT">
   <h1 id="elyT">Parler à ELYRA</h1>
   <p class="sub">La conversation s'ouvre dans Claude, avec ton propre compte. Ce que tu y écris reste dans ton espace privé.</p>
   <div class="list" id="modes"></div>
   <div class="card">
     <h3>Bon à savoir</h3>
-    <p>ELYRA écoute, t'aide à y voir plus clair et propose des exercices. Elle ne pose pas de diagnostic et ne remplace pas un professionnel.</p>
+    <p>ELYRA écoute, t'aide à y voir plus clair et propose des exercices de l'appli. Elle ne pose pas de diagnostic et ne remplace pas un professionnel.</p>
     <p>La conversation a besoin d'Internet. Tout le reste de l'appli fonctionne aussi hors ligne.</p>
-    <p class="note" id="chatMissing" hidden>La conversation n'est pas encore reliée à l'appli.</p>
   </div>
 </section>
 
-<!-- ================= CALME ================= -->
+<!-- CALME -->
 <section class="view" id="v-calme" aria-labelledby="calT">
   <h1 id="calT">Ma bulle de calme</h1>
   <p class="sub">Respirer, méditer, écouter. Rien d'obligatoire : prends ce qui te fait du bien.</p>
@@ -277,49 +139,77 @@ nav.tabs a.on{color:var(--lavd)}
   <div class="seg" role="tablist" id="calTabs">
     <button role="tab" data-t="respirer" aria-selected="true">Respirer</button>
     <button role="tab" data-t="mediter" aria-selected="false">Méditer</button>
+    <button role="tab" data-t="histoires" aria-selected="false">Histoires</button>
     <button role="tab" data-t="sons" aria-selected="false">Sons</button>
   </div>
   <div class="pane on" id="p-respirer" role="tabpanel">
-    <div class="row chips mt" id="presets"></div>
+    <div class="scrollx chips mt" id="presets"></div>
     <div id="brMain"></div>
     <div class="row chips center" id="durs"></div>
     <div class="row center mt"><button class="main" id="brBtn">Commencer</button><select id="ambB" aria-label="Ambiance sonore" style="width:auto"></select><button class="star" id="brFav" aria-pressed="false" aria-label="Ajouter aux favoris">☆</button></div>
+    <div class="sw mt" style="border:0"><span>Guidage vocal (« inspire », « expire »)</span><input type="checkbox" id="brVoice"></div>
     <p class="note" id="presetInfo"></p>
     <p class="note">Rien ne doit forcer. Si la tête tourne ou si c'est inconfortable, arrête et reprends ta respiration normale.</p>
   </div>
   <div class="pane" id="p-mediter" role="tabpanel">
+    <div class="scrollx chips mt" id="medCats"></div>
     <div id="resume"></div>
     <div class="list" id="meds"></div>
-    <p class="note">Les séances sont lues à voix haute si la voix est activée (réglable dans Mon espace).</p>
+  </div>
+  <div class="pane" id="p-histoires" role="tabpanel">
+    <p class="sub mt">Des histoires lentes pour t'endormir. Pas besoin d'arriver au bout.</p>
+    <div class="list" id="stories"></div>
   </div>
   <div class="pane" id="p-sons" role="tabpanel">
+    <p class="sub mt">Touche un son pour l'écouter. Tu peux en mélanger plusieurs et régler chaque volume.</p>
+    <div class="scrollx chips mt" id="mixes"></div>
+    <div class="snd" id="sounds"></div>
     <div class="card">
       <label class="f" style="margin:0">Minuterie
-        <select id="sndTimer"><option value="0">Sans arrêt</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">1 heure</option></select></label>
-      <p class="note" id="sndState">Aucun son en cours.</p>
+        <select id="sndTimer"><option value="0">Sans arrêt</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">1 heure</option><option value="90">1 h 30</option></select></label>
+      <div class="row between mt"><p class="note" id="sndState" style="margin:0">Aucun son en cours.</p><button class="ghost" id="sndStop">Tout arrêter</button></div>
     </div>
-    <div class="list" id="sounds"></div>
   </div>
 </section>
 
-<!-- ================= JOURNAL ================= -->
+<!-- JOURNAL -->
 <section class="view" id="v-journal" aria-labelledby="jT">
   <h1 id="jT">Mon journal</h1>
   <p class="sub">Note ce que tu vis pour mieux te comprendre. Tout reste sur ton téléphone.</p>
+  <div class="card row between"><div><h3>Démêler une pensée</h3><p class="sub">Un outil pas à pas quand une pensée te pèse.</p></div><a class="btn ghost" href="#pensee">Commencer</a></div>
   <form class="card" id="jForm">
     <h3>Humeur</h3><div class="row chips mt" id="moodJ"></div>
     <h3 class="mt2">Stress : <span id="sv">5</span>/10</h3>
     <input type="range" id="stress" min="0" max="10" value="5" aria-label="Niveau de stress">
     <h3 class="mt">Émotions</h3><div class="row chips mt" id="emoJ"></div>
     <h3 class="mt2">Situation</h3><div class="row chips mt" id="sitJ"></div>
-    <textarea id="jNote" maxlength="3000" placeholder="Ce qui s'est passé, ce que tu as pensé, ce qui t'a aidé…" aria-label="Notes"></textarea>
+    <div class="prompt"><p id="jPrompt"></p><button type="button" id="jPromptNext">Autre</button></div>
+    <textarea id="jNote" maxlength="3000" placeholder="Écris librement…" aria-label="Notes"></textarea>
     <div class="row mt"><button class="main" type="submit">Enregistrer</button><span id="jMsg" class="note" style="margin:0" role="status"></span></div>
   </form>
   <div class="card"><h3>Stress sur 14 jours</h3><div class="chart" id="chart"></div><div class="axis"><span>il y a 2 sem.</span><span>aujourd'hui</span></div></div>
   <div class="card"><h3>Historique</h3><div id="entries"></div><button class="ghost mt" id="moreJ" hidden>Voir plus</button></div>
 </section>
 
-<!-- ================= MOI ================= -->
+<!-- PENSÉE -->
+<section class="view" id="v-pensee" aria-labelledby="penT">
+  <button class="back" data-back="journal">‹ Journal</button>
+  <h1 id="penT">Démêler une pensée</h1>
+  <p class="sub">Inspiré des thérapies cognitives. Prends ton temps, tu peux sauter une étape.</p>
+  <form class="card" id="tForm">
+    <div class="tstep on"><h3>1. La situation</h3><p class="sub">Que s'est-il passé ? Où, quand, avec qui ? Juste les faits.</p><textarea id="t1" maxlength="1000" aria-label="La situation"></textarea></div>
+    <div class="tstep"><h3>2. La pensée</h3><p class="sub">Qu'est-ce qui t'est passé par la tête ? Écris-la telle quelle.</p><textarea id="t2" maxlength="1000" placeholder="Ex. « Je vais encore tout rater »" aria-label="La pensée"></textarea></div>
+    <div class="tstep"><h3>3. L'émotion</h3><p class="sub">Qu'as-tu ressenti, et à quelle intensité ?</p><div class="row chips mt" id="tEmo"></div><p class="mt" style="font-weight:600">Intensité : <span id="t3v">6</span>/10</p><input type="range" id="t3" min="0" max="10" value="6" aria-label="Intensité de l'émotion"></div>
+    <div class="tstep"><h3>4. Un piège de pensée ?</h3><p class="sub">Reconnais-tu un de ces raccourcis ? La fiche « Les pièges de pensée » les explique.</p><div class="row chips mt" id="tTrap"></div></div>
+    <div class="tstep"><h3>5. Les faits</h3><p class="sub">Qu'est-ce qui va dans le sens de cette pensée ? Et qu'est-ce qui ne va pas dans ce sens ?</p><textarea id="t5a" maxlength="1000" placeholder="Ce qui va dans son sens…" aria-label="Ce qui va dans son sens"></textarea><textarea id="t5b" maxlength="1000" placeholder="Ce qui ne va pas dans son sens…" aria-label="Ce qui ne va pas dans son sens"></textarea></div>
+    <div class="tstep"><h3>6. Un autre regard</h3><p class="sub">Que dirais-tu à une personne que tu aimes, qui aurait cette pensée ? Quelle pensée plus nuancée pourrais-tu garder ?</p><textarea id="t6" maxlength="1000" aria-label="Un autre regard"></textarea></div>
+    <div class="tstep"><h3>7. Et maintenant ?</h3><p class="sub">L'intensité de l'émotion, maintenant :</p><p class="mt" style="font-weight:600"><span id="t7v">5</span>/10</p><input type="range" id="t7" min="0" max="10" value="5" aria-label="Intensité maintenant"><p class="note">Même si elle n'a pas baissé, tu as pris le temps de regarder ta pensée. C'est déjà beaucoup.</p></div>
+    <div class="dots" id="tDots"></div>
+    <div class="row between mt"><button type="button" class="ghost" id="tPrev">Précédent</button><button type="button" class="main" id="tNext">Suivant</button></div>
+  </form>
+</section>
+
+<!-- MOI -->
 <section class="view" id="v-moi" aria-labelledby="moiT">
   <h1 id="moiT">Moi</h1>
   <p class="sub">Ton parcours, tes nuits, tes progrès et tes repères.</p>
@@ -328,11 +218,12 @@ nav.tabs a.on{color:var(--lavd)}
     <a href="#sommeil"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><h3>Sommeil</h3><p>Routine, audios, journal des nuits.</p></a>
     <a href="#progres"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><h3>Mes progrès</h3><p>Évolution, victoires, objectifs.</p></a>
     <a href="#kit"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5h6v2M12 11v5M9.5 13.5h5"/></svg><h3>Kit de secours</h3><p>Ce qui t'aide, à portée de main.</p></a>
-    <a href="#espace"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><h3>Mon espace</h3><p>Profil, préférences, données, sauvegarde.</p></a>
+    <a href="#comprendre"><svg viewBox="0 0 24 24"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></svg><h3>Comprendre</h3><p>Fiches simples sur l'anxiété, le sommeil…</p></a>
+    <a href="#espace"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><h3>Mon espace</h3><p>Profil, voix, données, sauvegarde.</p></a>
   </div>
 </section>
 
-<!-- ================= PARCOURS ================= -->
+<!-- PARCOURS -->
 <section class="view" id="v-parcours" aria-labelledby="parT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="parT">Mon parcours</h1>
@@ -340,12 +231,19 @@ nav.tabs a.on{color:var(--lavd)}
   <div id="progBox"></div>
 </section>
 
-<!-- ================= SOMMEIL ================= -->
+<!-- COMPRENDRE -->
+<section class="view" id="v-comprendre" aria-label="Comprendre">
+  <button class="back" id="comBack">‹ Moi</button>
+  <div id="comBox"></div>
+</section>
+
+<!-- SOMMEIL -->
 <section class="view" id="v-sommeil" aria-labelledby="somT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="somT">Sommeil</h1>
   <p class="sub">Préparer la nuit, la traverser, et noter comment elle s'est passée.</p>
-  <div class="card"><h3>Pour cette nuit</h3><div class="list" id="nightList"></div></div>
+  <div class="sect"><h2>Pour cette nuit</h2></div>
+  <div class="tiles" id="nightTiles"></div>
   <div class="card"><h3>Ma routine du soir</h3><p class="sub">Coche ce que tu as fait ce soir. Pas besoin de tout faire.</p><div id="routine" class="mt"></div>
     <form class="inl" id="rtForm"><input type="text" id="rtNew" maxlength="80" placeholder="Ajouter un geste…" aria-label="Nouveau geste"><button class="ghost">Ajouter</button></form></div>
   <div class="card" id="vtCard"><h3>Le vide-tête</h3><p class="sub">Écris tout ce qui tourne dans ta tête, sans trier. Une fois posé ici, ça peut attendre demain.</p>
@@ -362,10 +260,10 @@ nav.tabs a.on{color:var(--lavd)}
   <div class="card"><h3>Mes dernières nuits</h3><div id="nights"></div></div>
   <div class="card"><h3>Si tu te réveilles la nuit</h3>
     <p>Évite de regarder l'heure. Reste au calme, lumière éteinte, et lance la séance « Réveil nocturne ». Si au bout d'un long moment le sommeil ne revient pas, tu peux te lever pour une activité très calme, puis te recoucher quand tu sens la fatigue.</p>
-    <button class="ghost mt" data-ex="med:reveil">Réveil nocturne</button></div>
+    <div class="row mt"><button class="ghost" data-ex="med:reveil">Réveil nocturne</button><button class="ghost" data-ex="fiche:sommeil">Lire la fiche</button></div></div>
 </section>
 
-<!-- ================= PROGRÈS ================= -->
+<!-- PROGRÈS -->
 <section class="view" id="v-progres" aria-labelledby="proT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="proT">Mes progrès</h1>
@@ -392,7 +290,7 @@ nav.tabs a.on{color:var(--lavd)}
     <form class="inl" id="winForm"><input type="text" id="winTxt" maxlength="160" placeholder="Ex. j'ai osé dire non" aria-label="Nouvelle victoire"><button class="ghost">Noter</button></form></div>
 </section>
 
-<!-- ================= KIT ================= -->
+<!-- KIT -->
 <section class="view" id="v-kit" aria-labelledby="kitT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="kitT">Mon kit de secours</h1>
@@ -400,23 +298,26 @@ nav.tabs a.on{color:var(--lavd)}
   <div class="card"><h3>Mes phrases rassurantes</h3><div id="kPhr"></div>
     <p class="note">Idées à ajouter d'un geste :</p><div class="row chips" id="kSug"></div>
     <form class="inl" id="kPhrF"><input type="text" id="kPhrI" maxlength="140" placeholder="Ta propre phrase…" aria-label="Nouvelle phrase"><button class="ghost">Ajouter</button></form></div>
-  <div class="card"><h3>Ce qui m'aide</h3><p class="sub">Choisis les exercices qui te conviennent. Ils seront proposés en premier dans le SOS.</p><div class="row chips mt" id="kTech"></div></div>
+  <div class="card"><h3>Ce qui m'aide</h3><p class="sub">Choisis les exercices et audios qui te conviennent. Ils seront proposés en premier dans le SOS.</p><div class="row chips mt" id="kTech"></div></div>
   <div class="card"><h3>Mes contacts de confiance</h3><div id="kCon"></div>
     <form id="kConF"><div class="row mt" style="gap:8px"><input type="text" id="kConN" maxlength="40" placeholder="Prénom" aria-label="Prénom" style="flex:1 1 140px"><input type="tel" id="kConP" maxlength="30" placeholder="Numéro" aria-label="Numéro" style="flex:1 1 140px"></div><button class="ghost mt">Ajouter</button></form></div>
   <div class="card"><h3>Notes importantes</h3><textarea id="kNotes" maxlength="3000" placeholder="Ce que ton médecin t'a conseillé, ce qui marche pour toi…" aria-label="Notes importantes"></textarea><p class="note" id="kNotesMsg">Enregistré automatiquement.</p></div>
   <div class="card"><h3>Numéros utiles en Belgique</h3><div class="urg" data-urg></div></div>
 </section>
 
-<!-- ================= ESPACE ================= -->
+<!-- ESPACE -->
 <section class="view" id="v-espace" aria-labelledby="espT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="espT">Mon espace</h1>
-  <div class="card"><h3>Profil</h3><label class="f">Ton prénom<input type="text" id="pName" maxlength="40" autocomplete="given-name"></label></div>
+  <div class="card"><h3>Profil</h3><label class="f">Ton prénom<input type="text" id="pName" maxlength="40" autocomplete="given-name"></label>
+    <p class="mt" style="font-weight:600">ELYRA s'adresse à toi</p><div class="row chips" id="pGenre"></div></div>
   <div class="card"><h3>Voix des séances</h3>
-    <div class="sw"><span>Lire les séances à voix haute</span><input type="checkbox" id="pVoice"></div>
-    <label class="f" id="pVoiceSelBox">Voix<select id="pVoiceSel"></select></label>
-    <div class="row mt"><button class="ghost" id="pVoiceTest">Écouter un essai</button></div>
-    <p class="note">La voix vient de ton téléphone. Pour une voix plus douce, tu peux installer une voix française « améliorée » dans les réglages d'accessibilité de ton téléphone.</p></div>
+    <div class="row chips mt" id="pVoiceMode"></div>
+    <p class="note" id="pVoiceInfo"></p>
+    <label class="f" id="pVoiceSelBox">Voix du téléphone<select id="pVoiceSel"></select></label>
+    <p class="mt" style="font-weight:600">Rythme</p><div class="row chips" id="pRate"></div>
+    <div class="row mt"><button class="ghost" id="pVoiceTest">Écouter un essai</button><button class="ghost" id="pOffline">Garder les audios hors ligne</button></div>
+    <p class="note" id="pOfflineMsg" role="status"></p></div>
   <div class="card"><h3>Affichage</h3>
     <p style="font-weight:600">Taille du texte</p><div class="row chips" id="pSize"></div>
     <p class="mt" style="font-weight:600">Apparence</p><div class="row chips" id="pTheme"></div></div>
@@ -438,11 +339,11 @@ nav.tabs a.on{color:var(--lavd)}
     <div class="row mt"><button class="ghost" id="impGo">Restaurer depuis le texte</button><label class="btn ghost" for="impFile">Choisir un fichier</label><input type="file" id="impFile" accept=".json,application/json,text/plain" class="sr"></div>
     <p class="note" id="impMsg" role="status"></p></div>
   <div class="card"><h3>Tout effacer</h3><p>Efface définitivement toutes tes notes et réglages de ce téléphone.</p><button class="ghost mt" id="wipe" style="color:var(--warm)">Effacer toutes mes données</button></div>
-  <p class="note">ELYRA · version personnelle 1.0. ELYRA ne pose pas de diagnostic et ne remplace pas un professionnel de santé.</p>
+  <p class="note" id="verInfo"></p>
 </section>
 </main>
 
-<!-- ================= SOS ================= -->
+<!-- SOS -->
 <div class="sos" id="sos" role="dialog" aria-modal="true" aria-labelledby="sosT">
   <div class="w">
     <div class="row between"><button class="back" id="sosBack" hidden>‹ Retour</button><span></span><button class="ghost" id="sosX">Fermer</button></div>
@@ -451,21 +352,33 @@ nav.tabs a.on{color:var(--lavd)}
   </div>
 </div>
 
-<!-- ================= Séance guidée ================= -->
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT">
-  <div class="row between w"><h3 id="shT"></h3><button class="ghost" id="shClose">Fermer</button></div>
-  <div class="say" id="shSay" aria-live="polite"></div>
-  <div class="bar"><i id="shBar"></i></div>
-  <div class="row center"><button class="main" id="shPause">Pause</button><button class="ghost" id="shVoice" aria-pressed="true">Voix : oui</button><select id="ambM" aria-label="Ambiance sonore" style="width:auto"></select></div>
+<!-- LECTEUR -->
+<div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="plT">
+  <div class="aura" id="plAura"></div>
+  <div class="pl-top"><button class="round" id="plClose" aria-label="Fermer"><svg class="icon"><use href="#i-down"/></svg></button><span class="tag lav" id="plTag"></span><span style="width:52px"></span></div>
+  <div class="pl-main">
+    <div class="cov big" id="plCov"></div>
+    <div><h2 id="plT"></h2><p class="sub" id="plSub"></p></div>
+    <p class="pl-say" id="plSay" aria-live="polite"></p>
+  </div>
+  <div class="prog"><div class="bar"><i id="plBar"></i></div><div class="times"><span id="plEl">0:00</span><span id="plTot">0:00</span></div></div>
+  <div class="pl-ctl">
+    <button class="round" id="plPrev" aria-label="Étape précédente"><svg class="icon"><use href="#i-prev"/></svg></button>
+    <button class="round big" id="plPlay" aria-label="Pause"><svg class="icon"><use href="#i-pause"/></svg></button>
+    <button class="round" id="plNext" aria-label="Étape suivante"><svg class="icon"><use href="#i-next"/></svg></button>
+  </div>
+  <div class="pl-opts"><select id="ambM" aria-label="Ambiance sonore"></select><button class="ghost" id="plVoice" aria-pressed="true">Voix : oui</button><button class="ghost" id="plFav" aria-pressed="false">☆ Favori</button></div>
 </div>
 
-<!-- ================= Bienvenue ================= -->
-<div class="sheet" id="onb" role="dialog" aria-modal="true" aria-labelledby="onbT" style="z-index:60">
+<!-- BIENVENUE -->
+<div class="player" id="onb" role="dialog" aria-modal="true" aria-labelledby="onbT" style="z-index:60">
+  <div class="aura"></div>
   <div class="w" style="margin:auto">
-    <svg style="width:72px;height:72px" aria-hidden="true"><use href="#mk"/></svg>
+    <svg style="width:76px;height:76px" aria-hidden="true"><use href="#mk"/></svg>
     <h1 id="onbT" class="mt">Bienvenue dans ELYRA</h1>
-    <p class="sig" style="font-family:Fraunces,serif;font-size:1.15rem;color:var(--soft)">Tu n'as pas besoin de tout maîtriser pour avancer.</p>
+    <p style="font-family:Fraunces,serif;font-size:1.15rem;color:var(--soft)">Tu n'as pas besoin de tout maîtriser pour avancer.</p>
     <label class="f mt2">Comment veux-tu qu'on t'appelle ?<input type="text" id="onbName" maxlength="40" autocomplete="given-name" placeholder="Ton prénom"></label>
+    <p class="mt" style="font-weight:600">ELYRA s'adresse à toi</p><div class="row chips" id="onbGenre"></div>
     <div class="card">
       <p><b>ELYRA t'accompagne</b> contre le stress, l'angoisse et les ruminations : respiration, méditations, SOS, journal, sommeil.</p>
       <p><b>ELYRA ne remplace pas un professionnel</b> et ne pose pas de diagnostic. En cas de danger : 112.</p>
@@ -477,591 +390,10 @@ nav.tabs a.on{color:var(--lavd)}
 
 <div class="dlg" id="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><h3 id="dlgT"></h3><p id="dlgP"></p><div class="row mt"><button class="main" id="dlgOk">Oui</button><button class="ghost" id="dlgNo">Annuler</button></div></div></div>
 <div class="toast" id="toast" role="status"></div>
-
 <nav class="tabs" aria-label="Navigation principale"><div id="nav"></div></nav>
 
-<script>
-{
-/* ============ CONFIGURATION ============ */
-const CHAT_URL = "https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";   // lien de la conversation ELYRA dans Claude
-const APP_VERSION = "1.0.0";
-
-/* ============ OUTILS ============ */
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const pad=n=>String(n).padStart(2,'0');
-const dkey=(t=Date.now())=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
-const dstart=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
-const DAY=864e5;
-const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-const fmtD=t=>new Date(t).toLocaleDateString('fr-BE',{weekday:'short',day:'numeric',month:'short'});
-const fmtDT=t=>fmtD(t)+' · '+new Date(t).toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
-const fmtKey=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'})};
-let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600)}
-function ask(title,text,okLabel,cb){$('#dlgT').textContent=title;$('#dlgP').textContent=text;$('#dlgOk').textContent=okLabel||'Oui';$('#dlg').classList.add('on');
-  $('#dlgOk').onclick=()=>{$('#dlg').classList.remove('on');cb()};$('#dlgNo').onclick=()=>$('#dlg').classList.remove('on');$('#dlgNo').focus()}
-
-/* ============ CONTENUS ============ */
-const MOODS=[[1,'À plat'],[2,'Sous tension'],[3,'Bof'],[4,'Calme'],[5,'Bien']];
-const EMOS=['Anxiété','Tristesse','Colère','Peur','Fatigue','Frustration','Solitude','Culpabilité','Joie','Soulagement','Gratitude','Sérénité'];
-const SITS=['Travail','Famille','Couple','Amis','Santé','Argent','Sommeil','Transports','Imprévu','Solitude','Autre'];
-const PRESETS={
-  coh:{n:'Cohérence 5-5',d:5,ph:[['Inspire',5,1],['Expire',5,0]],i:"Cohérence cardiaque : 6 respirations par minute. L'idéal : 3 fois 5 minutes par jour. Une seule fois, c'est déjà bien."},
-  apaise:{n:'Apaisante 4-6',d:3,ph:[['Inspire',4,1],['Expire',6,0]],i:"Expirer un peu plus longtemps qu'on inspire aide le corps à ralentir. Parfait quand ça bouillonne."},
-  douce:{n:'Douce 3-5',d:2,ph:[['Inspire',3,1],['Expire',5,0]],i:"Une respiration légère, sans gonfler fort la poitrine. Si c'est inconfortable, arrête : respirer normalement, c'est très bien aussi."},
-  carre:{n:'Carré 4-4-4-4',d:3,ph:[['Inspire',4,1],['Retiens',4,1],['Expire',4,0],['Retiens',4,0]],i:"Respiration carrée : pour retrouver de la clarté avant un appel ou une tâche difficile."},
-  dodo:{n:'Sommeil 4-7-8',d:3,ph:[['Inspire',4,1],['Retiens',7,1],['Expire',8,0]],i:"Pour le soir, au lit. Si retenir ton souffle te gêne, choisis plutôt Apaisante 4-6."}};
-const MEDS=[
- {k:'pause',t:'Pause de 3 minutes',d:"Entre deux tâches, sans quitter ta chaise.",s:[
-  ["Installe-toi comme tu es. Pose les deux pieds au sol.",14],["Ferme les yeux, ou baisse simplement le regard.",12],["Remarque ce qui est là : pensées, émotions, sensations. Sans rien changer.",30],
-  ["Amène ton attention sur ta respiration. Le ventre qui se soulève… et qui redescend.",40],["Si une pensée t'embarque, c'est normal. Reviens au souffle, gentiment.",30],
-  ["Élargis ton attention à tout le corps, là, qui respire.",30],["Prends une inspiration un peu plus ample… et rouvre doucement les yeux.",24]]},
- {k:'scan',t:'Scan corporel',d:"Relâcher les tensions, de la tête aux pieds.",s:[
-  ["Installe-toi confortablement, assis ou allongé. Laisse le corps être lourd.",20],["Porte ton attention sur le sommet de ta tête, puis ton front. Laisse-le se lisser.",35],
-  ["Les yeux, les joues, la mâchoire. Desserre les dents, laisse la langue se poser.",40],["La nuque et les épaules. À chaque expiration, elles descendent un peu.",45],
-  ["Les bras, jusqu'au bout des doigts. Peut-être de la chaleur, des picotements. Ou rien. Tout va bien.",45],["La poitrine qui respire. Le ventre qui se relâche.",45],
-  ["Le bas du dos, le bassin, posés et soutenus.",40],["Les cuisses, les genoux, les mollets.",40],["Les pieds, jusqu'aux orteils.",35],
-  ["Maintenant, ressens tout le corps d'un seul coup, comme une seule respiration.",45],["Bouge doucement les doigts, étire-toi, et reviens quand tu le sens.",30]]},
- {k:'soir',t:'Lâcher la journée',d:"Pour faire le sas entre le travail et la maison.",s:[
-  ["Assieds-toi. La journée de travail est terminée.",15],["Repasse-la en accéléré, sans juger : ce qui a été fait, ce qui reste.",40],
-  ["Ce qui reste peut attendre demain. Imagine que tu le poses dans un tiroir, et que tu le fermes.",40],["Trois respirations lentes. À chaque expiration, les épaules lâchent.",35],
-  ["Trouve une chose de la journée, même minuscule, qui s'est bien passée.",45],["Garde-la un instant avec toi.",30],["Maintenant, tu passes à ta soirée. Rouvre les yeux.",20]]},
- {k:'douceur',t:'Douceur envers soi',d:"Pour les jours où on se met trop la pression.",s:[
-  ["Installe-toi, et pose une main sur ton cœur si ça te va.",20],["Sens la chaleur de ta main. Elle est là pour toi.",30],
-  ["Pense à ce qui est difficile en ce moment. Juste un peu, pas trop.",35],["Dis-toi intérieurement : c'est un moment difficile. Et c'est humain.",35],
-  ["Puis : que je m'accorde de la douceur. Que je m'offre ce dont j'ai besoin.",45],["Imagine ce que tu dirais à une personne que tu aimes, dans la même situation… et dis-le-toi.",50],
-  ["Reste avec ces mots quelques respirations.",45],["Remercie-toi d'avoir pris ce moment. Rouvre les yeux.",20]]},
- {k:'nuages',t:'Pensées comme des nuages',d:"Pour prendre du recul quand ça tourne en boucle.",s:[
-  ["Installe-toi et laisse ton regard se poser.",15],["Imagine un grand ciel. Tes pensées sont des nuages qui passent.",30],
-  ["Quand une pensée arrive, remarque-la : tiens, une pensée sur le travail. Une pensée d'inquiétude.",40],["Pose-la sur un nuage, et regarde-la passer. Tu n'as pas à la suivre.",40],
-  ["Si tu t'accroches à un nuage, ce n'est pas grave. Reviens au ciel, simplement.",40],["Tu n'es pas tes pensées. Tu es le ciel qui les regarde passer.",35],["Reste encore un peu à observer. Puis reviens ici, doucement.",30]]},
- {k:'muscle',t:'Relaxation musculaire',d:"Contracter puis relâcher, pour sentir la détente.",s:[
-  ["Installe-toi confortablement, sur une chaise ou au lit.",15],["On va contracter puis relâcher les muscles, doucement. Jamais jusqu'à avoir mal.",15],
-  ["Serre les poings… tiens cinq secondes… et relâche. Sens la différence.",25],["Plie les bras et contracte-les… tiens… et relâche.",25],
-  ["Monte les épaules vers les oreilles… tiens… et laisse-les retomber.",25],["Plisse le visage, serre les paupières… tiens… et relâche tout le visage.",25],
-  ["Rentre le ventre… tiens… et relâche. Laisse le ventre libre.",25],["Serre les cuisses… tiens… et relâche.",25],["Ramène les orteils vers toi… tiens… et relâche les pieds.",25],
-  ["Passe en revue tout le corps. Là où il reste une tension, laisse-la fondre à l'expiration.",45],["Reste quelques instants dans cette détente. Puis reviens doucement.",30]]},
- {k:'jardin',t:'Le jardin calme',d:"Une visualisation pour te poser dans un lieu sûr.",s:[
-  ["Ferme les yeux si tu veux. Imagine un chemin qui mène à un jardin.",20],["Avance doucement. Sous tes pieds, l'herbe est fraîche.",30],
-  ["Ce jardin est à toi. Personne n'y entre sans ton accord.",30],["Regarde les couleurs : le vert des feuilles, peut-être des fleurs lavande.",35],
-  ["Écoute : le vent dans les branches, un oiseau au loin, de l'eau qui coule.",35],["Trouve un endroit pour t'asseoir. La chaleur du soleil sur ton visage.",40],
-  ["Ici, tu peux déposer ce qui est lourd. Le jardin le garde pour toi.",40],["Respire l'air du jardin. Tu peux revenir ici quand tu veux.",30],["Reprends doucement le chemin. Bouge les doigts, et rouvre les yeux.",20]]},
- {k:'dodo',t:"S'endormir",d:"Au lit, lumière éteinte. Pas besoin d'aller au bout.",s:[
-  ["Allonge-toi sur le dos ou sur le côté, comme tu dors d'habitude.",20],["Inspire par le nez sur 4 temps… et expire longuement par la bouche.",40],
-  ["Encore une fois. Laisse l'expiration emporter la journée.",40],["Sens le poids de ton corps sur le matelas. Tu n'as plus rien à porter.",50],
-  ["Ton visage se détend. Tes paupières sont lourdes.",50],["Si des pensées viennent, imagine-les comme des bulles qui montent… et éclatent sans bruit.",60],
-  ["Ta respiration ralentit d'elle-même. Tu n'as rien à faire.",60],["Laisse-toi glisser… bonne nuit.",60]]},
- {k:'reveil',t:'Réveil nocturne',d:"Quand le sommeil s'interrompt au milieu de la nuit.",s:[
-  ["Le sommeil s'est interrompu. C'est fréquent, et ce n'est pas grave.",20],["Pas besoin de regarder l'heure. Elle ne t'aiderait pas à te rendormir.",20],
-  ["Laisse ton corps lourd sur le matelas. Tu n'as rien à faire de plus.",35],["Expire lentement par la bouche, comme pour souffler sur une bougie sans l'éteindre.",40],
-  ["Si des pensées tournent, dis-leur : demain. Ce n'est pas l'heure.",40],["Même sans dormir, se reposer les yeux fermés repose déjà le corps.",45],["Laisse le sommeil revenir quand il veut. Tu n'as pas à le chercher.",60]]},
- {k:'sosvoix',t:'Une voix calme',d:"Audio SOS : quelques minutes pour traverser la vague.",sos:1,s:[
-  ["Je suis là avec toi. Tu n'as rien à réussir, juste à écouter.",10],["Ce que tu ressens est très désagréable. C'est une vague : elle monte, puis elle redescend.",14],
-  ["Si tu peux, sens tes pieds. Le sol est là, il te porte.",14],["Pas besoin de respirer profondément. Laisse simplement l'air sortir, un peu plus lentement.",16],
-  ["Regarde autour de toi. Pose les yeux sur un objet, et observe sa couleur.",16],["Tu n'as pas à chasser les pensées. Elles peuvent passer.",14],
-  ["Pose une main sur ta poitrine ou sur ton ventre, si ça t'aide. Sens sa chaleur.",16],["Tu as déjà traversé des moments difficiles. Tu es en train de traverser celui-ci.",16],
-  ["Reste ici aussi longtemps que tu veux. Si tu as besoin de quelqu'un, appelle une personne de confiance, ou le 107.",16]]}];
-const SOSF={
-  ground:{n:'Ancrage 5-4-3-2-1',s:[['5','Regarde autour de toi et nomme 5 choses que tu vois.'],['4','Touche 4 choses : tes vêtements, la table, ta peau… Sens leur texture.'],
-   ['3','Écoute : quels sont 3 sons que tu entends ?'],['2',"Repère 2 odeurs. Si rien ne vient, pense à 2 odeurs que tu aimes."],['1',"Une chose que tu peux goûter. Ou bois une gorgée d'eau."],
-   ['✓','Laisse sortir une longue expiration. Tu es ici, maintenant.']]},
-  souffle:{n:'Le soupir qui apaise',s:[['1','Inspire tranquillement par le nez.'],['2','Sans expirer, ajoute une deuxième petite inspiration par-dessus.'],['3',"Laisse sortir l'air très lentement par la bouche, jusqu'au bout."],
-   ['✓',"Recommence 2 à 4 fois, à ton rythme. Si ça te gêne, arrête : respirer normalement, c'est très bien."]]},
-  eft:{n:'Tapotements',s:[['1',"Tranche de la main : tapote en disant « Même si je ressens ce stress, je m'accepte complètement. » (3 fois)"],
-   ['2','Sommet de la tête : « Tout ce stress… »'],['3','Début du sourcil : « Cette pression dans le corps… »'],['4','Coin de l’œil : « Je le remarque… »'],
-   ['5',"Sous l'œil : « Je n'ai pas à tout régler maintenant… »"],['6','Sous le nez : « Je respire… »'],['7','Creux du menton : « Je relâche un peu… »'],
-   ['8','Sous la clavicule : « Je me sens plus en sécurité… »'],['9','Sous le bras : « Je choisis le calme. »'],['✓',"Note ton stress de 0 à 10 : a-t-il un peu baissé ? Refais un tour si tu veux."]]}};
-const SOUNDS=[['pluie','Pluie douce','Un fond régulier qui enveloppe.'],['ocean','Vagues','Le va-et-vient lent de la mer.'],['vent','Vent léger','Un souffle qui monte et redescend.'],['brun','Bruit brun','Grave et feutré, pour masquer les bruits.']];
-const PROGS=[
- {id:'anx',n:'Anxiété quotidienne',d:"Apprivoiser l'inquiétude de tous les jours.",s:[
-  ["Comprendre l'anxiété","L'anxiété est une alarme du corps qui se déclenche parfois trop fort. Elle est très désagréable, mais elle a une fonction : te protéger. Aujourd'hui, remarque juste une fois où elle se manifeste, sans chercher à la chasser.",null],
-  ["Respirer sans forcer","Une expiration un peu plus longue que l'inspiration aide le corps à ralentir. Essaie 3 minutes, sans forcer.",'br:apaise'],
-  ["Revenir au présent","Quand l'esprit s'emballe vers demain, les sens ramènent ici et maintenant. Entraîne-toi à l'ancrage 5-4-3-2-1.",'sos:ground'],
-  ["Le moment d'inquiétude","Choisis 10 minutes par jour pour noter tes inquiétudes dans le journal. En dehors, quand une inquiétude arrive, dis-toi : je la noterai tout à l'heure.",'journal'],
-  ["Prendre soin de soi","Repère une petite chose qui te fait du bien et offre-la-toi aujourd'hui. Ce n'est pas un luxe, c'est de l'entretien.",'med:douceur']]},
- {id:'panique',n:'Crises de panique',d:"Comprendre la vague et apprendre à la traverser.",s:[
-  ["Ce qui se passe dans le corps","Une crise de panique est une montée très forte de l'alarme : cœur qui s'accélère, souffle court, vertiges. C'est impressionnant. Si un symptôme est nouveau ou inhabituel, fais-le vérifier par un médecin : c'est important.",null],
-  ["Laisser passer la vague","Une crise monte, atteint un sommet, puis redescend. L'idée n'est pas de la combattre, mais de la traverser. Le soupir qui apaise peut aider.",'sos:souffle'],
-  ["S'ancrer","Entraîne-toi au 5-4-3-2-1 quand tu vas bien, pour qu'il te soit familier le jour où tu en as besoin.",'sos:ground'],
-  ["Préparer ton kit","Écris dans ton kit de secours 2 ou 3 phrases qui t'aident dans ces moments-là.",'kit'],
-  ["Après la crise","Après une crise, le corps est fatigué. Accorde-toi du repos et de la douceur, sans te juger.",'med:douceur']]},
- {id:'anticip',n:'Anxiété anticipatoire',d:"Quand l'esprit imagine le pire avant que ça arrive.",s:[
-  ["Le film catastrophe","L'anxiété anticipatoire imagine le pire avant que ça arrive. Remarque quand ton esprit lance ce film, et donne-lui un nom : « tiens, le film catastrophe ».",null],
-  ["Les faits et les hypothèses","Prends une inquiétude et sépare ce que tu sais vraiment de ce que tu imagines. ELYRA peut t'aider à faire le tri.",'chat:comprend'],
-  ["Préparer plutôt que ruminer","Note une situation à venir dans « Ce qui arrive bientôt ». Elle s'affichera sur l'accueil pour t'y préparer en douceur.",'progres'],
-  ["Juste avant","Juste avant le moment redouté, 2 à 3 minutes de respiration carrée pour retrouver de la clarté.",'br:carre'],
-  ["Après coup","Compare ce que tu avais imaginé avec ce qui s'est vraiment passé. Note-le comme une petite victoire si c'était plus supportable que prévu.",'progres']]},
- {id:'controle',n:'Peur de perdre le contrôle',d:"Apprivoiser une peur fréquente pendant les fortes angoisses.",s:[
-  ["Une peur fréquente","La peur de « perdre le contrôle » accompagne très souvent les fortes angoisses. Elle fait partie des sensations de l'alarme. Tu n'as pas à la porter sans aide : en parler à un professionnel peut beaucoup soulager.",null],
-  ["Observer sans lutter","Plus on lutte contre une sensation, plus elle s'accroche. Essaie de l'observer comme un nuage qui passe.",'med:nuages'],
-  ["Les pieds sur terre","Sentir ses pieds au sol est un repère simple, toujours disponible.",'sos:ground'],
-  ["Ce qui reste entre tes mains","Liste 3 choses sur lesquelles tu as la main aujourd'hui, même minuscules. ELYRA peut t'accompagner.",'chat:accompagne'],
-  ["Douceur","Termine par un moment de douceur envers toi.",'med:douceur']]},
- {id:'rumi',n:'Ruminations',d:"Sortir des pensées qui tournent en boucle.",s:[
-  ["Reconnaître la rumination","Ruminer, c'est tourner en boucle sans avancer. La première étape : se dire « tiens, je rumine ». C'est déjà un pas de côté.",null],
-  ["Les pensées comme des nuages","Une séance pour regarder passer les pensées sans les suivre.",'med:nuages'],
-  ["Le vide-tête","Écris tout ce qui tourne dans ta tête, sans trier. L'écrit le garde pour toi.",'videtete'],
-  ["Bouger un peu","Une marche de 10 minutes ou ranger un tiroir peut casser la boucle mieux qu'un raisonnement.",null],
-  ["Le moment d'inquiétude","Réserve un moment précis pour tes soucis, et note-les dans le journal. En dehors, reporte-les gentiment.",'journal']]},
- {id:'pro',n:'Stress professionnel',d:"Poser des limites et récupérer.",s:[
-  ["Faire le sas","Entre le travail et la maison, un petit rituel aide à poser la journée.",'med:soir'],
-  ["Une pause qui compte","3 minutes, sans quitter ta chaise, au milieu de la journée.",'med:pause'],
-  ["Cohérence cardiaque","3 fois 5 minutes par jour, c'est l'idéal. Une seule fois, c'est déjà bien.",'br:coh'],
-  ["Une chose à la fois","Choisis la tâche la plus importante de demain et note-la. Le reste attendra son tour.",null],
-  ["Dire ses limites","Prépare avec ELYRA une phrase pour dire non ou demander de l'aide, si une situation le demande.",'chat:accompagne']]},
- {id:'sommeil',n:'Difficultés de sommeil',d:"Préparer la nuit et apaiser les réveils.",s:[
-  ["Une routine du soir","Choisis 2 ou 3 gestes simples dans ta routine du soir, et coche-les ce soir.",'sommeil'],
-  ["Vider sa tête avant de dormir","Pose tes pensées sur le papier pour qu'elles ne t'accompagnent pas au lit.",'videtete'],
-  ["Respiration du soir","La respiration 4-7-8, au lit, lumière éteinte.",'br:dodo'],
-  ["S'endormir en douceur","Une séance pour te laisser glisser vers le sommeil.",'med:dodo'],
-  ["Si tu te réveilles la nuit","Une séance pour accueillir le réveil sans t'énerver contre lui.",'med:reveil']]},
- {id:'confiance',n:'Confiance en soi',d:"Changer la façon dont tu te parles.",s:[
-  ["Ta voix intérieure","Remarque comment tu te parles quand quelque chose rate. Parlerais-tu ainsi à quelqu'un que tu aimes ?",null],
-  ["Douceur envers soi","Une séance pour remplacer la critique par de la bienveillance.",'med:douceur'],
-  ["Petites victoires","Note chaque jour une petite chose réussie. Même « j'ai pris une pause » compte.",'progres'],
-  ["Tes forces","Demande à ELYRA de t'aider à repérer 3 de tes qualités à travers ce que tu as traversé.",'chat:encourage'],
-  ["Un petit pas hors de ta zone de confort","Choisis un petit défi faisable cette semaine. Pas besoin que ce soit grand.",null]]}];
-const ENC=["Tu n'as pas besoin de tout maîtriser pour avancer.","Un petit pas reste un pas.","Prendre soin de toi, ce n'est pas du temps perdu.","Les jours difficiles comptent aussi. Tu es encore là, et c'est beaucoup.",
- "Ton rythme est le bon rythme.","Respirer, c'est déjà agir.","Tu peux poser ce qui est lourd, même un instant.","Être doux avec soi s'apprend. Tu es en train d'apprendre.","Ce que tu ressens est valable."];
-const KITSUG=["Ça va passer. Ça passe toujours.","Je suis en sécurité, ici et maintenant.","Je n'ai pas besoin de tout maîtriser pour avancer.","C'est une vague. Je la laisse passer.","J'ai déjà traversé des moments comme celui-ci.","Une chose à la fois."];
-const ROUTINE=["Écrans rangés 30 minutes avant","Lumière douce","Boisson chaude sans caféine","Le vide-tête","Respiration 4-7-8","Quelques pages d'un livre calme"];
-const MODES=[['ecoute','ELYRA Écoute','Parler, être écouté, sans jugement.'],['apaise','ELYRA Apaise',"Un moment difficile, maintenant."],['comprend','ELYRA Comprend',"Démêler une situation et les pensées qui vont avec."],['accompagne','ELYRA Accompagne','Exercices et petits pas adaptés.'],['encourage','ELYRA Encourage','Valoriser le chemin parcouru.']];
-const URG=[['112',"Urgence : ambulance, pompiers. Danger immédiat."],['1733','Médecin de garde, en dehors des heures du médecin traitant.'],['0800 32 123','Centre de Prévention du Suicide. Gratuit, 24h/24.'],['107','Télé-Accueil. Écoute anonyme, 24h/24.']];
-const EX={};
-for(const k in PRESETS)EX['br:'+k]=PRESETS[k].n;MEDS.forEach(m=>EX['med:'+m.k]=m.t);for(const k in SOSF)EX['sos:'+k]=SOSF[k].n;SOUNDS.forEach(s=>EX['snd:'+s[0]]=s[1]);
-Object.assign(EX,{journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête','chat:comprend':'En parler avec ELYRA','chat:accompagne':'En parler avec ELYRA','chat:encourage':'En parler avec ELYRA'});
-
-/* ============ DONNÉES (sur le téléphone) ============ */
-const KEY='elyra.v1';
-const defP=()=>({name:'',voice:true,vname:'',size:'m',theme:'auto',anticip:true,kit:{phr:[],con:[],notes:'',tech:[]},favs:[],goals:[],prog:{id:null,done:{}},
-  routine:{items:ROUTINE.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null});
-const ST={prof:defP(),items:[]};
-let storageOK=true;
-function load(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const o=JSON.parse(raw);ST.items=Array.isArray(o.items)?o.items.filter(x=>x&&x.t&&x.kind):[];
-  ST.prof=merge(defP(),o.prof||{})}catch(e){storageOK=false}}
-function merge(base,o){const r=Object.assign(base,o);r.kit=Object.assign(defP().kit,o.kit||{});r.prog=Object.assign({id:null,done:{}},o.prog||{});r.routine=Object.assign({items:ROUTINE.slice(),checks:{}},o.routine||{});
-  for(const k of ['favs','goals','up'])if(!Array.isArray(r[k]))r[k]=[];return r}
-let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250)}
-function saveNow(){try{localStorage.setItem(KEY,JSON.stringify({v:1,prof:ST.prof,items:ST.items.slice(0,5000)}));storageOK=true}catch(e){storageOK=false;toast("Impossible d'enregistrer sur ce téléphone.")}}
-function addItem(e){e.id='e'+uid();e.t=e.t||Date.now();ST.items.unshift(e);ST.items.sort((a,b)=>b.t-a.t);save();renderAll()}
-function delItem(id){ST.items=ST.items.filter(x=>x.id!==id);save();renderAll()}
-const setP=(fn)=>{fn(ST.prof);save();renderAll()};
-
-/* ============ SONS ============ */
-let AC=null;const ac=()=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC};
-function tone(f,dur,vol){const a=ac();if(!a)return;try{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;
-  g.gain.setValueAtTime(0.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(vol,a.currentTime+.05);g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+dur);
-  o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.05)}catch(e){}}
-const bell=()=>{tone(432,3.5,.22);tone(864,2.5,.07);tone(1296,1.6,.035)};
-let amb=null,ambKind='none',ambStart=0,ambFromSons=false,ambTimer=null;
-function noiseBuf(a,k){const len=a.sampleRate*4,buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);let last=0;
-  for(let i=0;i<len;i++){const w=Math.random()*2-1;last=(last+.02*w)/1.02;d[i]=(k==='pluie'||k==='vent')?w*.35:last*3.2}
-  const fade=Math.floor(a.sampleRate*.05);for(let i=0;i<fade;i++){const g=i/fade;d[i]*=g;d[len-1-i]*=g}return buf}
-function setAmb(k,fromSons){
-  if(amb){try{amb.stop()}catch(e){}amb=null}
-  if(ambKind!=='none'&&ambFromSons&&ambStart){const m=Math.round((Date.now()-ambStart)/60000);if(m>=3)addItem({kind:'pratique',ex:'snd:'+ambKind,label:EX['snd:'+ambKind],min:m})}
-  clearTimeout(ambTimer);ambKind=k;ambFromSons=!!fromSons;ambStart=k==='none'?0:Date.now();
-  for(const s of ['#ambB','#ambM']){const el=$(s);if(el)el.value=SOUNDS.some(x=>x[0]===k)?k:'none'}
-  renderSounds();
-  if(k==='none')return;const a=ac();if(!a)return;
-  try{const src=a.createBufferSource();src.buffer=noiseBuf(a,k);src.loop=true;const f=a.createBiquadFilter();
-    f.type=k==='pluie'?'bandpass':k==='vent'?'bandpass':'lowpass';f.frequency.value=k==='pluie'?1800:k==='vent'?520:600;if(k==='vent')f.Q.value=.8;
-    const g=a.createGain();g.gain.value=k==='pluie'?.12:k==='vent'?.22:.35;src.connect(f).connect(g).connect(a.destination);let lfo=null,lfo2=null;
-    if(k==='ocean'||k==='vent'){lfo=a.createOscillator();const lg=a.createGain();lfo.frequency.value=k==='ocean'?.09:.05;lg.gain.value=k==='ocean'?.25:.12;lfo.connect(lg).connect(g.gain);lfo.start()}
-    if(k==='vent'){lfo2=a.createOscillator();const l2=a.createGain();lfo2.frequency.value=.07;l2.gain.value=220;lfo2.connect(l2).connect(f.frequency);lfo2.start()}
-    src.start();amb={stop(){src.stop();lfo&&lfo.stop();lfo2&&lfo2.stop()}};
-    if(fromSons){const mins=+$('#sndTimer').value;if(mins>0)ambTimer=setTimeout(()=>{setAmb('none');toast('Minuterie terminée. Le son s’est arrêté.')},mins*60000)}
-  }catch(e){}}
-const AMBS=[['none','Sans ambiance'],...SOUNDS.map(s=>[s[0],s[1]])];
-for(const s of ['#ambB','#ambM']){$(s).innerHTML=AMBS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join('');$(s).onchange=e=>setAmb(e.target.value,false)}
-
-/* ============ VOIX ============ */
-const CapTTS=()=>{try{return window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.TextToSpeech||null}catch(e){return null}};
-let voices=[];
-function loadVoices(){try{if(window.speechSynthesis){voices=speechSynthesis.getVoices().filter(v=>/^fr/i.test(v.lang));renderVoiceSel()}}catch(e){}}
-try{if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}}catch(e){}
-let sessVoice=true;
-function say(txt){if(!ST.prof.voice||!sessVoice)return;const cap=CapTTS();
-  if(cap){try{cap.stop().catch(()=>{});cap.speak({text:txt,lang:'fr-FR',rate:.9,pitch:1,volume:1,category:'playback'}).catch(()=>{})}catch(e){}return}
-  try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';u.rate=.86;u.pitch=.98;
-    const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
-function hush(){const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
-
-/* ============ NAVIGATION ============ */
-const VIEWS=['accueil','elyra','calme','journal','moi','parcours','sommeil','progres','kit','espace'];
-const TABOF={parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi'};
-const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],['elyra','ELYRA','<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>'],
- ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
-$('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
-function cur(){const v=(location.hash||'#accueil').slice(1);return VIEWS.includes(v)?v:'accueil'}
-function route(){const v=cur();$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab=TABOF[v]||v;
-  $$('#nav a').forEach(a=>{const on=a.dataset.k===tab;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-  if(v!=='calme'&&brMain&&brMain.on)brMain.stop(false);
-  window.scrollTo(0,0)}
-addEventListener('hashchange',route);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b){location.hash=b.dataset.back;return}
-  const x=e.target.closest('[data-ex]');if(x){e.preventDefault();doEx(x.dataset.ex)}});
-
-/* ============ LIEN VERS LA CONVERSATION ============ */
-function chatHref(mode){return CHAT_URL?CHAT_URL.replace(/#.*$/,'')+'#'+mode:'#elyra'}
-function linkChat(a,mode){a.href=chatHref(mode);if(CHAT_URL){a.target='_blank';a.rel='noopener'}else{a.removeAttribute('target')}}
-async function copyThen(text){try{await navigator.clipboard.writeText(text);toast('Message copié : colle-le dans la conversation.')}catch(e){}}
-
-/* ============ ACTIONS D'EXERCICE ============ */
-function doEx(id){if(!id)return;const [k,v]=id.split(':');
-  if(k==='br'&&PRESETS[v]){location.hash='calme';calTab('respirer');selP(v);selD(PRESETS[v].d);startBr()}
-  else if(k==='med'){openMed(v)}
-  else if(k==='sos'&&SOSF[v]){openSOS();sosFlow(v)}
-  else if(k==='snd'){location.hash='calme';calTab('sons');setAmb(v,true)}
-  else if(k==='chat'){if(CHAT_URL){const a=document.createElement('a');linkChat(a,v);document.body.appendChild(a);a.click();a.remove()}else location.hash='elyra'}
-  else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},60)}
-  else if(VIEWS.includes(k))location.hash=k}
-
-/* ============ ACCUEIL ============ */
-const chipsMood=(sel,curv)=>{$(sel).innerHTML=MOODS.map(([v,n])=>`<button type="button" data-v="${v}" aria-pressed="${curv===v}"><span class="dot m${v}"></span>${n}</button>`).join('')};
-let qMood=null;chipsMood('#moodQuick');
-$('#moodQuick').onclick=e=>{const b=e.target.closest('button');if(!b)return;qMood=+b.dataset.v;chipsMood('#moodQuick',qMood);$('#qStressBox').hidden=false;$('#qMsg').textContent='';$('#sugg').hidden=true};
-$('#qStress').oninput=e=>$('#qsv').textContent=e.target.value;
-const SUG={1:["Tu es à plat. Un moment de douceur envers toi ?",'med:douceur'],2:["Ça tire. 3 minutes de respiration apaisante pour faire redescendre ?",'br:apaise'],
- 3:["Une pause de 3 minutes pour remettre les compteurs à zéro ?",'med:pause'],4:["Joli moment pour un scan corporel et ancrer ce calme.",'med:scan'],5:["Profite ! 5 minutes de cohérence cardiaque pour garder le cap.",'br:coh']};
-let sugAct=null;
-$('#qSave').onclick=()=>{if(!qMood)return;const s=+$('#qStress').value;addItem({kind:'humeur',mood:qMood,stress:s});$('#qMsg').textContent="C'est noté.";
-  let sg=SUG[qMood];if(s>=8)sg=["Ton stress est haut. Le mode SOS peut t'aider tout de suite, une étape à la fois.",'sos'];
-  $('#suggTxt').textContent=sg[0];sugAct=sg[1];$('#sugg').hidden=false;qMood=null;chipsMood('#moodQuick');$('#qStressBox').hidden=true;$('#qStress').value=5;$('#qsv').textContent='5'};
-$('#suggGo').onclick=()=>{if(sugAct==='sos')openSOS();else doEx(sugAct)};
-$('#quick').onclick=()=>{location.hash='calme';calTab('respirer');selP('coh');selD(1);startBr()};
-function timeSug(){const h=new Date().getHours();const recent=ST.items.find(x=>x.mood&&Date.now()-x.t<3*3600e3);
-  if(recent&&recent.mood<=2)return['Pour toi, maintenant','br:apaise',"Ton humeur était basse tout à l'heure. 3 minutes pour souffler, sans forcer."];
-  if(h>=5&&h<11)return['Bien démarrer','br:coh',"5 minutes de cohérence cardiaque pour poser la journée sur de bonnes bases."];
-  if(h>=11&&h<17)return['Une pause','med:pause',"3 minutes pour souffler entre deux choses, sans quitter ta chaise."];
-  if(h>=17&&h<21)return['Fin de journée','med:soir',"Faire le sas entre la journée et ta soirée."];
-  return['Pour la nuit','med:dodo',"Au lit, lumière éteinte : une séance pour te laisser glisser vers le sommeil."]}
-function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST.prof.name:'';
-  $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
-  const [tag,ex,d]=timeSug();$('#sugTag').textContent=tag;$('#sugT').textContent=EX[ex];$('#sugD').textContent=d;$('#sugBtn').onclick=()=>doEx(ex);
-  const now=Date.now();$('#stMin').textContent=ST.items.filter(x=>x.kind==='pratique'&&now-x.t<7*DAY).reduce((a,x)=>a+(+x.min||0),0);
-  $('#stDays').textContent=new Set(ST.items.filter(x=>now-x.t<7*DAY).map(x=>dkey(x.t))).size;
-  const lm=ST.items.find(x=>x.mood);$('#stMood').textContent=lm?MOODS[lm.mood-1][1]:'–';
-  const doy=Math.floor((now-new Date(new Date().getFullYear(),0,0))/DAY);$('#enc').textContent=ENC[doy%ENC.length];
-  const k=ST.prof.kit;$('#kitHint').textContent=(k.phr.length||k.con.length||k.tech.length)?`${k.phr.length} phrase(s), ${k.con.length} contact(s), ${k.tech.length} technique(s)`:"Tes phrases, tes contacts, ce qui t'aide.";
-  // à venir
-  const today=dkey();const soon=ST.prof.up.filter(u=>u.date>=today).sort((a,b)=>a.date<b.date?-1:1).filter(u=>{const [y,m,d2]=u.date.split('-').map(Number);return (new Date(y,m-1,d2)-dstart(now))/DAY<=3});
-  $('#homeUp').innerHTML=soon.map(u=>`<div class="card" style="background:var(--lavs)"><span class="tag">Bientôt · ${esc(u.date===today?"aujourd'hui":fmtKey(u.date))}</span><h3 class="mt">${esc(u.txt)}</h3>
-    <p class="sub">Tu veux t'y préparer en douceur ?</p><div class="row mt"><button class="ghost" data-ex="br:carre">Respiration carrée</button><button class="main" data-prep="${esc(u.id)}">Préparer avec ELYRA</button></div></div>`).join('');
-  // programme
-  const P=PROGS.find(p=>p.id===ST.prof.prog.id);const box=$('#homeProg');
-  if(!P){box.innerHTML=`<span class="tag">Mon parcours</span><h3 class="mt">Choisis un programme</h3><p class="sub">Anxiété, sommeil, ruminations, confiance… de courts programmes à ton rythme.</p><a class="btn ghost mt" href="#parcours">Voir les parcours</a>`}
-  else{const done=ST.prof.prog.done[P.id]||[];const i=P.s.findIndex((_,j)=>!done.includes(j));
-    if(i<0)box.innerHTML=`<span class="tag">${esc(P.n)}</span><h3 class="mt">Parcours terminé</h3><p class="sub">Bravo pour ce chemin. Tu peux le refaire ou en choisir un autre.</p><a class="btn ghost mt" href="#parcours">Mes parcours</a>`;
-    else{const st=P.s[i];box.innerHTML=`<span class="tag">${esc(P.n)} · étape ${i+1}/${P.s.length}</span><h3 class="mt">${esc(st[0])}</h3><p class="sub">${esc(st[1])}</p>
-      <div class="row mt">${st[2]?`<button class="main" data-ex="${esc(st[2])}">${esc(EX[st[2]]||'Commencer')}</button>`:''}<button class="ghost" data-stepdone="${esc(P.id)}:${i}">C'est fait</button></div>`}}}
-document.addEventListener('click',e=>{const d=e.target.closest('[data-stepdone]');if(d){const [p,i]=d.dataset.stepdone.split(':');toggleStep(p,+i,true);toast('Étape notée. Bravo !')}
-  const pr=e.target.closest('[data-prep]');if(pr){const u=ST.prof.up.find(x=>x.id===pr.dataset.prep);if(u)prepare(u)}});
-async function prepare(u){const msg=`J'ai bientôt quelque chose qui m'inquiète : ${u.txt} (${fmtKey(u.date)}). Tu peux m'aider à m'y préparer en douceur ?`;
-  if(!CHAT_URL){location.hash='elyra';return}await copyThen(msg);const a=document.createElement('a');linkChat(a,'accompagne');document.body.appendChild(a);a.click();a.remove()}
-
-/* ============ ELYRA (lien) ============ */
-function renderElyra(){$('#modes').innerHTML=MODES.map(([k,n,d])=>`<a class="item" style="text-decoration:none;color:inherit" data-mode="${k}"><span class="go"><span class="min" style="background:var(--lavs);color:var(--lavd)">${n.split(' ')[1].slice(0,2)}</span><span><h3>${esc(n)}</h3><p>${esc(d)}</p></span></span></a>`).join('');
-  $$('#modes a').forEach(a=>linkChat(a,a.dataset.mode));linkChat($('#talkHome'),'ecoute');$('#chatMissing').hidden=!!CHAT_URL}
-
-/* ============ RESPIRATION ============ */
-function Breather(root){
-  root.innerHTML=`<div class="stage"><div class="ring"></div><div class="bub"></div><div class="lbl"><b>On y va ?</b><span></span></div></div><p class="left" aria-live="polite"></p>`;
-  const bub=root.querySelector('.bub'),ph=root.querySelector('.lbl b'),ct=root.querySelector('.lbl span'),left=root.querySelector('.left');
-  const o={on:false,k:null,min:0,onState:null};let to,cd,iv,end,i;
-  function phase(){if(!o.on)return;if(Date.now()>=end-500)return stop(true);const P=PRESETS[o.k].ph,p=P[i%P.length];ph.textContent=p[0];
-    bub.style.transitionDuration=p[1]+'s';bub.style.transform=`scale(${p[2]?1:.42})`;if(p[0]!=='Retiens')tone(p[2]?330:262,.9,.05);
-    try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}
-    let c=p[1];ct.textContent=c;clearInterval(cd);cd=setInterval(()=>{c--;if(c>0)ct.textContent=c},1000);to=setTimeout(()=>{i++;phase()},p[1]*1000)}
-  function start(k,min){ac();if(o.on)stop(false);o.k=k;o.min=min;o.on=true;i=0;end=Date.now()+min*60000;
-    iv=setInterval(()=>{const s=Math.max(0,Math.round((end-Date.now())/1000));left.textContent=`Encore ${Math.floor(s/60)}:${pad(s%60)}`},500);phase();o.onState&&o.onState(true)}
-  function stop(done){const was=o.on;o.on=false;clearTimeout(to);clearInterval(cd);clearInterval(iv);bub.style.transitionDuration='1.5s';bub.style.transform='scale(.42)';ct.textContent='';
-    if(done&&was){bell();ph.textContent='Bravo';left.textContent=`${o.min} min de calme en plus.`;addItem({kind:'pratique',ex:'br:'+o.k,label:PRESETS[o.k].n,min:o.min})}
-    else{ph.textContent='On y va ?';left.textContent=''}o.onState&&o.onState(false)}
-  o.start=start;o.stop=stop;return o}
-const brMain=Breather($('#brMain'));
-let pk='coh',dur=5;
-function selP(k){pk=k;$('#presets').innerHTML=Object.entries(PRESETS).map(([k2,p])=>`<button data-k="${k2}" aria-pressed="${k2===pk}">${esc(p.n)}</button>`).join('');$('#presetInfo').textContent=PRESETS[pk].i;
-  const f=ST.prof.favs.includes('br:'+pk);$('#brFav').setAttribute('aria-pressed',f);$('#brFav').textContent=f?'★':'☆'}
-function selD(d){dur=d;$('#durs').innerHTML=[1,3,5,10].map(m=>`<button data-d="${m}" aria-pressed="${m===dur}">${m} min</button>`).join('')}
-$('#presets').onclick=e=>{const b=e.target.closest('button');if(b&&!brMain.on){selP(b.dataset.k);selD(PRESETS[b.dataset.k].d)}};
-$('#durs').onclick=e=>{const b=e.target.closest('button');if(b&&!brMain.on)selD(+b.dataset.d)};
-function startBr(){brMain.start(pk,dur)}
-brMain.onState=on=>{$('#brBtn').textContent=on?'Arrêter':'Commencer'};
-$('#brBtn').onclick=()=>brMain.on?brMain.stop(false):startBr();
-$('#brFav').onclick=()=>toggleFav('br:'+pk);
-function toggleFav(id){setP(p=>{p.favs=p.favs.includes(id)?p.favs.filter(x=>x!==id):[...p.favs,id]});selP(pk)}
-function calTab(t){$$('#calTabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));$$('#v-calme .pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));if(t!=='respirer'&&brMain.on)brMain.stop(false)}
-$('#calTabs').onclick=e=>{const b=e.target.closest('button');if(b)calTab(b.dataset.t)};
-selP('coh');selD(5);
-
-/* ============ MÉDITATIONS ============ */
-function renderMeds(){$('#meds').innerHTML=MEDS.map(m=>{const f=ST.prof.favs.includes('med:'+m.k);return `<div class="item"><button class="go" data-med="${m.k}"><span class="min">${Math.round(m.s.reduce((a,s)=>a+s[1],0)/60)}′</span><span><h3>${esc(m.t)}</h3><p>${esc(m.d)}</p></span></button><button class="star" data-fav="med:${m.k}" aria-pressed="${f}" aria-label="Favori : ${esc(m.t)}">${f?'★':'☆'}</button></div>`}).join('');
-  const r=ST.prof.resume;const rm=r&&MEDS.find(m=>m.k===r.k);
-  $('#resume').innerHTML=rm?`<div class="card row between" style="margin-top:0"><div><span class="tag">À reprendre</span><h3 class="mt">${esc(rm.t)}</h3></div><button class="main" id="resGo">Reprendre</button></div>`:'';
-  if(rm)$('#resGo').onclick=()=>openMed(rm.k,r.i)}
-$('#meds').onclick=e=>{const b=e.target.closest('[data-med]');if(b)openMed(b.dataset.med)};
-document.addEventListener('click',e=>{const f=e.target.closest('[data-fav]');if(f){toggleFav(f.dataset.fav)}});
-const md={m:null,i:0,left:0,el:0,tot:0,iv:null,paused:false,done:false};
-function openMed(k,from){const m=MEDS.find(x=>x.k===k);if(!m)return;ac();if(brMain.on)brMain.stop(false);
-  const start=Math.max(0,Math.min(from||0,m.s.length-1));const el=m.s.slice(0,start).reduce((a,s)=>a+s[1],0);
-  Object.assign(md,{m,i:start-1,el,paused:false,done:false,tot:m.s.reduce((a,s)=>a+s[1],0)});sessVoice=true;
-  $('#shVoice').textContent='Voix : '+(ST.prof.voice?'oui':'non');$('#shVoice').setAttribute('aria-pressed',!!ST.prof.voice);
-  $('#shT').textContent=m.t;$('#shPause').textContent='Pause';$('#shPause').hidden=false;$('#sheet').classList.add('on');$('#shBar').style.width=(el/md.tot*100)+'%';bell();
-  clearInterval(md.iv);md.iv=setInterval(tick,1000);next();$('#shPause').focus()}
-function next(){md.i++;if(md.i>=md.m.s.length)return finish();const s=md.m.s[md.i];md.left=s[1];$('#shSay').textContent=s[0];say(s[0])}
-function tick(){if(md.paused)return;md.left--;md.el++;$('#shBar').style.width=Math.min(100,md.el/md.tot*100)+'%';if(md.left<=0)next()}
-function finish(){clearInterval(md.iv);md.done=true;bell();$('#shSay').textContent="Merci de t'être offert ce moment.";$('#shPause').hidden=true;
-  setP(p=>{if(p.resume&&p.resume.k===md.m.k)p.resume=null});addItem({kind:'pratique',ex:'med:'+md.m.k,label:md.m.t,min:Math.max(1,Math.round(md.tot/60))})}
-function closeMed(){clearInterval(md.iv);hush();$('#sheet').classList.remove('on');
-  if(md.m&&!md.done&&(md.i>0||md.el>=10)&&!md.m.sos)setP(p=>{p.resume={k:md.m.k,i:md.i}})}
-$('#shClose').onclick=closeMed;
-$('#shPause').onclick=()=>{md.paused=!md.paused;$('#shPause').textContent=md.paused?'Reprendre':'Pause';if(md.paused)hush();else say(md.m.s[md.i][0])};
-$('#shVoice').onclick=()=>{sessVoice=!sessVoice;const on=sessVoice&&ST.prof.voice;$('#shVoice').textContent='Voix : '+(on?'oui':'non');$('#shVoice').setAttribute('aria-pressed',on);if(!on)hush();else if(!ST.prof.voice)toast('Active la voix dans Mon espace.')};
-
-/* ============ SONS (vue) ============ */
-function renderSounds(){const el=$('#sounds');if(!el)return;el.innerHTML=SOUNDS.map(([k,n,d])=>{const on=ambKind===k;const f=ST.prof.favs.includes('snd:'+k);
-  return `<div class="item" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}"><span class="min">${on?'■':'▶'}</span><span><h3>${esc(n)}</h3><p>${on?'En cours · touche pour arrêter':esc(d)}</p></span></button><button class="star" data-fav="snd:${k}" aria-pressed="${f}" aria-label="Favori : ${esc(n)}">${f?'★':'☆'}</button></div>`}).join('');
-  $('#sndState').textContent=ambKind==='none'?'Aucun son en cours.':`En cours : ${EX['snd:'+ambKind]}.`}
-$('#sounds').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;setAmb(ambKind===k?'none':k,true)};
-function renderFavs(){const f=ST.prof.favs.filter(x=>EX[x]);$('#favBox').innerHTML=f.length?`<div class="card"><h3>Mes favoris</h3><div class="row chips mt">${f.map(x=>`<button data-ex="${esc(x)}">${esc(EX[x])}</button>`).join('')}</div></div>`:''}
-
-/* ============ SOS ============ */
-const SOSIT={
- crise:{n:'Je sens une crise arriver',m:"Une vague monte. Elle va atteindre un sommet, puis redescendre. Tu n'as rien à réussir : on y va une petite chose à la fois.",o:['souffle','douce','ground','audio','parler']},
- controle:{n:"J'ai peur de perdre le contrôle",m:"Cette peur accompagne très souvent les fortes angoisses. Tu peux la laisser être là, sans lui obéir. Commençons par sentir le sol sous tes pieds.",o:['ground','audio','douce','parler']},
- physique:{n:"J'ai des sensations physiques inquiétantes",m:"Tes sensations comptent, et elles méritent d'être prises au sérieux.",warn:1,o:['ground','souffle','audio','parler']},
- depasse:{n:'Tout me dépasse',m:"Tout semble trop à la fois. On met le reste de côté pour quelques minutes. Juste la prochaine petite chose.",o:['ground','kit','audio','parler']},
- intense:{n:'Je ressens une angoisse intense',m:"C'est très dur, et tu as bien fait de venir ici. Ça ne restera pas à ce niveau-là. Choisis ce qui te semble le plus facile.",o:['souffle','ground','douce','eft','audio','parler']},
- parler:{n:"J'ai besoin de parler",m:"Tu as le droit d'avoir besoin de quelqu'un. Tu peux écrire à ELYRA, ou appeler une personne de confiance.",o:['parler','contacts','ground','audio']}};
-const SOSOPT={souffle:['Le soupir qui apaise','Quelques longues expirations',()=>sosFlow('souffle')],douce:['Respiration douce','Facultative, sans forcer',()=>sosBreath()],
- ground:['Ancrage 5-4-3-2-1',"Revenir à ce qui t'entoure",()=>sosFlow('ground')],eft:['Tapotements','Tapoter et se rassurer',()=>sosFlow('eft')],
- audio:['Écouter une voix calme','Quelques minutes guidées',()=>openMed('sosvoix')],kit:['Mon kit de secours','Tes phrases et tes repères',()=>sosKit()],
- parler:['Parler à ELYRA','Une conversation pour t’apaiser (Internet)',()=>doEx('chat:apaise')],contacts:['Mes contacts de confiance','Appeler quelqu’un',()=>sosKit()]};
-const sosBr={b:null};let sosSit=null,sosHist=[];
-function sosRender(html,back){$('#sosBody').innerHTML=html;$('#sosBack').hidden=!back;const h=$('#sosBody h2');if(h)h.setAttribute('tabindex','-1'),h.focus()}
-function openSOS(){if(brMain.on)brMain.stop(false);$('#sos').classList.add('on');document.body.style.overflow='hidden';sosStart()}
-function closeSOS(){if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);$('#sos').classList.remove('on');document.body.style.overflow=''}
-function sosStart(){sosSit=null;sosHist=[];sosRender(`<h2 id="sosT">Je suis là.</h2><p class="quote mt">Tu as bien fait d'ouvrir ELYRA. On va y aller doucement, une chose à la fois.</p>
-  <p class="mt" style="font-weight:600">Qu'est-ce qui se passe pour toi ?</p><div class="sitg">${Object.entries(SOSIT).map(([k,s])=>`<button class="opt" data-sit="${k}"><b>${esc(s.n)}</b></button>`).join('')}</div>`,false)}
-function sosOptions(){const s=SOSIT[sosSit];const k=ST.prof.kit;
-  const pref=s.o.slice().sort((a,b)=>{const fa=k.tech.some(t=>t.startsWith('sos:'+a))?-1:0,fb=k.tech.some(t=>t.startsWith('sos:'+b))?-1:0;return fa-fb});
-  const warn=s.warn?`<div class="warnb"><p style="margin:0"><b>D'abord, ta sécurité.</b> Douleur ou oppression dans la poitrine, difficulté à respirer, faiblesse ou engourdissement d'un côté du corps, malaise, ou sensation nouvelle pour toi : <b>appelle le 112 maintenant</b>. Dans le doute, appeler est toujours une bonne décision. Le médecin de garde (1733) peut aussi te conseiller.</p>
-    <a class="btn main mt" href="tel:112" style="background:var(--warm)">Appeler le 112</a></div><p class="mt">Si ces sensations te sont connues et ont déjà été vérifiées par un médecin, tu peux essayer :</p>`:'';
-  const phr=k.phr.length?`<p class="mt" style="font-weight:600">Tes phrases</p>${k.phr.slice(0,3).map(p=>`<p class="phr">${esc(p)}</p>`).join('')}`:'';
-  sosRender(`<h2 id="sosT">${esc(s.n)}</h2><p class="quote mt">${esc(s.m)}</p>${warn}<div class="sitg">${pref.map(o=>`<button class="opt" data-opt="${o}"><b>${esc(SOSOPT[o][0])}</b><span>${esc(SOSOPT[o][1])}</span></button>`).join('')}</div>${phr}
-    <button class="ghost mt2" data-sosend="1" style="width:100%">Ça va un peu mieux</button>`,true)}
-function sosFlow(key){sosHist.push('flow');let i=0;const F=SOSF[key];
-  const draw=()=>{const st=F.s[i];sosRender(`<h2 id="sosT">${esc(F.n)}</h2><div class="card"><p class="big">${esc(st[0])}</p><p class="step">${esc(st[1])}</p>
-    <div class="row"><button class="ghost" id="fPrev" ${i===0?'disabled':''}>Précédent</button><button class="main" id="fNext">${i===F.s.length-1?'Terminé':'Suivant'}</button></div></div>`,true);
-    say(st[1]);
-    $('#fPrev').onclick=()=>{if(i>0){i--;draw()}};$('#fNext').onclick=()=>{if(i<F.s.length-1){i++;draw()}else{hush();addItem({kind:'pratique',ex:'sos:'+key,label:F.n,min:2});sosEnd()}}};
-  draw()}
-function sosBreath(){sosHist.push('breath');sosRender(`<h2 id="sosT">Respiration douce</h2><p class="sub">Facultative. Respire par le nez, sans gonfler fort. Si c'est inconfortable, arrête : respirer normalement, c'est très bien.</p><div id="sosBr"></div>
-  <div class="row center"><button class="main" id="sbGo">Commencer</button><button class="ghost" id="sbDone">Continuer</button></div>`,true);
-  sosBr.b=Breather($('#sosBr'));sosBr.b.onState=on=>{const b=$('#sbGo');if(b)b.textContent=on?'Arrêter':'Commencer'};
-  $('#sbGo').onclick=()=>sosBr.b.on?sosBr.b.stop(false):sosBr.b.start('douce',2);$('#sbDone').onclick=()=>{if(sosBr.b.on)sosBr.b.stop(false);sosSit?sosOptions():sosEnd()}}
-function sosKit(){sosHist.push('kit');const k=ST.prof.kit;
-  const con=k.con.length?k.con.map(c=>`<a class="btn ghost" style="justify-content:space-between;width:100%;margin-top:8px" href="tel:${esc(c.p.replace(/[^\d+]/g,''))}"><span>${esc(c.n)}</span><b>${esc(c.p)}</b></a>`).join(''):`<p class="sub">Tu n'as pas encore de contact de confiance. Tu peux en ajouter dans ton kit.</p>`;
-  const phr=k.phr.length?k.phr.map(p=>`<p class="phr">${esc(p)}</p>`).join(''):`<p class="phr">${esc(KITSUG[0])}</p><p class="phr">${esc(KITSUG[1])}</p>`;
-  const tech=k.tech.filter(t=>EX[t]).map(t=>`<button data-ex="${esc(t)}">${esc(EX[t])}</button>`).join('');
-  sosRender(`<h2 id="sosT">Ton kit de secours</h2>${phr}${tech?`<p class="mt" style="font-weight:600">Ce qui t'aide</p><div class="row chips">${tech}</div>`:''}<p class="mt" style="font-weight:600">Tes contacts</p>${con}${k.notes?`<p class="mt" style="font-weight:600">Tes notes</p><p>${esc(k.notes)}</p>`:''}
-   <button class="ghost mt2" data-sosend="1" style="width:100%">Ça va un peu mieux</button>`,true)}
-function sosEnd(){sosRender(`<h2 id="sosT">Retour au calme</h2><p class="quote mt">Tu as traversé ce moment. Prends ton temps avant de reprendre.</p>
-  <div class="card"><p style="font-weight:600;margin:0">Et maintenant, ton niveau d'angoisse : <span id="seV">5</span>/10</p><input type="range" id="seR" min="0" max="10" value="5" aria-label="Niveau d'angoisse maintenant">
-  <button class="main" id="seSave">Noter et fermer</button></div>
-  <div class="card"><h3>Si tu veux</h3><p>Bois quelques gorgées d'eau. Bouge doucement, étire-toi.</p><p>Note ce qui t'a aidé dans ton kit de secours, pour la prochaine fois.</p><p>Si ces moments reviennent souvent, en parler à ton médecin peut vraiment aider.</p></div>`,true);
-  $('#seR').oninput=e=>$('#seV').textContent=e.target.value;
-  $('#seSave').onclick=()=>{addItem({kind:'sos',sit:sosSit||'',stress:+$('#seR').value});closeSOS();toast('Bien joué. Prends soin de toi.')}}
-$('#sosOpen').onclick=openSOS;$('#sosX').onclick=closeSOS;
-$('#sosBack').onclick=()=>{hush();if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);sosHist.pop();sosSit?sosOptions():sosStart()};
-$('#sosBody').onclick=e=>{const s=e.target.closest('[data-sit]');if(s){sosSit=s.dataset.sit;sosOptions();return}
-  const o=e.target.closest('[data-opt]');if(o){SOSOPT[o.dataset.opt][2]();return}
-  if(e.target.closest('[data-sosend]'))sosEnd();
-  if(e.target.closest('[data-ex]'))closeSOS()};
-function urgHTML(){return URG.map(([n,d])=>`<a href="tel:${n.replace(/\s/g,'')}"><b>${esc(n)}</b><span>${esc(d)}</span></a>`).join('')}
-$$('[data-urg]').forEach(e=>e.innerHTML=urgHTML());
-addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#dlg').classList.contains('on'))$('#dlg').classList.remove('on');else if($('#sheet').classList.contains('on'))closeMed();else if($('#sos').classList.contains('on'))closeSOS()});
-
-/* ============ JOURNAL ============ */
-let jm=null,jEmo=[],jSit=[],jShow=20;
-const multi=(sel,list,arr)=>{$(sel).innerHTML=list.map(x=>`<button type="button" data-v="${esc(x)}" aria-pressed="${arr.includes(x)}">${esc(x)}</button>`).join('')};
-function resetJ(){jm=null;jEmo=[];jSit=[];chipsMood('#moodJ');multi('#emoJ',EMOS,jEmo);multi('#sitJ',SITS,jSit);$('#stress').value=5;$('#sv').textContent='5';$('#jNote').value=''}
-resetJ();
-$('#moodJ').onclick=e=>{const b=e.target.closest('button');if(b){jm=+b.dataset.v;chipsMood('#moodJ',jm)}};
-$('#emoJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;jEmo=jEmo.includes(v)?jEmo.filter(x=>x!==v):[...jEmo,v];multi('#emoJ',EMOS,jEmo)};
-$('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;jSit=jSit.includes(v)?jSit.filter(x=>x!==v):[...jSit,v];multi('#sitJ',SITS,jSit)};
-$('#stress').oninput=e=>$('#sv').textContent=e.target.value;
-$('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
-  addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000)});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
-const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS'};
-function stressBars(el,days,key){const today=dstart(Date.now());const out=[];
-  for(let i=days-1;i>=0;i--){const dd=dstart(today-i*DAY+432e5);const s=ST.items.filter(x=>x[key]!=null&&x[key]!==''&&dstart(x.t)===dd);const v=s.length?avg(s.map(x=>+x[key])):null;
-    const max=key==='mood'?5:10;out.push(v==null?'<div class="z" title="pas de note"></div>':`<div style="height:${Math.max(4,v/max*100)}%" title="${key==='mood'?'humeur':'stress'} ${v.toFixed(1)}/${max}"></div>`)}
-  el.innerHTML=out.join('')}
-function renderJournal(){stressBars($('#chart'),14,'stress');
-  const js=ST.items.filter(x=>KLAB[x.kind]);
-  $('#entries').innerHTML=js.length?js.slice(0,jShow).map(x=>`<div class="entry"><div><small>${esc(fmtDT(x.t))} · ${esc(KLAB[x.kind])}</small>
-    <p>${x.mood?`<span class="dot m${+x.mood}"></span>${esc(MOODS[x.mood-1][1])}`:''}${x.stress!=null?`${x.mood?' · ':''}stress ${+x.stress}/10`:''}</p>
-    ${x.emos&&x.emos.length?`<p class="sub" style="margin:2px 0 0">${esc(x.emos.join(', '))}</p>`:''}${x.sits&&x.sits.length?`<p class="sub" style="margin:2px 0 0">${esc(x.sits.join(', '))}</p>`:''}
-    ${x.note?`<p style="white-space:pre-wrap">${esc(x.note)}</p>`:''}</div><button class="del" data-del="${esc(x.id)}" aria-label="Supprimer cette note">Supprimer</button></div>`).join('')
-    :'<p class="sub">Pas encore de note. La première est souvent la plus dure, prends ton temps.</p>';
-  $('#moreJ').hidden=js.length<=jShow}
-$('#moreJ').onclick=()=>{jShow+=30;renderJournal()};
-document.addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(d)ask('Supprimer cette note ?','Elle sera effacée de ton téléphone.','Supprimer',()=>delItem(d.dataset.del))});
-
-/* ============ SOMMEIL ============ */
-let slQ=null,slW=null;
-const QL=[[1,'Très difficile'],[2,'Difficile'],[3,'Moyenne'],[4,'Bonne'],[5,'Très bonne']];
-function slChips(){$('#slQ').innerHTML=QL.map(([v,n])=>`<button type="button" data-v="${v}" aria-pressed="${slQ===v}">${n}</button>`).join('');
-  $('#slW').innerHTML=['0','1','2','3+'].map((n,v)=>`<button type="button" data-v="${v}" aria-pressed="${slW===v}">${n}</button>`).join('')}
-slChips();$('#slDate').value=dkey();
-$('#slQ').onclick=e=>{const b=e.target.closest('button');if(b){slQ=+b.dataset.v;slChips()}};
-$('#slW').onclick=e=>{const b=e.target.closest('button');if(b){slW=+b.dataset.v;slChips()}};
-const durMin=(bed,wake)=>{if(!bed||!wake)return null;const [a,b]=bed.split(':').map(Number),[c,d]=wake.split(':').map(Number);let m=(c*60+d)-(a*60+b);if(m<=0)m+=1440;return m};
-$('#slForm').onsubmit=e=>{e.preventDefault();if(!slQ){$('#slMsg').textContent='Choisis la qualité de la nuit.';return}
-  const date=$('#slDate').value||dkey();ST.items=ST.items.filter(x=>!(x.kind==='sommeil'&&x.night===date));
-  addItem({kind:'sommeil',night:date,bed:$('#slBed').value,wake:$('#slWake').value,q:slQ,w:slW==null?null:slW,note:$('#slNote').value.trim().slice(0,1000)});
-  slQ=null;slW=null;slChips();$('#slNote').value='';$('#slMsg').textContent='Nuit enregistrée.'};
-const NIGHT=[['med:dodo'],['br:dodo'],['med:reveil'],['snd:pluie']];
-function renderSommeil(){$('#nightList').innerHTML=NIGHT.map(([x])=>`<button class="opt" data-ex="${x}"><b>${esc(EX[x])}</b></button>`).join('');
-  const R=ST.prof.routine;const today=dkey();const ch=R.checks[today]||[];
-  $('#routine').innerHTML=R.items.map((t,i)=>`<div class="sw"><label style="display:flex;gap:12px;align-items:center;flex:1"><input type="checkbox" data-rt="${i}" ${ch.includes(t)?'checked':''}><span>${esc(t)}</span></label><button class="del" data-rtdel="${i}" aria-label="Retirer ${esc(t)}">Retirer</button></div>`).join('')||'<p class="sub">Ajoute un premier geste.</p>';
-  const N=ST.items.filter(x=>x.kind==='sommeil').slice(0,7);
-  $('#nights').innerHTML=N.length?N.map(x=>{const m=durMin(x.bed,x.wake);return `<div class="entry"><div><small>${esc(fmtKey(x.night))}</small><p>${esc(QL[x.q-1]?QL[x.q-1][1]:'')}${m?` · ${Math.floor(m/60)} h ${pad(m%60)}`:''}${x.w!=null?` · ${x.w===3?'3 réveils ou plus':x.w+' réveil'+(x.w>1?'s':'')}`:''}</p>${x.note?`<p class="sub">${esc(x.note)}</p>`:''}</div><button class="del" data-del="${esc(x.id)}">Supprimer</button></div>`}).join(''):'<p class="sub">Aucune nuit notée pour le moment.</p>'}
-$('#routine').onchange=e=>{const c=e.target.closest('[data-rt]');if(!c)return;const t=ST.prof.routine.items[+c.dataset.rt];const today=dkey();
-  setP(p=>{let a=p.routine.checks[today]||[];a=c.checked?[...new Set([...a,t])]:a.filter(x=>x!==t);p.routine.checks[today]=a;
-    const keys=Object.keys(p.routine.checks).sort();while(keys.length>21)delete p.routine.checks[keys.shift()]})};
-$('#routine').onclick=e=>{const d=e.target.closest('[data-rtdel]');if(d)setP(p=>{p.routine.items.splice(+d.dataset.rtdel,1)})};
-$('#rtForm').onsubmit=e=>{e.preventDefault();const v=$('#rtNew').value.trim();if(!v)return;setP(p=>{if(!p.routine.items.includes(v))p.routine.items.push(v)});$('#rtNew').value=''};
-$('#vtGo').onclick=()=>{const v=$('#vtTxt').value.trim();if(!v){$('#vtMsg').textContent="Écris ce qui tourne, même en vrac.";return}
-  addItem({kind:'videtete',note:v.slice(0,3000)});$('#vtTxt').value='';$('#vtMsg').textContent="C'est posé. Ça peut attendre demain."};
-
-/* ============ PARCOURS ============ */
-let progOpen=null;
-function toggleStep(pid,i,force){setP(p=>{const a=p.prog.done[pid]||[];const has=a.includes(i);const on=force===undefined?!has:force;p.prog.done[pid]=on?[...new Set([...a,i])]:a.filter(x=>x!==i)});if(on1(pid,i))addItem({kind:'pratique',ex:'prog:'+pid,label:'Étape de parcours',min:0})}
-function on1(pid,i){return (ST.prof.prog.done[pid]||[]).includes(i)}
-function renderParcours(){const box=$('#progBox');const act=ST.prof.prog.id;
-  if(!progOpen){box.innerHTML=`<div class="list">${PROGS.map(P=>{const d=(ST.prof.prog.done[P.id]||[]).length;return `<div class="item" aria-current="${P.id===act}"><button class="go" data-prog="${P.id}"><span class="min">${d}/${P.s.length}</span><span><h3>${esc(P.n)}</h3><p>${esc(P.d)}${P.id===act?' · <b>en cours</b>':''}</p></span></button></div>`}).join('')}</div>`;return}
-  const P=PROGS.find(x=>x.id===progOpen);const done=ST.prof.prog.done[P.id]||[];
-  box.innerHTML=`<button class="back mt" id="progBack">‹ Tous les parcours</button><div class="card"><h2>${esc(P.n)}</h2><p class="sub">${esc(P.d)}</p>
-    <div class="row mt">${P.id===act?`<span class="tag">C'est ton parcours en cours</span><button class="ghost" id="progStop">Mettre en pause</button>`:`<button class="main" id="progPick">Choisir ce parcours</button>`}</div></div>
-    <div class="card">${P.s.map((st,i)=>`<div class="stepl ${done.includes(i)?'done':''}"><input type="checkbox" data-step="${i}" ${done.includes(i)?'checked':''} aria-label="Étape ${i+1} faite"><div><h3>${i+1}. ${esc(st[0])}</h3><p>${esc(st[1])}</p>${st[2]?`<button class="ghost mt" data-ex="${esc(st[2])}">${esc(EX[st[2]]||'Ouvrir')}</button>`:''}</div></div>`).join('')}</div>
-    <p class="note">Tu peux faire les étapes dans l'ordre que tu veux, et revenir en arrière quand tu veux.</p>`;
-  $('#progBack').onclick=()=>{progOpen=null;renderParcours()};
-  const pk2=$('#progPick');if(pk2)pk2.onclick=()=>{setP(p=>p.prog.id=P.id);toast('Parcours choisi. Il apparaît sur l’accueil.')};
-  const ps=$('#progStop');if(ps)ps.onclick=()=>setP(p=>p.prog.id=null);
-  box.querySelectorAll('[data-step]').forEach(c=>c.onchange=()=>toggleStep(P.id,+c.dataset.step,c.checked))}
-$('#progBox').addEventListener('click',e=>{const b=e.target.closest('[data-prog]');if(b){progOpen=b.dataset.prog;renderParcours();window.scrollTo(0,0)}});
-
-/* ============ PROGRÈS & ANTICIPATION ============ */
-function observations(){const out=[];const J=ST.items.filter(x=>x.stress!=null&&(x.kind==='journal'||x.kind==='humeur'));
-  const JS=J.filter(x=>x.sits&&x.sits.length);const all=avg(J.map(x=>+x.stress));const by={};
-  JS.forEach(x=>x.sits.forEach(s=>{(by[s]=by[s]||[]).push(+x.stress)}));
-  const top=Object.entries(by).filter(([,a])=>a.length>=3).map(([s,a])=>[s,avg(a),a.length]).sort((a,b)=>b[1]-a[1])[0];
-  if(top&&all!=null&&top[1]>=all+1)out.push([`Quand tu notes « ${top[0]} », ton stress déclaré est en moyenne de ${top[1].toFixed(1)}/10, contre ${all.toFixed(1)}/10 en général. Peut-être une situation à préparer un peu plus ?`,`Basé sur ${top[2]} notes avec cette situation.`]);
-  const P=ST.items.filter(x=>x.kind==='pratique'&&x.ex&&EX[x.ex]);const cnt={};P.forEach(x=>cnt[x.ex]=(cnt[x.ex]||0)+1);
-  const fav=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-  if(fav&&fav[1]>=3)out.push([`Ce que tu pratiques le plus : ${EX[fav[0]]} (${fav[1]} fois).${ST.prof.kit.tech.includes(fav[0])?'':' Tu peux l’ajouter à ton kit de secours.'}`,`Basé sur ${P.length} exercices.`]);
-  const S=ST.items.filter(x=>x.kind==='sommeil');const good=[],bad=[];
-  S.forEach(n=>{const ms=ST.items.filter(x=>x.mood&&dkey(x.t)===n.night).map(x=>+x.mood);if(!ms.length)return;const m=avg(ms);if(n.q>=4)good.push(m);else if(n.q<=2)bad.push(m)});
-  if(good.length>=3&&bad.length>=3){const g=avg(good),b=avg(bad);if(Math.abs(g-b)>=.5)out.push([`Après les nuits que tu notes comme bonnes, ton humeur moyenne est de ${g.toFixed(1)}/5, contre ${b.toFixed(1)}/5 après les nuits difficiles.`,`Basé sur ${good.length+bad.length} nuits.`])}
-  const sos=ST.items.filter(x=>x.kind==='sos'&&Date.now()-x.t<30*DAY);if(sos.length>=3)out.push([`Tu as utilisé le SOS ${sos.length} fois ce mois-ci. C'est bien de t'en servir. Si ces moments reviennent souvent, en parler à ton médecin peut vraiment aider.`,'Basé sur ton utilisation du SOS.']);
-  return out}
-function period(from,to){const I=ST.items.filter(x=>x.t>=from&&x.t<to);return{ex:I.filter(x=>x.kind==='pratique'&&x.min>0).length,min:I.filter(x=>x.kind==='pratique').reduce((a,x)=>a+(+x.min||0),0),
-  st:avg(I.filter(x=>x.stress!=null&&x.kind!=='sos').map(x=>+x.stress)),mood:avg(I.filter(x=>x.mood).map(x=>+x.mood)),wins:I.filter(x=>x.kind==='victoire').length,days:new Set(I.map(x=>dkey(x.t))).size}}
-function summary(cur,prev,label){const p=[];
-  if(!cur.days)return `<p class="sub">Rien de noté ${label}. Ce n'est pas grave : ELYRA est là quand tu en as besoin.</p>`;
-  p.push(`Tu as pris soin de toi ${cur.days} jour(s) ${label}${cur.ex?`, avec ${cur.ex} exercice(s) et ${cur.min} min de calme`:''}.`);
-  if(cur.st!=null&&prev.st!=null){const d=cur.st-prev.st;p.push(Math.abs(d)<.5?`Ton stress déclaré est stable (${cur.st.toFixed(1)}/10).`:d<0?`Ton stress déclaré a baissé : ${cur.st.toFixed(1)}/10 contre ${prev.st.toFixed(1)} avant.`:`Ton stress déclaré est un peu plus haut (${cur.st.toFixed(1)}/10). Une période plus chargée, peut-être : sois doux avec toi.`)}
-  else if(cur.st!=null)p.push(`Stress déclaré moyen : ${cur.st.toFixed(1)}/10.`);
-  if(cur.wins)p.push(`${cur.wins} petite(s) victoire(s) notée(s). Bravo.`);
-  return p.map(x=>`<p>${esc(x)}</p>`).join('')}
-function renderProgres(){const now=Date.now();const I30=ST.items.filter(x=>now-x.t<30*DAY);
-  $('#p30ex').textContent=I30.filter(x=>x.kind==='pratique'&&x.min>0).length;$('#p30min').textContent=I30.filter(x=>x.kind==='pratique').reduce((a,x)=>a+(+x.min||0),0);
-  $('#p30days').textContent=new Set(I30.map(x=>dkey(x.t))).size;
-  stressBars($('#chMood'),30,'mood');stressBars($('#chStress'),30,'stress');
-  const t0=dstart(now)+DAY;$('#week').innerHTML=summary(period(t0-7*DAY,t0),period(t0-14*DAY,t0-7*DAY),'ces 7 derniers jours');
-  $('#month').innerHTML=summary(period(t0-30*DAY,t0),period(t0-60*DAY,t0-30*DAY),'ces 30 derniers jours');
-  if(ST.prof.anticip){const o=observations();$('#obs').innerHTML=o.length?o.map(([t,b])=>`<div class="obs">${esc(t)}<small>${esc(b)}</small></div>`).join(''):`<p class="obs">Pas encore assez de notes pour remarquer quelque chose. Ça viendra tout seul, sans pression.</p>`}
-  else $('#obs').innerHTML='<p class="sub">Les observations sont désactivées (Mon espace).</p>';
-  const ups=ST.prof.up.slice().sort((a,b)=>a.date<b.date?-1:1);
-  $('#ups').innerHTML=ups.map(u=>`<div class="entry"><div><small>${esc(fmtKey(u.date))}</small><p>${esc(u.txt)}</p><button class="ghost mt" data-prep="${esc(u.id)}">Préparer avec ELYRA</button></div><button class="del" data-updel="${esc(u.id)}">Retirer</button></div>`).join('');
-  $('#goals').innerHTML=ST.prof.goals.length?ST.prof.goals.map(g=>`<div class="sw"><label style="display:flex;gap:12px;align-items:center;flex:1"><input type="checkbox" data-goal="${esc(g.id)}" ${g.done?'checked':''}><span style="${g.done?'text-decoration:line-through;color:var(--soft)':''}">${esc(g.txt)}</span></label><button class="del" data-goaldel="${esc(g.id)}">Retirer</button></div>`).join(''):'<p class="sub">Aucun objectif pour le moment. Un tout petit suffit.</p>';
-  const W=ST.items.filter(x=>x.kind==='victoire').slice(0,12);
-  $('#wins').innerHTML=W.map(w=>`<div class="entry"><div><small>${esc(fmtD(w.t))}</small><p>${esc(w.note)}</p></div><button class="del" data-del="${esc(w.id)}">Supprimer</button></div>`).join('')}
-$('#upDate').value=dkey(Date.now()+DAY);
-$('#upForm').onsubmit=e=>{e.preventDefault();const d=$('#upDate').value,t=$('#upTxt').value.trim();if(!d||!t){toast('Indique une date et une situation.');return}
-  setP(p=>{p.up.push({id:'u'+uid(),date:d,txt:t.slice(0,140)});p.up=p.up.filter(u=>u.date>=dkey(Date.now()-7*DAY))});$('#upTxt').value='';toast('Ajouté. Tu le verras sur l’accueil.')};
-$('#goalForm').onsubmit=e=>{e.preventDefault();const t=$('#goalTxt').value.trim();if(!t)return;setP(p=>p.goals.push({id:'g'+uid(),txt:t.slice(0,120),done:false}));$('#goalTxt').value=''};
-$('#winForm').onsubmit=e=>{e.preventDefault();const t=$('#winTxt').value.trim();if(!t)return;addItem({kind:'victoire',note:t.slice(0,160)});$('#winTxt').value='';toast('Bravo, elle compte !')};
-$('#v-progres').addEventListener('change',e=>{const g=e.target.closest('[data-goal]');if(g)setP(p=>{const x=p.goals.find(y=>y.id===g.dataset.goal);if(x)x.done=g.checked})});
-$('#v-progres').addEventListener('click',e=>{const g=e.target.closest('[data-goaldel]');if(g)setP(p=>p.goals=p.goals.filter(y=>y.id!==g.dataset.goaldel));
-  const u=e.target.closest('[data-updel]');if(u)setP(p=>p.up=p.up.filter(y=>y.id!==u.dataset.updel))});
-
-/* ============ KIT ============ */
-function renderKit(){const k=ST.prof.kit;
-  $('#kPhr').innerHTML=k.phr.length?k.phr.map((p,i)=>`<div class="entry"><div><p class="quote" style="font-size:1.05rem">${esc(p)}</p></div><button class="del" data-phrdel="${i}">Retirer</button></div>`).join(''):'<p class="sub">Aucune phrase pour le moment.</p>';
-  $('#kSug').innerHTML=KITSUG.filter(s=>!k.phr.includes(s)).map(s=>`<button type="button" data-phradd="${esc(s)}">+ ${esc(s)}</button>`).join('');
-  const T=Object.keys(EX).filter(x=>/^(br|med|sos|snd):/.test(x));
-  $('#kTech').innerHTML=T.map(x=>`<button type="button" data-tech="${esc(x)}" aria-pressed="${k.tech.includes(x)}">${esc(EX[x])}</button>`).join('');
-  $('#kCon').innerHTML=k.con.length?k.con.map((c,i)=>`<div class="entry"><div><p><b>${esc(c.n)}</b></p><a href="tel:${esc(c.p.replace(/[^\d+]/g,''))}">${esc(c.p)}</a></div><button class="del" data-condel="${i}">Retirer</button></div>`).join(''):'<p class="sub">Ajoute une ou deux personnes que tu peux appeler dans un moment difficile.</p>';
-  if(document.activeElement!==$('#kNotes'))$('#kNotes').value=k.notes||''}
-$('#v-kit').addEventListener('click',e=>{const t=e.target;
-  const a=t.closest('[data-phradd]');if(a)setP(p=>p.kit.phr.push(a.dataset.phradd));
-  const d=t.closest('[data-phrdel]');if(d)setP(p=>p.kit.phr.splice(+d.dataset.phrdel,1));
-  const x=t.closest('[data-tech]');if(x)setP(p=>{const v=x.dataset.tech;p.kit.tech=p.kit.tech.includes(v)?p.kit.tech.filter(y=>y!==v):[...p.kit.tech,v]});
-  const c=t.closest('[data-condel]');if(c)setP(p=>p.kit.con.splice(+c.dataset.condel,1))});
-$('#kPhrF').onsubmit=e=>{e.preventDefault();const v=$('#kPhrI').value.trim();if(!v)return;setP(p=>p.kit.phr.push(v.slice(0,140)));$('#kPhrI').value=''};
-$('#kConF').onsubmit=e=>{e.preventDefault();const n=$('#kConN').value.trim(),ph=$('#kConP').value.trim();if(!n||!/\d{3,}/.test(ph.replace(/\s/g,''))){toast('Indique un prénom et un numéro.');return}
-  setP(p=>p.kit.con.push({n:n.slice(0,40),p:ph.slice(0,30)}));$('#kConN').value='';$('#kConP').value=''};
-let kT;$('#kNotes').oninput=e=>{clearTimeout(kT);kT=setTimeout(()=>{ST.prof.kit.notes=e.target.value.slice(0,3000);save();$('#kNotesMsg').textContent='Enregistré.'},500)};
-
-/* ============ ESPACE PERSO ============ */
-const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']];
-function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.size||'m';if(ST.prof.theme==='auto')r.removeAttribute('data-theme');else r.dataset.theme=ST.prof.theme}
-function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const cap=CapTTS();$('#pVoiceSelBox').hidden=!!cap||!voices.length;
-  s.innerHTML=`<option value="">Voix par défaut</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
-function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pVoice').checked=!!P.voice;$('#pAnt').checked=!!P.anticip;
-  $('#pSize').innerHTML=SIZES.map(([k,n])=>`<button data-size="${k}" aria-pressed="${P.size===k}">${n}</button>`).join('');
-  $('#pTheme').innerHTML=THEMES.map(([k,n])=>`<button data-theme="${k}" aria-pressed="${P.theme===k}">${n}</button>`).join('');
-  renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
-  $('#persistInfo').textContent=storageOK?'':"Attention : ce navigateur n'autorise pas l'enregistrement. Installe l'appli sur l'écran d'accueil."}
-let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name=e.target.value.trim().slice(0,40)),400)};
-$('#pVoice').onchange=e=>setP(p=>p.voice=e.target.checked);$('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);
-$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
-$('#pVoiceTest').onclick=()=>{const was=ST.prof.voice;ST.prof.voice=true;sessVoice=true;say("Bonjour. Je suis la voix de tes séances. Prends ton temps.");ST.prof.voice=was};
-$('#pSize').onclick=e=>{const b=e.target.closest('[data-size]');if(b){setP(p=>p.size=b.dataset.size);applyPrefs()}};
-$('#pTheme').onclick=e=>{const b=e.target.closest('[data-theme]');if(b){setP(p=>p.theme=b.dataset.theme);applyPrefs()}};
-const backupText=()=>JSON.stringify({app:'ELYRA',version:APP_VERSION,date:new Date().toISOString(),prof:ST.prof,items:ST.items});
-$('#expCopy').onclick=async()=>{const t=backupText();try{await navigator.clipboard.writeText(t);setP(p=>p.lastBackup=Date.now());toast('Sauvegarde copiée. Colle-la dans une note ou un e-mail à toi-même.')}
-  catch(e){const b=$('#expBox');b.hidden=false;b.value=t;b.select();toast('Sélectionne le texte et copie-le.')}};
-$('#expFile').onclick=()=>{try{const blob=new Blob([backupText()],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`elyra-sauvegarde-${dkey()}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);setP(p=>p.lastBackup=Date.now())}
-  catch(e){toast("Le téléchargement n'est pas possible ici : utilise « Copier ».")}};
-function restore(txt){try{const o=JSON.parse(txt);if(!o||o.app!=='ELYRA'||!Array.isArray(o.items))throw 0;
-  ask('Restaurer cette sauvegarde ?',`Elle contient ${o.items.length} note(s) et remplacera les données actuelles de ce téléphone.`,'Restaurer',()=>{ST.items=o.items.filter(x=>x&&x.t&&x.kind);ST.prof=merge(defP(),o.prof||{});ST.prof.onb=true;saveNow();applyPrefs();renderAll();$('#impMsg').textContent='Sauvegarde restaurée.';$('#impBox').value=''})}
-  catch(e){$('#impMsg').textContent="Ce texte n'est pas une sauvegarde ELYRA valide."}}
-$('#impGo').onclick=()=>restore($('#impBox').value.trim());
-$('#impFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(String(r.result));r.readAsText(f);e.target.value=''};
-$('#wipe').onclick=()=>ask('Effacer toutes tes données ?',"Tes notes, ton kit, tes réglages : tout sera effacé de ce téléphone. C'est définitif. Pense à faire une sauvegarde avant si tu veux les garder.",'Tout effacer',()=>{
-  try{localStorage.removeItem(KEY)}catch(e){}ST.items=[];ST.prof=defP();applyPrefs();renderAll();location.hash='accueil';$('#onb').classList.add('on')});
-
-/* ============ BIENVENUE ============ */
-$('#onbGo').onclick=()=>{setP(p=>{p.name=$('#onbName').value.trim().slice(0,40);p.onb=true});$('#onb').classList.remove('on');ac()};
-
-/* ============ RENDU GLOBAL ============ */
-function renderAll(){const fns=[renderHome,renderElyra,renderMeds,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderProgres,renderKit,renderEspace];
-  for(const f of fns){try{f()}catch(e){console.error(e)}}}
-
-/* ============ DÉMARRAGE ============ */
-load();applyPrefs();renderAll();route();
-if(!ST.prof.onb)$('#onb').classList.add('on');
-try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
-const isNative=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
-if('serviceWorker' in navigator&&location.protocol==='https:'&&!isNative){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')renderHome()});
-}
-</script>
+<script src="content.js"></script>
+<script src="sons.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

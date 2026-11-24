@@ -35,9 +35,12 @@ Pour qu'un proche y ait accès, partage la page depuis Claude (bouton Partager d
 |---|---|---|
 | Accueil (humeur, stress, suggestion, programme du jour, à venir, progrès, encouragement) | Appli | Oui |
 | Mode SOS (6 situations, accompagnement pas à pas, ancrage, respiration facultative, audio, kit, numéros d'urgence) | Appli | Oui |
-| Bulle de calme : 5 respirations, 10 séances guidées lues à voix haute, 4 sons avec minuterie, favoris, reprise | Appli | Oui |
+| Bulle de calme : 6 respirations, 27 séances guidées, 4 histoires pour s'endormir, 10 sons d'ambiance à mélanger, minuterie, favoris, reprise | Appli | Oui |
+| Voix ELYRA : voix française naturelle (Piper, neuronale) générée gratuitement par GitHub, intégrée à l'appli | Appli | Oui |
+| Comprendre : 11 fiches (anxiété, panique, ruminations, pièges de pensée, sommeil, demander de l'aide en Belgique…) | Appli | Oui |
+| Démêler une pensée : outil pas à pas inspiré des thérapies cognitives | Appli | Oui |
 | Journal émotionnel (humeur, stress, émotions, situations, notes, historique, graphique) | Appli | Oui |
-| Mon parcours : 8 programmes de 5 étapes | Appli | Oui |
+| Mon parcours : 12 programmes de 7 étapes | Appli | Oui |
 | Sommeil : journal des nuits, routine du soir, vide-tête, audios, réveils nocturnes | Appli | Oui |
 | Mes progrès : 30 jours, bilans semaine et mois, objectifs, petites victoires | Appli | Oui |
 | ELYRA Anticipation : observations prudentes calculées sur le téléphone + situations à venir | Appli | Oui |
@@ -60,15 +63,21 @@ Pour qu'un proche y ait accès, partage la page depuis Claude (bouton Partager d
 ## Organisation du dépôt
 
 ```
-www/                  L'appli (une seule page, sans dépendance externe)
-  index.html          Tout le code et les contenus
+www/                  L'appli (sans dépendance externe)
+  index.html          La structure des écrans
+  styles.css          Le design (charte ELYRA)
+  content.js          TOUS les textes : séances, histoires, parcours, fiches… (à modifier ici)
+  app.js              Le fonctionnement de l'appli
+  sons.js             Le moteur de sons d'ambiance (généré en direct, hors ligne)
   sw.js               Fonctionnement hors ligne (iPhone / navigateur)
+  voix/               Audios de la voix ELYRA (générés par GitHub, pas dans le dépôt)
+tools/voix/           Génération de la voix (Piper, voix fr_FR-siwis-medium)
   manifest.webmanifest, icons/, fonts/ (polices embarquées)
 chat/index.html       Source de la conversation ELYRA publiée dans Claude
 assets/               Icône et écran de démarrage Android
 signing/debug.keystore  Clé de signature fixe de l'APK (voir plus bas)
 tests/                Tests automatisés
-.github/workflows/    pages.yml (appli iPhone) · android.yml (APK)
+.github/workflows/    build.yml : voix → appli iPhone → APK
 ```
 
 ### Choix techniques
@@ -80,10 +89,18 @@ tests/                Tests automatisés
 
 ### Mise à jour
 Chaque envoi sur la branche `main` :
-- republie l'appli iPhone (si `www/` a changé) ;
+- génère les audios des nouvelles phrases (les anciens sont réutilisés) ;
+- republie l'appli iPhone ;
 - fabrique un nouvel APK, disponible dans **Releases**.
 
-Après une modification de l'appli, change `VERSION` dans `www/sw.js` pour que les iPhone récupèrent la nouvelle version.
+Pour ajouter une séance : l'écrire dans `www/content.js` (texte + durée minimale de chaque étape). La voix est générée automatiquement.
+Les accords s'écrivent `prêt{e}` ou `{doux|douce}` : l'appli choisit selon le réglage « au féminin / au masculin ».
+Après une modification, change `VERSION` dans `www/sw.js` pour que les iPhone récupèrent la nouvelle version.
+
+### La voix
+- Moteur : [Piper](https://github.com/rhasspy/piper), voix `fr_FR-siwis-medium` (licence libre). Gratuit, aucune clé, aucun serveur.
+- Les audios sont générés par GitHub Actions et intégrés à l'appli : ils marchent hors ligne.
+- Repli automatique sur la voix du téléphone si un audio manque.
 
 ### Mise en route (une seule fois)
 Dans le dépôt GitHub : **Settings → Pages → Build and deployment → Source : GitHub Actions**.
@@ -91,6 +108,7 @@ Dans le dépôt GitHub : **Settings → Pages → Build and deployment → Sourc
 ### Tests
 ```
 cd tests && npm install jsdom@24
-node app.test.js ../www/index.html
+(cd ../www && python3 -m http.server 8766 &)
+node app.test.js http://localhost:8766/index.html
 node chat.test.js ../chat/index.html
 ```
