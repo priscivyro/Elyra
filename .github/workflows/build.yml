@@ -233,7 +233,7 @@ jobs:
       - name: Préparer le projet Android
         run: |
           npx cap add android
-          npx capacitor-assets generate --android --iconBackgroundColor '#f7f2e9' --iconBackgroundColorDark '#1c1a20' --splashBackgroundColor '#f7f2e9' --splashBackgroundColorDark '#1c1a20'
+          npx capacitor-assets generate --android --iconBackgroundColor '#7966D9' --iconBackgroundColorDark '#292943' --splashBackgroundColor '#F8F5F2' --splashBackgroundColorDark '#1B1B30'
           npx cap sync android
       # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
       - name: Signature fixe et numéro de version

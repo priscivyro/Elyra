@@ -8,7 +8,7 @@ const RM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}
 
 /* ---------- le visage ---------- */
 const EXPR={neutre:{s:.35,b:0,t:0},doux:{s:.65,b:0,t:0},sourire:{s:1,b:-1.5,t:0},attentif:{s:.4,b:-2.5,t:0},soucieux:{s:.12,b:-1,t:5}};
-function ElyraFace(host,opt){opt=opt||{};
+function ElyraFace(host,opt){opt=opt||{};if(opt.mascot&&window.ElyraMascotte)return window.ElyraMascotte.face(host,opt);
   host.innerHTML=`<div class="fl" data-state="idle"><div class="fl-ring"></div><div class="fl-dots" aria-hidden="true"><i></i><i></i><i></i></div>
   <svg viewBox="0 0 240 240" class="fl-svg" role="img" aria-label="${opt.label||'Le visage d’ELYRA'}">
    <defs><clipPath id="flc"><circle cx="120" cy="120" r="118"/></clipPath>

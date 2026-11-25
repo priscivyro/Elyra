@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.10.0";
+const APP_VERSION="2.0.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -186,7 +186,7 @@ async function prepare(u){await copyThen(`J'ai bientôt quelque chose qui m'inqu
 
 /* ============ ELYRA (lien) ============ */
 let elyFace=null;
-function renderElyra(){if(!elyFace&&window.ElyraFace){elyFace=ElyraFace($('#elyFace'),{photo:faceSrc()});elyFace.expr('sourire')}$('#elyLiveNote').innerHTML=VOIX_URL()?'':'Pas encore activée : il faut un compte Cloudflare gratuit, une seule fois. <a href="https://github.com/priscivyro/Elyra#activer-la-conversation-%C3%A0-voix-haute" target="_blank" rel="noopener">Voir le guide</a>. En attendant, le bouton ouvre la conversation dans Claude.';$('#modes').innerHTML=C.modes.map(([k,n,d])=>`<a class="item" style="text-decoration:none;color:inherit" data-mode="${k}"><span class="go">${covHTML(k==='apaise'?'sos':k==='nuit'?'sommeil':k==='apprendre'?'histoire':k==='encourage'?'confiance':k==='comprend'?'visu':k==='accompagne'?'corps':'stress')}<span><h3>${esc(n)}</h3><p>${esc(d)}</p></span></span></a>`).join('');
+function renderElyra(){if(!elyFace&&window.ElyraFace){elyFace=ElyraFace($('#elyFace'),{photo:faceSrc(),mascot:isMascot()});elyFace.expr('sourire')}$('#elyLiveNote').innerHTML=VOIX_URL()?'':'Pas encore activée : il faut un compte Cloudflare gratuit, une seule fois. <a href="https://github.com/priscivyro/Elyra#activer-la-conversation-%C3%A0-voix-haute" target="_blank" rel="noopener">Voir le guide</a>. En attendant, le bouton ouvre la conversation dans Claude.';$('#modes').innerHTML=C.modes.map(([k,n,d])=>`<a class="item" style="text-decoration:none;color:inherit" data-mode="${k}"><span class="go">${covHTML(k==='apaise'?'sos':k==='nuit'?'sommeil':k==='apprendre'?'histoire':k==='encourage'?'confiance':k==='comprend'?'visu':k==='accompagne'?'corps':'stress')}<span><h3>${esc(n)}</h3><p>${esc(d)}</p></span></span></a>`).join('');
   $$('#modes a').forEach(a=>linkChat(a,a.dataset.mode));linkChat($('#talkHome'),'ecoute')}
 
 /* ============ RESPIRATION ============ */
@@ -500,7 +500,7 @@ $('#vtGo').onclick=()=>{const v=$('#vtTxt').value.trim();if(!v){$('#vtMsg').text
 let progOpen=null;
 function toggleStep(pid,i,force){const was=(ST.prof.prog.done[pid]||[]).includes(i);setP(p=>{const a=p.prog.done[pid]||[];const on=force===undefined?!was:force;p.prog.done[pid]=on?[...new Set([...a,i])]:a.filter(x=>x!==i)})}
 function renderParcours(){const box=$('#progBox');const act=ST.prof.prog.id;
-  if(!progOpen){box.innerHTML=`<div class="list">${PROGS.map(P=>{const d=(ST.prof.prog.done[P.id]||[]).length;return `<div class="item" aria-current="${P.id===act}"><button class="go" data-prog="${P.id}"><span class="cov" data-c="corps" aria-hidden="true" style="font:700 .9rem Figtree,sans-serif">${d}/${P.s.length}</span><span>${P.audio?'<span class="tag lav">Série audio</span>':''}<h3>${esc(P.n)}</h3><p>${esc(P.d)}</p>${P.id===act?'<span class="meta" style="color:var(--lavd)">En cours</span>':''}</span></button></div>`}).join('')}</div>`;return}
+  if(!progOpen){box.innerHTML=`<div class="list">${PROGS.map(P=>{const d=(ST.prof.prog.done[P.id]||[]).length;return `<div class="item" aria-current="${P.id===act}"><button class="go" data-prog="${P.id}"><span class="cov" data-c="corps" aria-hidden="true" style="font:700 .9rem 'DM Sans',sans-serif">${d}/${P.s.length}</span><span>${P.audio?'<span class="tag lav">Série audio</span>':''}<h3>${esc(P.n)}</h3><p>${esc(P.d)}</p>${P.id===act?'<span class="meta" style="color:var(--lavd)">En cours</span>':''}</span></button></div>`}).join('')}</div>`;return}
   const P=PROGS.find(x=>x.id===progOpen);const done=ST.prof.prog.done[P.id]||[];
   box.innerHTML=`<button class="back mt" id="progBack">‹ Tous les parcours</button><div class="card"><h2>${esc(P.n)}</h2><p class="sub">${esc(P.d)}</p>
     <div class="row mt">${P.id===act?`<span class="tag">C'est ton parcours en cours</span><button class="ghost" id="progStop">Mettre en pause</button>`:`<button class="main" id="progPick">Choisir ce parcours</button>`}</div></div>
@@ -606,19 +606,24 @@ document.addEventListener('click',e=>{const g=e.target.closest('button[data-genr
   const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}const an=e.target.closest('button[data-anim]');if(an){setP(p=>p.anim=an.dataset.anim);applyPrefs()}const ig=e.target.closest('button[data-img]');if(ig)setP(p=>p.img=ig.dataset.img);});
 /* visage d'ELYRA : image choisie sur le téléphone */
 const PF={img:null};
-function faceSrc(){const f=ST.prof.portrait;return f==='dessin'?null:(f||'visage-elyra.jpg')}
-function renderPf(){if(PF.img)return;const p=faceSrc(),v=ST.prof.portrait;$('#pfPrev').innerHTML=p?`<img src="${p}" alt="Le visage d’ELYRA">`:'<svg class="face" style="width:100%;height:100%;background:none" aria-hidden="true"><use href="#face" style="display:inline"/></svg>';$('#pfReset').hidden=!v;$('#pfDrawn').hidden=v==='dessin'}
+function faceSrc(){const f=ST.prof.portrait;return f==='elyra'?'visage-elyra.jpg':(f&&f.startsWith('data:')?f:null)}
+const isMascot=()=>{const f=ST.prof.portrait;return !f||f==='mascotte'};
+function renderPf(){if(PF.img)return;const p=faceSrc(),v=ST.prof.portrait||'mascotte',box=$('#pfPrev');
+  if(isMascot()){if(!box.querySelector('.masc')&&window.ElyraMascotte){box.innerHTML='';ElyraMascotte.create(box,'repos')}}
+  else if(p)box.innerHTML=`<img src="${p}" alt="Le visage d’ELYRA">`;else if(!box.querySelector('.fl-svg')&&window.ElyraFace){box.innerHTML='';ElyraFace(box,{})}
+  $$('#pfModes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pf===v||(b.dataset.pf==='perso'&&v.startsWith('data:'))))}
 function pfDraw(){const im=PF.img,c=$('#pfPrev canvas');if(!im||!c)return;const z=+$('#pfZoom').value,side=Math.min(im.width,im.height)/z,x=(im.width-side)*+$('#pfX').value,y=(im.height-side)*+$('#pfY').value;
   const g=c.getContext('2d');g.fillStyle='#eee8f7';g.fillRect(0,0,480,480);g.drawImage(im,x,y,side,side,0,0,480,480)}
 $('#pfFile').onchange=e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;const im=new Image();
   im.onload=()=>{PF.img=im;$('#pfEdit').hidden=false;$('#pfPrev').innerHTML='<canvas width="480" height="480"></canvas>';pfDraw();$('#pfEdit').scrollIntoView({behavior:'smooth',block:'nearest'})};
   im.onerror=()=>toast("Je n'arrive pas à ouvrir cette image.");im.src=URL.createObjectURL(f)};
 ['#pfZoom','#pfY','#pfX'].forEach(x=>$(x).oninput=pfDraw);
-function pfApply(){if(elyFace){elyFace.destroy();elyFace=null;$('#elyFace').innerHTML=''}if(CV.face){CV.face.destroy();CV.face=null;$('#cvFace').innerHTML=''}applyPrefs();renderPf();renderElyra()}
+function pfApply(){$('#pfPrev').innerHTML='';if(elyFace){elyFace.destroy();elyFace=null;$('#elyFace').innerHTML=''}if(CV.face){CV.face.destroy();CV.face=null;$('#cvFace').innerHTML=''}applyPrefs();renderPf();renderElyra()}
 $('#pfSave').onclick=()=>{const c=$('#pfPrev canvas');if(!c)return;const d=c.toDataURL('image/jpeg',.86);PF.img=null;$('#pfEdit').hidden=true;setP(p=>p.portrait=d);pfApply();sparkle($('#pfPrev'));toast('Voilà le nouveau visage d’ELYRA.')};
 $('#pfCancel').onclick=()=>{PF.img=null;$('#pfEdit').hidden=true;renderPf()};
-$('#pfReset').onclick=()=>{setP(p=>p.portrait=null);pfApply();toast('ELYRA a retrouvé son visage.')};
-$('#pfDrawn').onclick=()=>{const go=()=>{setP(p=>p.portrait='dessin');pfApply()};if(ST.prof.portrait&&ST.prof.portrait!=='dessin')ask('Passer au visage dessiné ?','Ton image sera retirée de ce téléphone.','Oui',go);else go()};
+$('#pfModes').onclick=e=>{const b=e.target.closest('[data-pf]');if(!b)return;const k=b.dataset.pf;if(k==='perso'){$('#pfFile').click();return}
+  const go=()=>{setP(p=>p.portrait=k==='mascotte'?null:k);$('#pfPrev').innerHTML='';pfApply()};const cur=ST.prof.portrait;
+  if(cur&&cur.startsWith('data:'))ask('Changer de visage ?','Ton image sera retirée de ce téléphone.','Oui',go);else go()};
 let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name=e.target.value.trim().slice(0,40)),400)};
 $('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pCtx').onchange=e=>setP(p=>p.ctxShare=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
 const TEST="Bonjour. Je suis la voix de tes séances. Prends ton temps, tu n'as rien à réussir.";
@@ -1156,7 +1161,7 @@ function cvExtra(html,keep){const b=$('#cvExtra');if(keep)b.insertAdjacentHTML('
 function openConv(o){o=o||{};const c=cvP();CV.open=true;CV.sess=0;CV.textMode=!!o.text&&!o.voice;CV.mode=o.mode||(slot()==='nuit'?'nuit':'ecoute');
   if(brMain.on)brMain.stop(false);SND.duck(true);$('#rate').classList.remove('on');
   $('#conv').classList.add('on');document.body.style.overflow='hidden';
-  if(!CV.face)CV.face=ElyraFace($('#cvFace'),{label:'Le visage d’ELYRA',photo:faceSrc()});CV.face.expr('doux');
+  if(!CV.face)CV.face=ElyraFace($('#cvFace'),{label:'Le visage d’ELYRA',photo:faceSrc(),mascot:isMascot()});CV.face.expr('doux');
   cvRenderModes();cvSubs();$('#cvYou').textContent='';$('#cvEly').textContent='';cvExtra('');$('#cvClaude').href=chatHref(CV.mode);
   $('#cvForm').hidden=!CV.textMode;$('#cvMicW').hidden=CV.textMode;
   if(!VOIX_URL()){cvSet('idle');CV.face.expr('sourire');$('#cvMic').disabled=true;

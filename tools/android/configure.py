@@ -29,7 +29,7 @@ print('build.gradle configuré :', code, name)
 # Petite icône des rappels (notification) : le bourgeon ELYRA, en silhouette blanche.
 d = pathlib.Path('android/app/src/main/res/drawable'); d.mkdir(parents=True, exist_ok=True)
 (d / 'ic_stat_elyra.xml').write_text('''<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-  <path android:fillColor="#FFFFFFFF" android:pathData="M12,3C10.2,5 9.3,7.6 9.4,10.4C7.6,9 5.4,8.5 3.5,8.8C3.7,13.6 6.9,17.3 11,18.2L11,21L13,21L13,18.2C17.1,17.3 20.3,13.6 20.5,8.8C18.6,8.5 16.4,9 14.6,10.4C14.7,7.6 13.8,5 12,3Z"/>
+  <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M12,2C15.8,6.1 20.2,10.5 20.2,15A8.2,7.9 0,0 1,3.8,15C3.8,10.5 8.2,6.1 12,2ZM9,11.5L14.6,11.5L14.6,12.9L10.4,12.9L10.4,14.1L13.2,14.1L13.2,15.4L10.4,15.4L10.4,16.6L14.6,16.6L14.6,18L9,18Z"/>
 </vector>''')
 print('icône de notification ajoutée')
 

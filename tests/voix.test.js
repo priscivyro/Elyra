@@ -24,8 +24,8 @@ const click=s=>{const e=typeof s==='string'?$(s):s;if(!e)throw new Error('introu
 const go=h=>{w.location.hash=h;w.dispatchEvent(new w.HashChangeEvent('hashchange'))};const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const P=()=>JSON.parse(w.localStorage.getItem('elyra.v1')).prof;
 w.addEventListener('load',async()=>{try{
-  go('elyra');ok(!!$('#elyFace .fl-photo img[src="visage-elyra.jpg"]'),'visage d\'ELYRA dans la vue ELYRA');ok(!/Pas encore activée/.test($('#elyLiveNote').textContent),'serveur configuré');
-  click('#elyLive');ok($('#conv').classList.contains('on'),'conversation ouverte en plein écran');ok(!!$('#cvFace .fl-photo img'),'visage d\'ELYRA dans la conversation');
+  go('elyra');ok(!!$('#elyFace .fl-masc svg.masc'),'mascotte dans la vue ELYRA');ok(!/Pas encore activée/.test($('#elyLiveNote').textContent),'serveur configuré');
+  click('#elyLive');ok($('#conv').classList.contains('on'),'conversation ouverte en plein écran');ok(!!$('#cvFace .fl-masc svg.masc'),'mascotte dans la conversation');
   ok(/se souvienne/.test($('#cvExtra').textContent),'consentement demandé pour la mémoire');click($('[data-cvmem="1"]'));await wait(80);
   ok(/Priscilla/.test($('#cvEly').textContent),'ELYRA accueille avec son prénom (sous-titre)');await wait(200);
   ok(/micro n'est pas disponible/.test($('#cvExtra').textContent),'micro absent : message clair et passage à l’écrit');
