@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.7.0";
+const APP_VERSION="1.8.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -22,6 +22,14 @@ const doy=()=>Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/DAY
 let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2800)}
 function ask(title,text,okLabel,cb){$('#dlgT').textContent=title;$('#dlgP').textContent=text;$('#dlgOk').textContent=okLabel||'Oui';$('#dlg').classList.add('on');
   $('#dlgOk').onclick=()=>{$('#dlg').classList.remove('on');cb()};$('#dlgNo').onclick=()=>$('#dlg').classList.remove('on');$('#dlgNo').focus()}
+/* petites étincelles pour les petites victoires */
+const calmMotion=()=>ST.prof.anim==='off'||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function sparkle(x,y,n){if(calmMotion())return;if(x&&x.getBoundingClientRect){const r=x.getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2}
+  const cols=['#b8a8d9','#9db59a','#e5cf9f','#f0c3ae','#cdc1f1'];n=n||14;
+  for(let i=0;i<n;i++){const e=document.createElement('i');e.className='spark';const a=Math.PI*2*i/n+Math.random()*.5,d=40+Math.random()*60;
+    e.style.cssText=`left:${x}px;top:${y}px;background:${cols[i%cols.length]};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d}px;animation-delay:${Math.random()*.12}s`;
+    document.body.appendChild(e);setTimeout(()=>e.remove(),1600)}}
+let lastTap=null;document.addEventListener('pointerdown',e=>{lastTap=[e.clientX,e.clientY]},true);
 const haptic=ms=>{try{navigator.vibrate&&navigator.vibrate(ms||12)}catch(e){}};
 /* accords au féminin / masculin : « prêt{e} », « {doux|douce} » */
 const G=t=>{const f=ST.prof.genre==='f';return String(t).replace(/\{([^|}]*)\|([^}]*)\}/g,(m,a,b)=>f?b:a).replace(/\{e\}/g,f?'e':'')};
@@ -92,7 +100,7 @@ const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
 const cur=()=>{const v=(location.hash||'#accueil').slice(1);return VIEWS.includes(v)?v:'accueil'};
-function route(){const v=cur();$('#rate').classList.remove('on');$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));const tab=TABOF[v]||v;
+function route(){const v=cur();$('#rate').classList.remove('on');$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));enter($('#v-'+v));const tab=TABOF[v]||v;
   $$('#nav a').forEach(a=>{const on=a.dataset.k===tab;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   if(v!=='calme'&&brMain&&brMain.on)brMain.stop(false);
   if(v==='outil'&&!TR.k){location.replace('#outils');return}if(v!=='outil')toolStop();if(v!=='expo')xpStop();
@@ -125,7 +133,7 @@ function doEx(id){if(!id)return;const [k,v]=id.split(':');
   else if(k==='chat'){openChat(v)}
   else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},80)}
   else if(VIEWS.includes(k))location.hash=k}
-function toggleFav(id){setP(p=>{p.favs=p.favs.includes(id)?p.favs.filter(x=>x!==id):[...p.favs,id]});selP(pk);syncPlFav();haptic()}
+function toggleFav(id){if(!ST.prof.favs.includes(id)&&lastTap)sparkle(lastTap[0],lastTap[1],8);setP(p=>{p.favs=p.favs.includes(id)?p.favs.filter(x=>x!==id):[...p.favs,id]});selP(pk);syncPlFav();haptic()}
 
 /* ============ ACCUEIL ============ */
 const chipsMood=(sel,curv)=>{$(sel).innerHTML=MOODS.map(([v,n])=>`<button type="button" data-v="${v}" aria-pressed="${curv===v}"><span class="dot m${v}"></span>${n}</button>`).join('')};
@@ -170,7 +178,7 @@ function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST
     if(i<0)box.innerHTML=`<span class="tag">${esc(P.n)}</span><h3 class="mt">Parcours terminé</h3><p class="sub">Bravo pour ce chemin. Tu peux le refaire ou en choisir un autre.</p><a class="btn ghost mt" href="#parcours">Mes parcours</a>`;
     else{const st=P.s[i];box.innerHTML=`<span class="tag">${esc(P.n)} · étape ${i+1}/${P.s.length}</span><h3 class="mt">${esc(st[0])}</h3><p class="sub">${esc(G(st[1]))}</p>
       <div class="row mt">${st[2]?`<button class="main" data-ex="${esc(st[2])}">${esc(EX[st[2]]||'Commencer')}</button>`:''}<button class="ghost" data-stepdone="${esc(P.id)}:${i}">C'est fait</button></div>`}}}
-document.addEventListener('click',e=>{const d=e.target.closest('[data-stepdone]');if(d){const [p,i]=d.dataset.stepdone.split(':');toggleStep(p,+i,true);toast('Étape notée. Bravo !');haptic()}
+document.addEventListener('click',e=>{const d=e.target.closest('[data-stepdone]');if(d){sparkle(d);const [p,i]=d.dataset.stepdone.split(':');toggleStep(p,+i,true);toast('Étape notée. Bravo !');haptic()}
   const pr=e.target.closest('[data-prep]');if(pr){const u=ST.prof.up.find(x=>x.id===pr.dataset.prep);if(u)prepare(u)}});
 async function prepare(u){await copyThen(`J'ai bientôt quelque chose qui m'inquiète : ${u.txt} (${fmtKey(u.date)}). Tu peux m'aider à m'y préparer en douceur ?`);openChat('accompagne')}
 
@@ -208,7 +216,8 @@ brMain.onState=on=>{$('#brBtn').textContent=on?'Arrêter':'Commencer'};
 $('#brBtn').onclick=()=>brMain.on?brMain.stop(false):startBr();
 $('#brFav').onclick=()=>toggleFav('br:'+pk);
 $('#brVoice').onchange=e=>setP(p=>p.brVoice=e.target.checked);
-function calTab(t){$$('#calTabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));$$('#v-calme .pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));if(t!=='respirer'&&brMain.on)brMain.stop(false)}
+function enter(el){if(!el)return;el.classList.add('enter');clearTimeout(el._en);el._en=setTimeout(()=>el.classList.remove('enter'),900)}
+function calTab(t){enter($('#p-'+t));$$('#calTabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));$$('#v-calme .pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));if(t!=='respirer'&&brMain.on)brMain.stop(false)}
 $('#calTabs').onclick=e=>{const b=e.target.closest('button');if(b)calTab(b.dataset.t)};
 selP('coh');selD(5);
 
@@ -258,7 +267,7 @@ function libreStart(){const st=ST.prof.libre||{min:10,every:0};SND.ctx();stopVoi
   LB.on=true;LB.start=Date.now();LB.end=LB.start+st.min*60e3;LB.every=st.every;LB.next=st.every?LB.start+st.every*60e3:Infinity;SND.bell();
   clearInterval(LB.iv);LB.iv=setInterval(()=>{const now=Date.now();if(now>=LB.end)return libreEnd(true);if(now>=LB.next){SND.tone(523.25,3.5,.12);LB.next+=LB.every*60e3}
     const el=$('#libre .lbt');if(el)el.textContent=mmss(Math.round((LB.end-now)/1000))},500);renderLibre()}
-function libreEnd(full){if(!LB.on)return;clearInterval(LB.iv);LB.on=false;SND.bell();const min=Math.round((Date.now()-LB.start)/60000);
+function libreEnd(full){if(!LB.on)return;clearInterval(LB.iv);LB.on=false;SND.bell();if(full)sparkle(innerWidth/2,innerHeight/2,18);const min=Math.round((Date.now()-LB.start)/60000);
   renderLibre();if(min>=1){toast(full?'Séance terminée. Merci pour ce moment.':'Bien joué, chaque minute compte.');askHelp(addItem({kind:'pratique',ex:'libre',label:'Méditation libre',min}))}}
 function renderStories(){$('#stories').innerHTML=STORIES.map(s=>itemHTML(s,true)).join('')}
 
@@ -280,7 +289,7 @@ function tick(){if(PL.paused||PL.done)return;PL.stepEl+=.25;PL.el+=.25;updBar();
 function advance(){if(PL.i+1>=PL.m.s.length)return finish();step(PL.i+1)}
 function updBar(){$('#plBar').style.width=Math.min(100,PL.el/PL.tot*100)+'%';$('#plEl').textContent=mmss(PL.el)}
 function setPlay(playing){$('#plPlay').innerHTML=`<svg class="icon"><use href="#i-${playing?'pause':'play'}"/></svg>`;$('#plPlay').setAttribute('aria-label',playing?'Pause':'Lecture')}
-function finish(){PL.done=true;clearInterval(PL.iv);stopVoice();SND.bell();const t=isStory(PL.m.k)?'Bonne nuit.':"Merci de t'être offert ce moment.";
+function finish(){PL.done=true;clearInterval(PL.iv);stopVoice();SND.bell();sparkle(PL.m.eft?$('#plEft'):$('#plCov'),0,20);const t=isStory(PL.m.k)?'Bonne nuit.':"Merci de t'être offert ce moment.";
   $('#plSay').textContent=t;PL.el=PL.tot;updBar();setPlay(false);
   setP(p=>{if(p.resume&&p.resume.k===PL.m.k)p.resume=null});askHelp(addItem({kind:'pratique',ex:PL.key,label:PL.m.t,min:Math.max(1,Math.round(PL.tot/60))}))}
 function closePlayer(){clearInterval(PL.iv);stopVoice();$('#player').classList.remove('on');document.body.style.overflow=$('#sos').classList.contains('on')?'hidden':'';
@@ -312,7 +321,7 @@ SND.onChange(why=>{const a=SND.active();
 function renderSounds(){const a=SND.active();
   $('#mixes').innerHTML=C.mixes.map(([n,l],i)=>`<button data-mix="${i}" aria-pressed="${l.length===a.length&&l.every(x=>a.includes(x))}">${esc(n)}</button>`).join('');
   const card=([k,n,d,g])=>{const on=a.includes(k);const v=ST.prof.sndVol[k]!=null?ST.prof.sndVol[k]:.8;
-    return `<div class="sndc" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}">${covHTML(g==='m'?'musique':'son')}<span>${esc(n)}<small>${on?'En cours':esc(d)}</small></span></button>${on?`<input type="range" min="0" max="1" step="0.05" value="${v}" data-vol="${k}" aria-label="Volume : ${esc(n)}">`:''}</div>`};
+    return `<div class="sndc" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}">${covHTML(g==='m'?'musique':'son').replace('</span>',on?'<span class="eq"><i></i><i></i><i></i></span></span>':'</span>')}<span>${esc(n)}<small>${on?'En cours':esc(d)}</small></span></button>${on?`<input type="range" min="0" max="1" step="0.05" value="${v}" data-vol="${k}" aria-label="Volume : ${esc(n)}">`:''}</div>`};
   $('#sounds').innerHTML=C.sounds.filter(x=>!x[3]).map(card).join('');$('#musics').innerHTML=C.sounds.filter(x=>x[3]==='m').map(card).join('');$('#alts').innerHTML=C.sounds.filter(x=>x[3]==='g').map(card).join('');
   $('#sndState').textContent=a.length?`En cours : ${a.map(k=>EX['snd:'+k]).join(', ')}.`:'Aucun son en cours.';$('#sndStop').hidden=!a.length}
 $('#sounds').onclick=$('#musics').onclick=$('#alts').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;const was=SND.active().length;
@@ -424,7 +433,7 @@ $('#emoJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jEmo=togg
 $('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jSit=toggleIn(jSit,b.dataset.v);multi('#sitJ',C.sits,jSit)};
 $('#stress').oninput=e=>$('#sv').textContent=e.target.value;
 $('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
-  addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
+  sparkle($('#jForm button[type=submit]')||$('#jForm'),0,10);addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
 const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG',outil:'Outil',expo:'Exposition',corps:'Mon corps'};
 function bars(el,days,key){const today=dstart(Date.now());const out=[];
   for(let i=days-1;i>=0;i--){const dd=dstart(today-i*DAY+432e5);const s=ST.items.filter(x=>x[key]!=null&&x[key]!==''&&dstart(x.t)===dd);const v=s.length?avg(s.map(x=>+x[key])):null;
@@ -573,17 +582,17 @@ $('#kConF').onsubmit=e=>{e.preventDefault();const n=$('#kConN').value.trim(),ph=
 let kT;$('#kNotes').oninput=e=>{clearTimeout(kT);kT=setTimeout(()=>{ST.prof.kit.notes=e.target.value.slice(0,3000);save();$('#kNotesMsg').textContent='Enregistré.'},500)};
 
 /* ============ ESPACE PERSO ============ */
-const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']],GENRES=[['f','Au féminin'],['m','Au masculin']];
+const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']],ANIMS=[['on','Douces'],['off','Calmes']],GENRES=[['f','Au féminin'],['m','Au masculin']];
 const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
-function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.size||'m';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
+function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.size||'m';r.dataset.anim=ST.prof.anim||'on';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
 function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const L=CapTTS()?NV:voices;$('#pVoiceSelBox').hidden=!L.length;
   s.innerHTML=`<option value="">Voix par défaut</option>`+L.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};
 function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#pCtx').checked=!!P.ctxShare;$('#brVoice').checked=!!P.brVoice;
   chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
-  chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');
+  chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');chipRow('#pAnim',ANIMS,P.anim||'on','anim');
   $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est ${VO.human?'une voix humaine (Microsoft)':'une voix française de synthèse (Piper)'}, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
   $('#pOffline').hidden=isNative||!VO.idx||!('caches' in window);
   renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
@@ -592,7 +601,7 @@ function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))
 document.addEventListener('click',e=>{const g=e.target.closest('button[data-genre]');if(g)setP(p=>p.genre=g.dataset.genre);
   const v=e.target.closest('button[data-vmode]');if(v)setP(p=>p.vmode=v.dataset.vmode);
   const vv=e.target.closest('button[data-vvoice]');if(vv&&vv.dataset.vvoice!==VV()){setP(p=>p.vvoice=vv.dataset.vvoice);loadVoiceIdx().then(()=>{sessVoice=true;speak(TEST,true)})}const r=e.target.closest('button[data-rate]');if(r)setP(p=>p.rate=+r.dataset.rate);
-  const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}});
+  const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}const an=e.target.closest('button[data-anim]');if(an){setP(p=>p.anim=an.dataset.anim);applyPrefs()}});
 let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name=e.target.value.trim().slice(0,40)),400)};
 $('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pCtx').onchange=e=>setP(p=>p.ctxShare=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
 const TEST="Bonjour. Je suis la voix de tes séances. Prends ton temps, tu n'as rien à réussir.";

@@ -459,3 +459,59 @@ body:has(.rate.on) .toast{bottom:calc(220px + env(safe-area-inset-bottom))}
 .eftlab{display:flex;flex-direction:column;gap:2px;text-align:center;margin:6px 0 0;font-size:.92rem;color:var(--soft)}
 .eftlab b{color:var(--ink);font-family:Fraunces,serif;font-size:1.05rem}
 @media (prefers-reduced-motion:reduce){.eftd .ep .halo{animation:none}}
+/* ===== animations douces ===== */
+.art *{transform-box:fill-box;transform-origin:center}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-halo{animation:aHalo 6s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-sun{animation:aSun 14s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-tw{animation:aTw 4s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-drift{animation:aDrift 18s ease-in-out infinite alternate}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-sway{transform-origin:15% 90%;animation:aSway 7s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-tree{transform-origin:50% 100%;animation:aSway 9s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-feather{animation:aFeather 9s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-wave{animation:aWave 7s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-shim{animation:aShim 2.6s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-mist{animation:aDrift 20s ease-in-out infinite alternate}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-ring{animation:aRing 6s ease-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-rain{animation:aRain 1.2s linear infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-flame{transform-origin:50% 100%;animation:aFlame 1.8s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-steam{animation:aSteam 3.3s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-bob{animation:aBob 5s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-float{animation:aFloat 8s ease-in-out infinite}
+:is(.cov.big,.sitc .cov,.tile .cov,.cov.live) .art .a-beam{transform-box:view-box;transform-origin:60px 34px;animation:aBeam 6s ease-in-out infinite}
+@keyframes aHalo{0%,100%{transform:scale(1);opacity:.18}50%{transform:scale(1.12);opacity:.3}}
+@keyframes aSun{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes aTw{0%,100%{opacity:.9}50%{opacity:.25}}
+@keyframes aDrift{from{transform:translateX(-6px)}to{transform:translateX(6px)}}
+@keyframes aSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes aFeather{0%,100%{transform:translate(-3px,-2px) rotate(-4deg)}50%{transform:translate(3px,3px) rotate(4deg)}}
+@keyframes aWave{0%,100%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+@keyframes aShim{0%,100%{opacity:.85}50%{opacity:.3}}
+@keyframes aRing{from{transform:scale(.2);opacity:.9}to{transform:scale(1.15);opacity:0}}
+@keyframes aRain{from{transform:translateY(-8px);opacity:0}20%{opacity:1}to{transform:translateY(14px);opacity:0}}
+@keyframes aFlame{0%,100%{transform:scale(1,1)}30%{transform:scale(.94,1.06)}60%{transform:scale(1.05,.95)}}
+@keyframes aSteam{from{transform:translateY(4px);opacity:0}40%{opacity:.9}to{transform:translateY(-8px);opacity:0}}
+@keyframes aBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(2px) rotate(1.5deg)}}
+@keyframes aFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes aBeam{0%,100%{transform:rotate(-10deg);opacity:.25}50%{transform:rotate(12deg);opacity:.5}}
+/* entrée douce des cartes */
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc){animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(2){animation-delay:.04s}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(3){animation-delay:.08s}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(4){animation-delay:.12s}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(5){animation-delay:.16s}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(6){animation-delay:.2s}
+.enter :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc):nth-child(n+7){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* touches */
+:is(.item .go,.tile,.sitc,.sndc .go):active{transform:scale(.98);transition:transform .12s}
+/* son en cours : petit égaliseur */
+.cov .eq{position:absolute;right:5px;bottom:5px;display:flex;gap:2px;align-items:flex-end;height:12px}
+.cov .eq i{width:3px;background:#fff;border-radius:2px;animation:eq 1.1s ease-in-out infinite}
+.cov .eq i:nth-child(2){animation-delay:-.4s}.cov .eq i:nth-child(3){animation-delay:-.75s}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+/* petites victoires : étincelles */
+.spark{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:99;animation:spark 1.3s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes spark{from{transform:translate(-50%,-50%) scale(.4);opacity:1}to{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1);opacity:0}}
+/* réglage « animations calmes » */
+html[data-anim=off] .art *,html[data-anim=off] :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc),html[data-anim=off] .aura{animation:none!important}
+html[data-anim=off] .spark{display:none}
