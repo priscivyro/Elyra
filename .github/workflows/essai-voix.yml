@@ -1,0 +1,32 @@
+name: Essai voix Chatterbox
+# Essai ponctuel : génère quelques phrases pour écouter la voix avant de l'adopter.
+on:
+  push:
+    paths: ['tools/voix/essai_chatterbox.py', '.github/workflows/essai-voix.yml']
+  workflow_dispatch:
+jobs:
+  essai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q chatterbox-tts==0.1.7 piper-tts==1.8.0
+      - name: Voix de référence (timbre)
+        run: |
+          mkdir -p modeles essai && python -m piper.download_voices fr_FR-siwis-medium fr_FR-tom-medium --data-dir modeles
+          T="Bonjour. Prends un moment pour toi. Installe-toi tranquillement, laisse tes épaules se relâcher, et respire à ton rythme. Tout va bien."
+          echo "$T" | python -m piper -m modeles/fr_FR-siwis-medium.onnx -f ref_f.wav --length-scale 1.15
+          echo "$T" | python -m piper -m modeles/fr_FR-tom-medium.onnx -f ref_m.wav --length-scale 1.1
+      - name: Générer
+        run: python tools/voix/essai_chatterbox.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: essai-voix
+          path: essai/*.mp3
