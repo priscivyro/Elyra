@@ -1,0 +1,22 @@
+name: Photos ELYRA
+# Télécharge les photos choisies et les range dans www/photos (licence Unsplash, via Picsum).
+on:
+  push:
+    paths: ['tools/photos/choix.json', 'tools/photos/telecharger.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  photos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pillow
+      - run: python tools/photos/telecharger.py
+      - name: Enregistrer les photos
+        run: |
+          git config user.name "ELYRA" && git config user.email "elyra@users.noreply.github.com"
+          git add www/photos && git commit -qm "Photos ELYRA [skip ci]" && git push origin HEAD:main
