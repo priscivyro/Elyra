@@ -524,3 +524,9 @@ html.portrait svg.face use{display:none}
 .pfw{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .pfprev{width:120px;height:120px;border-radius:50%;overflow:hidden;flex:none;background:var(--lavs);box-shadow:var(--sh)}
 .pfprev canvas,.pfprev img{width:100%;height:100%;display:block}
+/* photos */
+.cov.photo{background:var(--c3)}
+.cov.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.cov.big.photo img{animation:kb 40s ease-in-out infinite alternate;transform-origin:50% 40%}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.14) translate(-2%,1%)}}
+html[data-anim=off] .cov.big.photo img{animation:none}

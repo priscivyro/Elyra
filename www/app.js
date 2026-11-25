@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.9.1";
+const APP_VERSION="1.10.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -47,7 +47,9 @@ const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
 const isStory=k=>STORIES.some(s=>s.k===k);
 function catOf(ex){const [k,v]=ex.split(':');if(k==='outil'&&O.tools[v])return O.tools[v].c;if(k==='br')return'breath';if(k==='snd'){const x=C.sounds.find(y=>y[0]===v);return x&&x[3]==='m'?'musique':'son'}if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
 const ART=window.ElyraArt;
-const covHTML=(cat,cls='',key)=>key&&ART?`<span class="cov ${cls} art" data-c="${esc(cat)}" aria-hidden="true">${ART.scene(cat,key)}</span>`:`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
+const PHOTOS=window.ELYRA_PHOTOS||{keys:[],credits:[]},PHK=new Set(PHOTOS.keys);
+const usePhoto=key=>key&&PHK.has(key)&&ST.prof.img!=='dessins';
+const covHTML=(cat,cls='',key)=>usePhoto(key)?`<span class="cov ${cls} art photo" data-c="${esc(cat)}" aria-hidden="true"><img src="photos/${esc(key)}.webp" alt="" loading="lazy" decoding="async"></span>`:key&&ART?`<span class="cov ${cls} art" data-c="${esc(cat)}" aria-hidden="true">${ART.scene(cat,key)}</span>`:`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
 
 /* ============ DONNÉES (sur le téléphone) ============ */
 const KEY='elyra.v1';
@@ -277,7 +279,7 @@ function openPlayer(k,from){const m=findSess(k);if(!m)return;SND.ctx();if(brMain
   const story=isStory(k);PL.key=(story?'story:':'med:')+k;sessVoice=true;
   PL.m=m;PL.d=durs(m);PL.tot=PL.d.reduce((a,b)=>a+b,0);const start=Math.max(0,Math.min(from||0,m.s.length-1));PL.el=PL.d.slice(0,start).reduce((a,b)=>a+b,0);
   PL.done=false;PL.paused=false;const cat=story?'histoire':m.c;
-  $('#plCov').outerHTML=covHTML(cat,'big',k).replace('class="cov big art"','class="cov big art" id="plCov"');$('#plCov').hidden=!!m.eft;$('#plEft').hidden=!m.eft;
+  $('#plCov').outerHTML=covHTML(cat,'big',k).replace(/class="cov big art( photo)?"/,(m,p)=>`class="cov big art${p||''}" id="plCov"`);$('#plCov').hidden=!!m.eft;$('#plEft').hidden=!m.eft;
   const cs=getComputedStyle($('#plCov'));$('#plAura').style.setProperty('--c1',cs.getPropertyValue('--c1'));$('#plAura').style.setProperty('--c2',cs.getPropertyValue('--c2'));
   $('#plT').textContent=G(m.t);$('#plSub').textContent=G(m.d);syncPlLen();$('#plTag').textContent=story?'Histoire':(C.cats.find(c=>c[0]===m.c)||['',''])[1];
   $('#plTot').textContent=mmss(PL.tot);setPlay(true);syncPlVoice();syncPlFav();syncAmb();
@@ -582,7 +584,7 @@ $('#kConF').onsubmit=e=>{e.preventDefault();const n=$('#kConN').value.trim(),ph=
 let kT;$('#kNotes').oninput=e=>{clearTimeout(kT);kT=setTimeout(()=>{ST.prof.kit.notes=e.target.value.slice(0,3000);save();$('#kNotesMsg').textContent='Enregistré.'},500)};
 
 /* ============ ESPACE PERSO ============ */
-const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']],ANIMS=[['on','Douces'],['off','Calmes']],GENRES=[['f','Au féminin'],['m','Au masculin']];
+const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto','Auto'],['light','Clair'],['dark','Sombre']],ANIMS=[['on','Douces'],['off','Calmes']],IMGS=[['photos','Photos'],['dessins','Dessins']],GENRES=[['f','Au féminin'],['m','Au masculin']];
 const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
@@ -592,7 +594,7 @@ function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const L=CapTTS()?
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};
 function renderEspace(){const P=ST.prof;renderPf();if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#pCtx').checked=!!P.ctxShare;$('#brVoice').checked=!!P.brVoice;
   chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
-  chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');chipRow('#pAnim',ANIMS,P.anim||'on','anim');
+  chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');chipRow('#pAnim',ANIMS,P.anim||'on','anim');chipRow('#pImg',IMGS,P.img||'photos','img');$('#phCred').innerHTML=PHOTOS.credits.map(([a,u])=>`<li>${esc(a)}</li>`).join('');
   $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est ${VO.human?'une voix humaine (Microsoft)':'une voix française de synthèse (Piper)'}, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
   $('#pOffline').hidden=isNative||!VO.idx||!('caches' in window);
   renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
@@ -601,7 +603,7 @@ function renderEspace(){const P=ST.prof;renderPf();if(document.activeElement!==$
 document.addEventListener('click',e=>{const g=e.target.closest('button[data-genre]');if(g)setP(p=>p.genre=g.dataset.genre);
   const v=e.target.closest('button[data-vmode]');if(v)setP(p=>p.vmode=v.dataset.vmode);
   const vv=e.target.closest('button[data-vvoice]');if(vv&&vv.dataset.vvoice!==VV()){setP(p=>p.vvoice=vv.dataset.vvoice);loadVoiceIdx().then(()=>{sessVoice=true;speak(TEST,true)})}const r=e.target.closest('button[data-rate]');if(r)setP(p=>p.rate=+r.dataset.rate);
-  const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}const an=e.target.closest('button[data-anim]');if(an){setP(p=>p.anim=an.dataset.anim);applyPrefs()}});
+  const s=e.target.closest('button[data-size]');if(s){setP(p=>p.size=s.dataset.size);applyPrefs()}const t=e.target.closest('button[data-theme]');if(t){setP(p=>p.theme=t.dataset.theme);applyPrefs()}const an=e.target.closest('button[data-anim]');if(an){setP(p=>p.anim=an.dataset.anim);applyPrefs()}const ig=e.target.closest('button[data-img]');if(ig)setP(p=>p.img=ig.dataset.img);});
 /* visage d'ELYRA : image choisie sur le téléphone */
 const PF={img:null};
 function faceSrc(){const f=ST.prof.portrait;return f==='dessin'?null:(f||'visage-elyra.jpg')}
