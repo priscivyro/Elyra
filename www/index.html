@@ -383,6 +383,12 @@
     <p class="mt" style="font-weight:600">Rythme</p><div class="row chips" id="pRate"></div>
     <div class="row mt"><button class="ghost" id="pVoiceTest">Écouter un essai</button><button class="ghost" id="pOffline">Garder les audios hors ligne</button></div>
     <p class="note" id="pOfflineMsg" role="status"></p></div>
+  <div class="card" id="pfCard"><h3>Le visage d'ELYRA</h3><p class="sub">Choisis une image sur ton téléphone, par exemple ton portrait en dessin animé. Elle reste uniquement sur ce téléphone.</p>
+    <div class="pfw mt"><div class="pfprev" id="pfPrev"></div><div class="row"><label class="btn ghost" for="pfFile">Choisir une image</label><input type="file" id="pfFile" accept="image/*" hidden><button class="ghost" id="pfReset" hidden>Revenir au visage dessiné</button></div></div>
+    <div id="pfEdit" hidden><label class="f">Zoom<input type="range" id="pfZoom" min="1" max="2.5" step="0.01" value="1.15"></label>
+      <label class="f">Monter ou descendre<input type="range" id="pfY" min="0" max="1" step="0.01" value="0.25"></label>
+      <label class="f">Gauche ou droite<input type="range" id="pfX" min="0" max="1" step="0.01" value="0.5"></label>
+      <div class="row mt"><button class="main" id="pfSave">Garder ce visage</button><button class="ghost" id="pfCancel">Annuler</button></div></div></div>
   <div class="card"><h3>Affichage</h3>
     <p style="font-weight:600">Taille du texte</p><div class="row chips" id="pSize"></div>
     <p class="mt" style="font-weight:600">Apparence</p><div class="row chips" id="pTheme"></div><p class="mt" style="font-weight:600">Animations</p><div class="row chips" id="pAnim"></div><p class="note">« Calmes » arrête les mouvements des dessins et les étincelles.</p></div>

@@ -515,3 +515,12 @@ body:has(.rate.on) .toast{bottom:calc(220px + env(safe-area-inset-bottom))}
 /* réglage « animations calmes » */
 html[data-anim=off] .art *,html[data-anim=off] :is(.list>.item,.tiles>.tile,.sits>.sitc,.snd>.sndc),html[data-anim=off] .aura{animation:none!important}
 html[data-anim=off] .spark{display:none}
+/* portrait d'ELYRA (photo choisie sur le téléphone) */
+.fl-photo{overflow:hidden;background:var(--lavs)}
+.fl-photo img{width:100%;height:100%;object-fit:cover;display:block;transform-origin:50% 60%;will-change:transform}
+.fl[data-state=speak] .fl-photo{box-shadow:0 0 0 calc(var(--talk,0)*10px) color-mix(in srgb,var(--lav) 40%,transparent),0 24px 50px -24px rgb(80 60 130/.55)}
+html.portrait svg.face{background:var(--portrait) center/cover no-repeat;border-radius:50%}
+html.portrait svg.face use{display:none}
+.pfw{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pfprev{width:120px;height:120px;border-radius:50%;overflow:hidden;flex:none;background:var(--lavs);box-shadow:var(--sh)}
+.pfprev canvas,.pfprev img{width:100%;height:100%;display:block}

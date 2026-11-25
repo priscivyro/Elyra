@@ -32,6 +32,8 @@ function ElyraFace(host,opt){opt=opt||{};
     </g></g></svg></div>`;
   const root=host.querySelector('.fl'),head=root.querySelector('.fl-head'),body=root.querySelector('.fl-body'),mouth=root.querySelector('.fl-mouth');
   const eyes=[...root.querySelectorAll('.fl-eye')],pup=[...root.querySelectorAll('.fl-pupil')],bl=root.querySelector('.fl-bl'),br=root.querySelector('.fl-br');
+  const P=opt.photo?(()=>{const svg=host.querySelector('.fl-svg'),d=document.createElement('div');d.className='fl-svg fl-photo';d.setAttribute('role','img');d.setAttribute('aria-label',opt.label||'Le visage d’ELYRA');
+    const im=document.createElement('img');im.src=opt.photo;im.alt='';d.appendChild(im);svg.replaceWith(d);return im})():null;
   const S={state:'idle',mouth:0,target:0,ex:EXPR.doux,cur:{s:.65,b:0,t:0},blinkAt:0,blink:0,gaze:[0,0],gazeT:[0,0],gazeAt:0,talk:null,raf:0,t0:performance.now(),dead:false};
   const mp=(o,s)=>{const w=15+s*3,cy=-s*3.2,up=-o*2.5+s*1.2,lo=o*13+s*4.2+1.8;return `M${-w} ${cy}Q0 ${up} ${w} ${cy}Q0 ${lo} ${-w} ${cy}Z`};
   function frame(now){if(S.dead)return;if(root.offsetParent===null&&!root.closest('.conv.on')){S.raf=0;setTimeout(()=>{if(!S.dead)S.raf=requestAnimationFrame(frame)},600);return}const t=(now-S.t0)/1000,rm=RM();
@@ -53,6 +55,8 @@ function ElyraFace(host,opt){opt=opt||{};
     // tête et respiration
     if(!rm){const tilt=S.state==='listen'?2.2:S.state==='think'?-1.5:0;const r=Math.sin(t*.55)*1.1+tilt+(S.state==='speak'?Math.sin(t*2.1)*.6:0);
       head.setAttribute('transform',`rotate(${r.toFixed(2)} 120 170) translate(0 ${(Math.sin(t*.9)*.8).toFixed(2)})`);body.setAttribute('transform',`translate(0 ${(Math.sin(t*.9)*1.2).toFixed(2)})`)}
+    if(P){const k=rm?0:1,r=(Math.sin(t*.55)*.8+(S.state==='listen'?1.5:S.state==='think'?-1:0))*k;
+      P.style.transform=`translateY(${(Math.sin(t*.9)*1.4*k).toFixed(2)}px) rotate(${r.toFixed(2)}deg) scale(${(1.03+S.mouth*.02*k).toFixed(4)})`;root.style.setProperty('--talk',S.mouth.toFixed(3))}
     S.raf=requestAnimationFrame(frame)}
   S.raf=requestAnimationFrame(frame);
   return{el:root,

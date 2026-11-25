@@ -1,6 +1,6 @@
 // ELYRA — service worker : rend l'appli disponible hors ligne (iPhone / navigateur).
 // Changer VERSION à chaque mise à jour.
-const VERSION = 'elyra-1.8.0';
+const VERSION = 'elyra-1.9.0';
 const CORE = [
   './', 'index.html', 'styles.css', 'content.js', 'seances.js', 'art.js', 'tag.js','outils.js','config.js','live.js','piper-worker.js', 'sons.js', 'app.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
