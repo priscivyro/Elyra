@@ -74,7 +74,7 @@ export default {
         if (buf.byteLength < 2000) return json({ text: '' }, 200, h);
         if (buf.byteLength > 4_000_000) return json({ error: 'trop long' }, 413, h);
         let r;
-        try { r = await env.AI.run(MODEL_STT, { audio: b64(buf), language: 'fr', task: 'transcribe', vad_filter: true, condition_on_previous_text: false }); }
+        try { r = await env.AI.run(MODEL_STT, { audio: b64(buf), language: 'fr', task: 'transcribe', vad_filter: true, condition_on_previous_text: false, initial_prompt: 'Conversation en français avec ELYRA.' }); }
         catch (e) { if (quota(e)) throw e; r = await env.AI.run('@cf/openai/whisper', { audio: [...new Uint8Array(buf)] }); }
         let text = String(r && r.text || '').trim();
         if (HALLU.test(text) || !/[a-zà-ÿ]/i.test(text)) text = '';
