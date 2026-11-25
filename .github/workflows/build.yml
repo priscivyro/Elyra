@@ -69,6 +69,20 @@ jobs:
           URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.workers\.dev' ../deploy.log | head -1)
           echo "Adresse : $URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
+      - name: Vérifier le serveur (écoute et réponse, en vrai)
+        if: steps.dep.outputs.url != ''
+        run: |
+          URL="${{ steps.dep.outputs.url }}"
+          sudo apt-get install -y -qq espeak-ng >/dev/null
+          espeak-ng -v fr -s 140 -w essai.wav "Bonjour ELYRA, je me sens un peu stressée ce soir."
+          echo "--- Écoute (Whisper) :"
+          curl -s -X POST "$URL/stt" -H "Origin: https://priscivyro.github.io" -H "Content-Type: audio/wav" --data-binary @essai.wav | tee stt.json; echo
+          grep -qi "stress" stt.json
+          echo "--- Réponse d'ELYRA (Mistral) :"
+          curl -sN -X POST "$URL/chat" -H "Origin: https://priscivyro.github.io" -H "Content-Type: application/json" \
+            -d '{"mode":"ecoute","genre":"f","memOn":false,"messages":[{"role":"user","content":"Je me sens un peu stressée ce soir."}]}' \
+            | sed -n 's/^data: //p' | grep -v DONE | python3 -c "import sys,json;print(''.join((lambda j:j.get('response') or ((j.get('choices') or [{}])[0].get('delta') or {}).get('content') or '')(json.loads(l)) for l in sys.stdin if l.strip()))" | tee rep.txt
+          test -s rep.txt
 
   voix:
     runs-on: ubuntu-latest
