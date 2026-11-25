@@ -8,7 +8,10 @@ t0 = time.time(); m = ChatterboxMultilingualTTS.from_pretrained(device='cpu'); p
 for nom, ref in [('feminine', 'ref_f.wav'), ('masculine', 'ref_m.wav')]:
     for i, t in enumerate(TEXTES):
         t1 = time.time()
-        wav = m.generate(t, language_id='fr', audio_prompt_path=ref, exaggeration=0.35, cfg_weight=0.35, temperature=0.7)
+        for essai in range(3):
+            wav = m.generate(t, language_id='fr', audio_prompt_path=ref, exaggeration=0.35, cfg_weight=0.35, temperature=0.7)
+            if wav.shape[-1] / m.sr > len(t) / 25: break
+            print('phrase trop courte, nouvel essai', flush=True)
         f = f'essai/{nom}-{i+1}.wav'; ta.save(f, wav, m.sr)
         dur = wav.shape[-1] / m.sr
         print(f'{nom} {i+1} : {dur:.1f} s d’audio en {time.time()-t1:.0f} s', flush=True)

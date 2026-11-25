@@ -4,6 +4,8 @@ on:
   push:
     paths: ['tools/voix/essai_chatterbox.py', '.github/workflows/essai-voix.yml']
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   essai:
     runs-on: ubuntu-latest
@@ -26,7 +28,9 @@ jobs:
           echo "$T" | python -m piper -m modeles/fr_FR-tom-medium.onnx -f ref_m.wav --length-scale 1.1
       - name: Générer
         run: python tools/voix/essai_chatterbox.py
-      - uses: actions/upload-artifact@v4
-        with:
-          name: essai-voix
-          path: essai/*.mp3
+      - name: Ranger les extraits dans la branche « essai-voix »
+        run: |
+          mkdir -p /tmp/out && cp essai/*.mp3 /tmp/out/
+          git config user.name "ELYRA" && git config user.email "elyra@users.noreply.github.com"
+          git checkout --orphan essai-voix && git rm -rfq . && cp /tmp/out/*.mp3 . && git add *.mp3
+          git commit -qm "Extraits de la voix Chatterbox" && git push -f origin essai-voix
