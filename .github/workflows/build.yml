@@ -61,8 +61,9 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID=$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | grep -oE '[0-9a-fA-F]{32}' | head -1 || true)
           CLOUDFLARE_API_TOKEN=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')
           export CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
-          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "::error::Le secret CLOUDFLARE_ACCOUNT_ID ne contient pas d'identifiant valide (32 caractères, visible dans l'adresse dash.cloudflare.com/…/home)."; exit 1; fi
-          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "Pas de clé Cloudflare : la conversation à voix haute n'est pas encore activée."; exit 0; fi
+          # Sans identifiant valide, Wrangler trouve tout seul le compte (la clé n'en voit qu'un).
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then unset CLOUDFLARE_ACCOUNT_ID; echo "Identifiant de compte absent ou invalide : détection automatique."; fi
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "Pas de clé Cloudflare : la conversation à voix haute n'est pas encore activée."; exit 0; fi
           cd worker
           npx --yes wrangler@4 deploy 2>&1 | tee ../deploy.log
           URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.workers\.dev' ../deploy.log | head -1)
