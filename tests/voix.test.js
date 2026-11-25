@@ -11,6 +11,8 @@ JSDOM.fromURL(url,{runScripts:'dangerously',resources:'usable',pretendToBeVisual
   w.localStorage.setItem('elyra.v1',JSON.stringify({v:1,prof:{name:'Priscilla',genre:'f',onb:true,voixUrl:'https://srv.test'},items:[]}));
   w.fetch=async(u,o)=>{u=String(u);if(!u.startsWith('https://srv.test'))return{ok:false,status:404,json:async()=>({})};const b=o&&o.body&&typeof o.body==='string'?JSON.parse(o.body):null;calls.push({u,b});
     if(mode==='quota')return{ok:false,status:429,json:async()=>({error:'quota'})};
+    if(u.endsWith('/ping'))return{ok:true,status:200,json:async()=>({ok:true,tts:true})};
+    if(u.endsWith('/tts')){calls.push({u,tts:1});return{ok:true,status:200,arrayBuffer:async()=>new ArrayBuffer(8)}}
     if(u.endsWith('/stt'))return{ok:true,status:200,json:async()=>({text:'Je suis stressée'})};
     if(b&&b.summary)return{ok:true,status:200,json:async()=>({text:'Tu parlais de ton stress pour demain.'})};
     const last=b.messages[b.messages.length-1].content;
@@ -34,6 +36,7 @@ w.addEventListener('load',async()=>{try{
   ok(c.b.messages[c.b.messages.length-1].content==='Je stresse pour demain'&&c.b.messages[c.b.messages.length-1].role==='user','message de la personne transmis');
   ok(/demain t'inquiète/.test($('#cvEly').textContent)&&!/EXERCICE|VISAGE|MEMOIRE/.test($('#cvEly').textContent),'réponse affichée sans lignes techniques');
   ok(/Ancrage/.test($('#cvExtra').textContent),'exercice proposé depuis la conversation');
+  ok(calls.some(x=>x.tts),'voix humaine demandée au serveur (avec repli si indisponible)');
   ok(/avance doucement/.test($('#cvExtra').textContent),'proposition de souvenir');click($('[data-cvkeep]'));await wait(350);ok(P().cv.mem.length===1,'souvenir gardé avec accord');
   $('#cvIn').value="j'ai envie de mourir";$('#cvForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(300);
   ok(/0800 32 123/.test($('#cvExtra .cv-urg').textContent)&&/112/.test($('#cvExtra').textContent),'protocole de crise immédiat');
@@ -48,7 +51,7 @@ w.addEventListener('load',async()=>{try{
   // reprise : la dernière fois
   $('#cvIn').value='Et toi ?';$('#cvForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(300);
   click('#cvEnd');await wait(400);const before=calls.length;click('#talkHome');await wait(400);
-  ok(calls.length>before&&/dernière fois/.test(calls[calls.length-1].b.messages[0].content),'au retour, ELYRA reprend la dernière conversation');click('#cvEnd');await wait(300);
+  const lc=calls.filter(x=>x.u.endsWith('/chat')&&x.b&&x.b.messages).pop();ok(calls.length>before&&/dernière fois/.test(lc.b.messages[0].content),'au retour, ELYRA reprend la dernière conversation');click('#cvEnd');await wait(300);
   // sans serveur
   go('espace');const u=$('#cvUrl');u.value='';u.dispatchEvent(new w.Event('change',{bubbles:true}));await wait(50);go('elyra');ok(/Pas encore activée/.test($('#elyLiveNote').textContent),'sans serveur : explication');
   click('#elyLive');ok(/pas encore activée/.test($('#cvExtra').textContent)&&/Claude/.test($('#cvExtra').textContent),'sans serveur : lien vers Claude');click('#cvEnd');

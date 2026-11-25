@@ -78,6 +78,23 @@ La conversation à voix haute (le visage d'ELYRA qui t'écoute et te répond) pa
 
 Tant que ce n'est pas fait, « Parler » ouvre la conversation dans Claude, comme avant.
 
+## Activer la voix humaine (Microsoft, gratuit)
+
+Pour qu'ELYRA parle avec une voix vraiment humaine (séances et conversation), on utilise l'offre **gratuite F0** d'Azure Speech : 500 000 caractères par mois. Si la limite est atteinte, Microsoft bloque simplement les demandes : aucune facture n'est possible sur l'offre F0. Une carte est demandée à l'inscription pour vérifier l'identité (blocage temporaire de 1 €, remboursé).
+
+1. Crée un compte sur https://azure.microsoft.com/free (compte Microsoft ou GitHub, téléphone, carte pour la vérification).
+2. Dans le portail https://portal.azure.com, cherche **Speech** (ou « Azure AI Speech », « Services Speech ») › **Créer**.
+   - Groupe de ressources : crée-en un, par exemple `elyra`.
+   - Région : **West Europe**.
+   - Nom : par exemple `elyra-voix`.
+   - Niveau tarifaire : **Free F0** (important).
+   - **Vérifier + créer**, puis **Créer**.
+3. Ouvre la ressource › **Clés et point de terminaison** : copie **CLÉ 1** et l'**Emplacement/Région** (`westeurope`).
+4. Sur GitHub, dépôt Elyra › Settings › Secrets and variables › Actions : crée `AZURE_SPEECH_KEY` (la clé) et `AZURE_SPEECH_REGION` (`westeurope`).
+5. Relance la construction. La première fois, l'enregistrement des séances prend environ 40 minutes (l'offre gratuite accepte 20 phrases par minute) ; ensuite, seules les nouvelles phrases sont enregistrées.
+
+Voix utilisées : Vivienne (féminine) et Rémy (masculine). Sans Internet, la conversation reprend la voix ELYRA hors ligne (Piper).
+
 ## Données et confidentialité
 
 - Les données de l'appli sont enregistrées **uniquement sur le téléphone** (stockage local du navigateur ou de l'appli Android). Aucun serveur, aucun compte, aucune publicité.

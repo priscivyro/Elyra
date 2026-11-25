@@ -7,6 +7,10 @@
 
 export const MODEL_CHAT = '@cf/mistralai/mistral-small-3.1-24b-instruct';
 export const MODEL_STT = '@cf/openai/whisper-large-v3-turbo';
+// Voix humaines Microsoft (offre gratuite F0) : mêmes voix que les séances enregistrées.
+export const AZ_F = 'fr-FR-VivienneMultilingualNeural', AZ_M = 'fr-FR-RemyMultilingualNeural';
+const xml = s => String(s).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+export const ssml = (text, voice, rate) => `<speak version='1.0' xml:lang='fr-FR' xmlns='http://www.w3.org/2001/10/synthesis'><voice name='${voice}'><prosody rate='${rate || '-6%'}'>${xml(text)}</prosody></voice></speak>`;
 const ORIGINS = [/^https:\/\/priscivyro\.github\.io$/, /^https?:\/\/localhost(:\d+)?$/, /^capacitor:\/\/localhost$/, /^http:\/\/127\.0\.0\.1(:\d+)?$/];
 
 const MODES = {
@@ -65,7 +69,7 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url), { ok, h } = cors(req.headers.get('Origin'));
     if (req.method === 'OPTIONS') return new Response(null, { status: ok ? 204 : 403, headers: h });
-    if (url.pathname === '/ping') return json({ ok: true, app: 'ELYRA' }, 200, h);
+    if (url.pathname === '/ping') return json({ ok: true, app: 'ELYRA', tts: !!env.AZURE_SPEECH_KEY }, 200, h);
     if (!ok) return json({ error: 'origine non autorisée' }, 403, h);
     if (req.method !== 'POST') return json({ error: 'méthode' }, 405, h);
     try {
@@ -79,6 +83,23 @@ export default {
         let text = String(r && r.text || '').trim();
         if (HALLU.test(text) || !/[a-zà-ÿ]/i.test(text)) text = '';
         return json({ text }, 200, h);
+      }
+      if (url.pathname === '/tts') {
+        if (!env.AZURE_SPEECH_KEY) return json({ error: 'tts' }, 501, h);
+        const b = await req.json();
+        const text = clip(b.text, 700).trim();
+        if (!text) return json({ error: 'vide' }, 400, h);
+        const region = String(env.AZURE_SPEECH_REGION || 'westeurope').trim().toLowerCase().replace(/\s+/g, '');
+        const call = v => fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+          method: 'POST',
+          headers: { 'Ocp-Apim-Subscription-Key': String(env.AZURE_SPEECH_KEY).trim(), 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3', 'User-Agent': 'ELYRA' },
+          body: ssml(text, v, b.rate)
+        });
+        let r = await call(b.voice === 'm' ? AZ_M : AZ_F);
+        // Si la voix choisie n'existe pas dans la région : voix classique de secours.
+        if (r.status === 400) r = await call(b.voice === 'm' ? 'fr-FR-HenriNeural' : 'fr-FR-DeniseNeural');
+        if (!r.ok) return json({ error: r.status === 429 ? 'quota' : 'tts', status: r.status }, r.status === 429 ? 429 : 502, h);
+        return new Response(r.body, { headers: { ...h, 'Content-Type': 'audio/mpeg', 'Cache-Control': 'no-store' } });
       }
       if (url.pathname === '/chat') {
         const b = await req.json();

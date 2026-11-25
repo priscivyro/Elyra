@@ -55,6 +55,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
         run: |
           set -o pipefail
           # Nettoie les secrets (espaces ou retours à la ligne collés par erreur).
@@ -69,6 +71,11 @@ jobs:
           URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.workers\.dev' ../deploy.log | head -1)
           echo "Adresse : $URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
+          # Voix humaine pour la conversation (clé gardée secrète sur le serveur).
+          if [ -n "$AZURE_SPEECH_KEY" ]; then
+            printf '%s' "$AZURE_SPEECH_KEY" | tr -d '[:space:]' | npx --yes wrangler@4 secret put AZURE_SPEECH_KEY
+            printf '%s' "${AZURE_SPEECH_REGION:-westeurope}" | tr -d '[:space:]' | tr 'A-Z' 'a-z' | npx --yes wrangler@4 secret put AZURE_SPEECH_REGION
+          fi
       - name: Vérifier le serveur (écoute et réponse, en vrai)
         if: steps.dep.outputs.url != ''
         run: |
@@ -83,9 +90,16 @@ jobs:
             -d '{"mode":"ecoute","genre":"f","memOn":false,"messages":[{"role":"user","content":"Je me sens un peu stressée ce soir."}]}' \
             | sed -n 's/^data: //p' | grep -v DONE | python3 -c "import sys,json;print(''.join((lambda j:j.get('response') or ((j.get('choices') or [{}])[0].get('delta') or {}).get('content') or '')(json.loads(l)) for l in sys.stdin if l.strip()))" | tee rep.txt
           test -s rep.txt
+          echo "--- Voix humaine :"
+          curl -s "$URL/ping"; echo
+          if curl -s "$URL/ping" | grep -q '"tts":true'; then
+            curl -s -X POST "$URL/tts" -H "Origin: https://priscivyro.github.io" -H "Content-Type: application/json" -d '{"text":"Bonjour, je suis là."}' -o tts.mp3 -w "HTTP %{http_code}, %{size_download} octets\n"
+            test "$(stat -c%s tts.mp3)" -gt 2000
+          fi
 
   voix:
     runs-on: ubuntu-latest
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -98,8 +112,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: voix-cache
-          key: voix-v2-${{ hashFiles('www/content.js', 'tools/voix/**') }}
-          restore-keys: voix-v2-
+          key: voix-v3-${{ secrets.AZURE_SPEECH_KEY != '' && 'az' || 'pi' }}-${{ hashFiles('www/content.js', 'tools/voix/**') }}
+          restore-keys: |
+            voix-v3-${{ secrets.AZURE_SPEECH_KEY != '' && 'az' || 'pi' }}-
+            voix-v3-
+            voix-v2-
       - name: Installer Piper et ffmpeg
         run: |
           pip install piper-tts==1.8.0
@@ -111,6 +128,15 @@ jobs:
           python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache/siwis 1.18
           python tools/voix/render.py modeles/fr_FR-tom-medium.onnx lignes.json voix-cache/tom 1.12
           mkdir -p voix-cache/modele && cp modeles/fr_FR-siwis-medium.onnx* modeles/fr_FR-tom-medium.onnx* voix-cache/modele/ && ls -la voix-cache/modele
+      - name: Voix humaines Microsoft (si le compte gratuit est configuré)
+        env:
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+        run: |
+          if [ -z "$AZURE_SPEECH_KEY" ]; then echo "Pas de clé Azure : les séances gardent la voix Piper."; exit 0; fi
+          python tools/voix/azure.py lignes.json voix-cache/vivienne fr-FR-VivienneMultilingualNeural fr-FR-DeniseNeural
+          python tools/voix/azure.py lignes.json voix-cache/remy fr-FR-RemyMultilingualNeural fr-FR-HenriNeural
+          du -sh voix-cache/*
           du -sh voix-cache/*
       - uses: actions/upload-artifact@v4
         with:
@@ -193,7 +219,11 @@ jobs:
         with:
           node-version: 22
       - name: L'APK télécharge la voix naturelle au besoin (il reste léger)
-        run: rm -rf www/voix/modele www/vendor
+        run: |
+          rm -rf www/voix/modele www/vendor
+          # Si les séances existent en voix humaine complète, l'APK n'embarque pas les anciennes voix.
+          python3 -c "import json,sys;sys.exit(0 if all(json.load(open(f'www/voix/{d}/index.json')).get('complete') for d in ('vivienne','remy')) else 1)" 2>/dev/null && rm -rf www/voix/siwis www/voix/tom || true
+          du -sh www/voix || true
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

@@ -66,13 +66,16 @@ let voices=[];
 function loadVoices(){try{if(window.speechSynthesis){voices=speechSynthesis.getVoices().filter(v=>/^fr/i.test(v.lang));renderVoiceSel()}}catch(e){}}
 try{if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}}catch(e){}
 const VV=()=>ST.prof.vvoice==='tom'?'tom':'siwis';
-async function loadVoiceIdx(){const v=VV();VO.idx=null;VO.v=v;try{const r=await fetch(`voix/${v}/index.json`,{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items&&VV()===v){VO.idx=j.items}}}catch(e){}try{renderEspace();renderMeds();renderStories();renderHome()}catch(e){}}
+/* voix du téléphone (Android) : liste des voix françaises installées */
+let NV=[];const capOpts=(text,rate)=>{const o={text,lang:'fr-FR',rate,pitch:1,volume:1,category:'playback'};const v=NV.find(x=>x.name===ST.prof.vname);if(v)o.voice=v.i;return o};
+function loadNativeVoices(){const cap=CapTTS();if(!cap||!cap.getSupportedVoices)return;cap.getSupportedVoices().then(r=>{NV=(r&&r.voices||[]).map((v,i)=>Object.assign({},v,{i})).filter(v=>/^fr/i.test(v.lang||''));try{renderVoiceSel()}catch(e){}}).catch(()=>{})}
+async function loadVoiceIdx(){const v=VV();VO.idx=null;VO.v=v;VO.human=false;for(const d of (v==='tom'?['remy','tom']:['vivienne','siwis'])){try{const r=await fetch(`voix/${d}/index.json`,{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items&&j.complete!==false&&VV()===v){VO.idx=j.items;VO.v=d;VO.human=d==='remy'||d==='vivienne';break}}}catch(e){}}try{renderEspace();renderMeds();renderStories();renderHome()}catch(e){}}
 const clip=t=>VO.idx&&VO.idx[t];
 const est=t=>String(t).split(/\s+/).length/2.3+1;
 let sessVoice=true;
 function audioEl(){if(!VO.el){const el=new Audio();el.preload='auto';el.addEventListener('play',()=>SND.duck(true));el.addEventListener('ended',()=>SND.duck(false));el.addEventListener('pause',()=>SND.duck(false));VO.el=el}return VO.el}
 function ttsSpeak(t,rate){const cap=CapTTS();
-  if(cap){try{cap.stop().catch(()=>{});cap.speak({text:t,lang:'fr-FR',rate:.9*rate,pitch:1,volume:1,category:'playback'}).catch(()=>{})}catch(e){}return}
+  if(cap){try{cap.stop().catch(()=>{});cap.speak(capOpts(t,.9*rate)).catch(()=>{})}catch(e){}return}
   try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=.86*rate;u.pitch=.98;
     const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/(premium|enhanced|améliorée|neural|natural)/i.test(v.name))||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
 function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'||!sessVoice))return 0;const rate=+P.rate||1;
@@ -531,13 +534,13 @@ const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
 function applyPrefs(){const r=document.documentElement;r.dataset.size=ST.prof.size||'m';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
-function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;$('#pVoiceSelBox').hidden=!!CapTTS()||!voices.length||ST.prof.vmode!=='tel';
-  s.innerHTML=`<option value="">Voix par défaut</option>`+voices.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
+function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const L=CapTTS()?NV:voices;$('#pVoiceSelBox').hidden=!L.length;
+  s.innerHTML=`<option value="">Voix par défaut</option>`+L.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};
 function renderEspace(){const P=ST.prof;if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#pCtx').checked=!!P.ctxShare;$('#brVoice').checked=!!P.brVoice;
   chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
   chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');
-  $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est une voix française naturelle, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
+  $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est ${VO.human?'une voix humaine (Microsoft)':'une voix française de synthèse (Piper)'}, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
   $('#pOffline').hidden=isNative||!VO.idx||!('caches' in window);
   renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
   $('#persistInfo').textContent=storageOK?'':"Attention : ce navigateur n'autorise pas l'enregistrement. Installe l'appli sur l'écran d'accueil.";
@@ -550,6 +553,7 @@ let nT;$('#pName').oninput=e=>{clearTimeout(nT);nT=setTimeout(()=>setP(p=>p.name
 $('#pAnt').onchange=e=>setP(p=>p.anticip=e.target.checked);$('#pCtx').onchange=e=>setP(p=>p.ctxShare=e.target.checked);$('#pVoiceSel').onchange=e=>setP(p=>p.vname=e.target.value);
 const TEST="Bonjour. Je suis la voix de tes séances. Prends ton temps, tu n'as rien à réussir.";
 $('#pVoiceTest').onclick=()=>{SND.ctx();sessVoice=true;speak(TEST,true)};
+$('#pPhoneTest').onclick=()=>{ttsSpeak(TEST,+ST.prof.rate||1)};
 $('#pOffline').onclick=async()=>{const files=[...new Set(Object.values(VO.idx||{}).map(x=>`voix/${VO.v||VV()}/`+x[0]))];let done=0,fail=0;const msg=$('#pOfflineMsg');
   const run=async()=>{while(files.length){const f=files.pop();try{const r=await fetch(f);if(!r.ok)fail++}catch(e){fail++}done++;if(done%10===0)msg.textContent=`Téléchargement : ${done} audios…`}};
   msg.textContent='Téléchargement en cours…';await Promise.all([run(),run(),run(),run()]);msg.textContent=fail?`Terminé, mais ${fail} audio(s) n'ont pas pu être gardés. Réessaie avec une meilleure connexion.`:`C'est fait : les ${done} audios sont gardés sur ce téléphone.`};
@@ -1088,7 +1092,7 @@ function openConv(o){o=o||{};const c=cvP();CV.open=true;CV.sess=0;CV.textMode=!!
   if(!VOIX_URL()){cvSet('idle');CV.face.expr('sourire');$('#cvMic').disabled=true;
     cvExtra(`<div class="card flat cv-card"><p style="margin:0"><b>La conversation à voix haute n'est pas encore activée.</b> Il faut, une seule fois, un compte Cloudflare gratuit (sans carte bancaire). Les étapes sont dans <a href="https://github.com/priscivyro/Elyra#activer-la-conversation-%C3%A0-voix-haute" target="_blank" rel="noopener">le guide</a>.</p>
       <p>En attendant, tu peux parler à ELYRA dans Claude.</p><a class="btn main mt" href="${esc(chatHref(CV.mode,o.text||''))}" target="_blank" rel="noopener">Écrire à ELYRA dans Claude</a></div>`);return}
-  $('#cvMic').disabled=false;if(wantPiper()&&!(navigator.connection&&navigator.connection.saveData))piperStart();piperUI();
+  $('#cvMic').disabled=false;if(!PV.ac){try{PV.ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}srvPing().then(()=>{if(wantPiper()&&!(navigator.connection&&navigator.connection.saveData))piperStart();piperUI()});
   if(c.memOn===null){cvSet('idle');CV.face.expr('sourire');
     cvExtra(`<div class="card flat cv-card"><p style="margin:0"><b>Avant de commencer :</b> veux-tu qu'ELYRA se souvienne du sujet de vos conversations, et de ce que tu choisis de garder ? Tu pourras tout voir et tout effacer dans Mon espace.</p>
       <div class="row mt"><button class="main" data-cvmem="1">Oui, avec plaisir</button><button class="ghost" data-cvmem="0">Non, merci</button></div></div>`);CV.pending=o;return}
@@ -1155,11 +1159,17 @@ async function cvAsk(messages,greet){const c=cvP(),P=ST.prof,tk=++CV.ticket;CV.b
   catch(e){CV.busy=false;if(e&&e.name==='AbortError')return;if(tk===CV.ticket)cvNetErr(e)}}
 /* la voix : celle du téléphone, avec les lèvres au rythme du texte */
 /* voix naturelle d'ELYRA (Piper, calculée sur le téléphone) */
+const SRV={tts:null,at:0};
+async function srvPing(){if(!VOIX_URL()||Date.now()-SRV.at<60000&&SRV.tts!==null)return SRV.tts;try{const r=await fetch(VOIX_URL()+'/ping');const j=await r.json();SRV.tts=!!j.tts;SRV.at=Date.now()}catch(e){}try{piperUI()}catch(e){}return SRV.tts}
+const cvVoice=()=>{const v=cvP().voice||'auto';if((v==='auto'||v==='humaine')&&SRV.tts)return 'humaine';return v==='tel'?'tel':'elyra'};
+async function azureSay(text){if(!PV.ac)PV.ac=new (window.AudioContext||window.webkitAudioContext)();
+  const r=await fetch(VOIX_URL()+'/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voice:VV()==='tom'?'m':'f'})});if(!r.ok)throw r;
+  const buf=await r.arrayBuffer();const ab=await new Promise((ok,ko)=>{const p=PV.ac.decodeAudioData(buf,ok,ko);if(p&&p.then)p.then(ok,ko)});return{pcm:ab.getChannelData(0),sr:ab.sampleRate}}
 const PV={state:'off',pct:0,w:null,cb:{},n:0,ac:null,src:null,raf:0,voice:'',ms:[]};
 const PV_TOTAL=92e6;
 const piperBase=()=>isNative?'https://priscivyro.github.io/Elyra/':new URL('.',location.href).href;
 const piperVoice=()=>VV()==='tom'?'fr_FR-tom-medium':'fr_FR-siwis-medium';
-const wantPiper=()=>cvP().voice!=='tel';
+const wantPiper=()=>cvVoice()==='elyra';
 function piperStart(){if(PV.state==='loading'||(PV.state==='ready'&&PV.voice===piperVoice()))return;
   if(!window.Worker||!window.WebAssembly||typeof BigInt64Array==='undefined'){PV.state='nosupport';piperUI();return}
   if(PV.w){try{PV.w.terminate()}catch(e){}}PV.state='loading';PV.pct=0;PV.voice=piperVoice();const prog={};
@@ -1179,11 +1189,16 @@ function pvPlay(pcm,sr,onEnd){try{if(!PV.ac)PV.ac=new (window.AudioContext||wind
   const loop=()=>{if(PV.src!==s)return;an.getFloatTimeDomainData(d);let e=0;for(let i=0;i<d.length;i++)e+=d[i]*d[i];CV.face&&CV.face.level(Math.min(1,Math.sqrt(e/d.length)*6));PV.raf=requestAnimationFrame(loop)};loop();
   s.onended=()=>{if(PV.src!==s)return;PV.src=null;cancelAnimationFrame(PV.raf);CV.face&&CV.face.level(0);onEnd()};s.start()}catch(e){onEnd()}}
 function pvStop(){const s=PV.src;PV.src=null;cancelAnimationFrame(PV.raf);if(s){try{s.stop()}catch(e){}}}
-function piperUI(){const t=PV.state==='ready'?"La voix naturelle d'ELYRA est prête, sur ce téléphone.":PV.state==='loading'?`Téléchargement de la voix naturelle : ${PV.pct} %. En attendant, c'est la voix du téléphone.`
-    :PV.state==='error'?"La voix naturelle n'a pas pu être préparée. C'est la voix du téléphone qui parle. Réessaie avec une bonne connexion.":PV.state==='nosupport'?"Ce téléphone ne peut pas calculer la voix naturelle : c'est la voix du téléphone qui parle.":'';
-  const n=$('#cvVoiceNote');if(n)n.textContent=wantPiper()&&PV.state!=='ready'?t:'';const e=$('#pvStat');if(e)e.textContent=wantPiper()?(t||"Pas encore téléchargée (environ 90 Mo, une seule fois, de préférence en Wi-Fi)."):'';
-  const b=$('#pvGo');if(b)b.hidden=!wantPiper()||PV.state==='ready'||PV.state==='loading'||PV.state==='nosupport'}
-function cvSpeak(t){const it={t,p:null};if(wantPiper()&&PV.state==='ready'&&!cvP().muted)it.p=piperSay(t).catch(()=>null);CV.queue.push(it);if(!CV.speaking)cvNext()}
+function piperUI(){const c=cvP(),want=c.voice||'auto',vv=cvVoice();
+  const pip=PV.state==='ready'?"La voix ELYRA hors ligne est prête sur ce téléphone.":PV.state==='loading'?`Téléchargement de la voix ELYRA hors ligne : ${PV.pct} %. En attendant, c'est la voix du téléphone.`
+    :PV.state==='error'?"La voix hors ligne n'a pas pu être préparée. Réessaie avec une bonne connexion.":PV.state==='nosupport'?"Ce téléphone ne peut pas calculer la voix hors ligne.":"Pas encore téléchargée (environ 90 Mo, une seule fois, de préférence en Wi-Fi).";
+  const hum=SRV.tts?"Voix humaine active : ELYRA parle avec une voix Microsoft très naturelle (Internet nécessaire). Sans Internet, la voix hors ligne prend le relais."
+    :"La voix humaine n'est pas encore activée (compte Microsoft gratuit, voir le guide). En attendant, ELYRA utilise sa voix hors ligne.";
+  const n=$('#cvVoiceNote');if(n)n.textContent=vv==='elyra'&&PV.state!=='ready'?pip:'';
+  const e=$('#pvStat');if(e)e.textContent=vv==='tel'?"ELYRA utilise la voix choisie dans « Voix du téléphone » ci-dessus.":(want==='humaine'||want==='auto')?hum+(vv==='elyra'?' '+pip:''):pip;
+  const b=$('#pvGo');if(b)b.hidden=vv!=='elyra'||PV.state==='ready'||PV.state==='loading'||PV.state==='nosupport'}
+function cvSpeak(t){const it={t,p:null};const pip=()=>PV.state==='ready'?piperSay(t).catch(()=>null):null;
+  if(!cvP().muted){if(cvVoice()==='humaine')it.p=azureSay(t).catch(()=>pip());else if(wantPiper())it.p=pip()}CV.queue.push(it);if(!CV.speaking)cvNext()}
 function cvSpeakAll(list,then){CV.after=then;list.forEach(cvSpeak)}
 function cvNext(){const it=CV.queue.shift();if(!it){CV.speaking=false;CV.face.quiet();if(!CV.busy)cvAfterTalk();return}const t=it.t;
   CV.speaking=true;CV.lastSaid=t;cvSet('speak');if(CV.mic&&CV.mic.on){CV.mic.sens=cvP().interrupt?.42:1;CV.mic.pause(!cvP().interrupt)}
@@ -1235,12 +1250,12 @@ function renderCvMem(){const b=$('#cvMemBox');if(!b)return;const c=cvP();
    ${c.last&&c.last.txt?`<div class="entry"><div><small>Dernière conversation · ${esc(fmtD(c.last.t))}</small><p>${esc(c.last.txt)}</p></div><button class="del" data-cvforget="last">Oublier</button></div>`:''}
    ${c.mem.map(m=>`<div class="mi"><input type="text" value="${esc(m.txt)}" data-cvedit="${esc(m.id)}" maxlength="200" aria-label="Modifier"><button class="del" data-cvforget="${esc(m.id)}">Supprimer</button></div>`).join('')}
    ${!c.mem.length&&!(c.last&&c.last.txt)?'<p class="sub">ELYRA n’a rien retenu pour le moment.</p>':''}
-   <p class="mt" style="font-weight:600">Voix de la conversation</p><div class="row chips" id="cvVoiceSel">${[['elyra','ELYRA (naturelle)'],['tel','Voix du téléphone']].map(([k,n])=>`<button data-cvvoice="${k}" aria-pressed="${(c.voice||'elyra')===k}">${n}</button>`).join('')}</div>
+   <p class="mt" style="font-weight:600">Voix de la conversation</p><div class="row chips" id="cvVoiceSel">${[['humaine','Voix humaine (Internet)'],['elyra','ELYRA hors ligne'],['tel','Voix du téléphone']].map(([k,n])=>`<button data-cvvoice="${k}" aria-pressed="${((c.voice&&c.voice!=='auto')?c.voice:cvVoice())===k}">${n}</button>`).join('')}</div>
    <p class="note" id="pvStat"></p><button class="ghost" id="pvGo" hidden>Télécharger la voix naturelle maintenant</button>
    <div class="sw"><span>Pouvoir interrompre ELYRA en parlant (si elle se coupe toute seule, désactive)</span><input type="checkbox" id="cvIntOn" ${c.interrupt?'checked':''}></div>
    <div class="row mt"><button class="ghost" id="cvWipe" style="color:var(--warm)">Effacer mémoire et historique</button></div>
    <details class="mt"><summary class="note" style="cursor:pointer">Réglage avancé : adresse du serveur</summary><label class="f">Adresse du petit serveur ELYRA<input type="url" id="cvUrl" value="${esc(ST.prof.voixUrl||'')}" placeholder="${esc(CFG.voix||'https://elyra-voix.….workers.dev')}"></label><p class="note">Laisse vide pour utiliser l'adresse prévue par l'appli${CFG.voix?'':' (pas encore configurée)'}.</p></details>`;
-  $('#cvMemOn').onchange=e=>{c.memOn=e.target.checked;save()};$('#pvGo').onclick=()=>{piperStart();piperUI()};piperUI();$('#cvIntOn').onchange=e=>{c.interrupt=e.target.checked;save()};
+  $('#cvMemOn').onchange=e=>{c.memOn=e.target.checked;save()};$('#pvGo').onclick=()=>{piperStart();piperUI()};piperUI();if(SRV.tts===null&&VOIX_URL())srvPing().then(()=>renderCvMem());$('#cvIntOn').onchange=e=>{c.interrupt=e.target.checked;save()};
   $('#cvUrl').onchange=e=>{const v=e.target.value.trim();if(v&&!/^https:\/\/[^\s]+$/.test(v)){toast('Adresse invalide (elle doit commencer par https://).');return}setP(p=>p.voixUrl=v)};
   $('#cvWipe').onclick=()=>ask('Tout effacer ?',"La mémoire et l'historique de la conversation à voix haute seront effacés de ce téléphone.",'Effacer',()=>{Object.assign(c,{msgs:[],mem:[],last:null});save();renderCvMem()})}
 $('#cvMemBox').addEventListener('click',e=>{const vb=e.target.closest('[data-cvvoice]');if(vb){cvP().voice=vb.dataset.cvvoice;save();renderCvMem();return}const f=e.target.closest('[data-cvforget]');if(!f)return;const c=cvP();if(f.dataset.cvforget==='last')c.last=null;else c.mem=c.mem.filter(m=>m.id!==f.dataset.cvforget);save();renderCvMem()});
@@ -1254,7 +1269,7 @@ $('#elyLive').onclick=()=>openConv({voice:true});
 function renderAll(){for(const f of [renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace,renderOutils,renderCorps,renderLockBox,renderRappels,renderConsult,renderCvMem,()=>{if(XP.mode==='list')renderExpo()}]){try{f()}catch(e){console.error(e)}}}
 
 /* ============ DÉMARRAGE ============ */
-load();applyPrefs();renderAll();route();
+load();applyPrefs();renderAll();route();loadNativeVoices();
 if(!ST.prof.onb)$('#onb').classList.add('on');else showLock();
 loadVoiceIdx();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
