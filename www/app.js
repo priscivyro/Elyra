@@ -193,10 +193,11 @@ function renderElyra(){if(!elyFace&&window.ElyraFace){elyFace=ElyraFace($('#elyF
 /* ============ RESPIRATION ============ */
 const PH_COL={Inspire:'var(--lav)',Expire:'var(--sage)',Retiens:'var(--champ)',Pause:'var(--champ)'};
 function Breather(root){
-  root.innerHTML=`<div class="stage"><div class="halo"></div><div class="ring"></div><div class="ring2"></div><div class="bub"></div><div class="lbl"><b>On y va ?</b><span></span></div></div><p class="left" aria-live="polite"></p>`;
+  root.innerHTML=`<div class="stage"><div class="halo"></div><div class="ring"></div><div class="ring2"></div><div class="bub"></div><div class="bmasc"></div><div class="lbl"><b>On y va ?</b><span></span></div></div><p class="left" aria-live="polite"></p>`;
   const stage=root.querySelector('.stage'),bub=root.querySelector('.bub'),halo=root.querySelector('.halo'),r2=root.querySelector('.ring2'),ph=root.querySelector('.lbl b'),ct=root.querySelector('.lbl span'),left=root.querySelector('.left');
   const o={on:false,k:null,min:0,onState:null};let to,cd,iv,end,i;
-  const set=(sc,d)=>{for(const [el,f] of [[bub,1],[halo,1.15],[r2,1.05]]){el.style.transitionDuration=d+'s';el.style.transform=`scale(${sc*f})`}};
+  const MM=window.ElyraMascotte&&ST.prof.img!=='dessins'?ElyraMascotte.create(root.querySelector('.bmasc'),'repos'):null;if(MM)stage.classList.add('wm');
+  const set=(sc,d)=>{if(MM){const now=performance.now(),cur=MM.extBr==null?0:MM.extBr;MM.brT={from:cur,to:sc>=.9?1:0,t0:now,d:d};if(MM.state!=='respiration'&&o.on){MM.set('respiration')}}for(const [el,f] of [[bub,1],[halo,1.15],[r2,1.05]]){el.style.transitionDuration=d+'s';el.style.transform=`scale(${sc*f})`}};
   function phase(){if(!o.on)return;if(Date.now()>=end-500)return stop(true);const P=PRESETS[o.k].ph,p=P[i%P.length];ph.textContent=p[0];
     stage.style.setProperty('--ph',PH_COL[p[0]]||'var(--lav)');set(p[2]?1:.42,p[1]);
     if(ST.prof.brVoice&&ST.prof.vmode!=='off')speak(p[0]);else if(p[0]==='Inspire'||p[0]==='Expire')SND.tone(p[2]?330:262,.9,.045);
@@ -205,7 +206,7 @@ function Breather(root){
     iv=setInterval(()=>{const s=Math.max(0,Math.round((end-Date.now())/1000));left.textContent=`Encore ${mmss(s)}`},500);phase();o.onState&&o.onState(true)}
   function stop(done){const was=o.on;o.on=false;clearTimeout(to);clearInterval(cd);clearInterval(iv);set(.42,1.5);ct.textContent='';stage.style.setProperty('--ph','var(--lav)');
     if(done&&was){SND.bell();ph.textContent='Bravo';left.textContent=`${o.min} min de calme en plus.`;askHelp(addItem({kind:'pratique',ex:'br:'+o.k,label:PRESETS[o.k].n,min:o.min}))}
-    else{ph.textContent='On y va ?';left.textContent=''}o.onState&&o.onState(false)}
+    else{ph.textContent='On y va ?';left.textContent=''}if(MM){MM.brT=null;MM.extBr=null;MM.set(done&&was?'joie':'repos');if(done&&was)setTimeout(()=>{if(!o.on&&MM.state==='joie')MM.set('repos')},3500)}o.onState&&o.onState(false)}
   o.start=start;o.stop=stop;return o}
 const brMain=Breather($('#brMain'));
 let pk='coh',dur=5;
@@ -357,9 +358,9 @@ const sosBr={b:null};let sosSit=null;
 function sosRender(html,back){$('#sosBody').innerHTML=html;$('#sosBack').hidden=!back;const h=$('#sosBody h2');if(h){h.setAttribute('tabindex','-1');h.focus()}}
 function openSOS(){$('#rate').classList.remove('on');if(brMain.on)brMain.stop(false);$('#sos').classList.add('on');document.body.style.overflow='hidden';sosStart();haptic(30)}
 function closeSOS(){$('#sos').classList.remove('overlock');toolStop();if(sosBr.b&&sosBr.b.on)sosBr.b.stop(false);stopVoice();$('#sos').classList.remove('on');document.body.style.overflow=''}
-function sosStart(){sosSit=null;sosUsed=[];sosRender(`<h2 id="sosT">Je suis là.</h2><p class="quote mt">Tu as bien fait d'ouvrir ELYRA. On va y aller doucement, une chose à la fois.</p>
+function sosStart(){sosSit=null;sosUsed=[];sosRender(`<div class="sosm" id="sosMasc"></div><h2 id="sosT">Je suis là.</h2><p class="quote mt">Tu as bien fait d'ouvrir ELYRA. On va y aller doucement, une chose à la fois.</p>
   <p class="mt" style="font-weight:600">Qu'est-ce qui se passe pour toi ?</p><div class="sitg">${Object.entries(SOSIT).map(([k,s])=>`<button class="opt" data-sit="${k}"><b>${esc(G(s.n))}</b></button>`).join('')}</div>
-  <button class="opt noir" data-noir="1"><b>J'ai des pensées très sombres</b><span>Des personnes sont là pour t'écouter, 24 h sur 24</span></button>`,false)}
+  <button class="opt noir" data-noir="1"><b>J'ai des pensées très sombres</b><span>Des personnes sont là pour t'écouter, 24 h sur 24</span></button>`,false);if(window.ElyraMascotte&&$('#sosMasc'))ElyraMascotte.create($('#sosMasc'),'reconfort')}
 function sosNoir(){const N=O.noir;sosRender(`<h2 id="sosT">${esc(G(N.t))}</h2><p class="quote mt">${esc(G(N.m))}</p>
   <div class="urg big">${N.l.map(([n,a,b])=>`<a href="tel:${n.replace(/\s/g,'')}"><b>${esc(n)}</b><span><b>${esc(a)}</b><br>${esc(b)}</span></a>`).join('')}</div>
   <p class="mt">${esc(G(N.apres))}</p>${ST.prof.kit.con.length?`<p class="mt" style="font-weight:600">Tes contacts</p>${ST.prof.kit.con.map(c=>`<a class="btn ghost" style="justify-content:space-between;width:100%;margin-top:8px" href="tel:${esc(c.p.replace(/[^\d+]/g,''))}"><span>${esc(c.n)}</span><b>${esc(c.p)}</b></a>`).join('')}`:''}

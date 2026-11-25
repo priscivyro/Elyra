@@ -92,6 +92,7 @@ class Masc{
   let br=Math.sin(t*1.15)*.5+.5;let cue='';
   if(this.state==='respiration'){const cyc=10,ph=((now-this.st0)/1000)%cyc;br=ph<4?(1-Math.cos(ph/4*Math.PI))/2:(1+Math.cos((ph-4)/6*Math.PI))/2;cue=ph<4?'Inspire…':'Expire…';br*=2.4}
   else br*=.5;
+  if(this.brT){const k=Math.min(1,(now-this.brT.t0)/(this.brT.d*1000)),e=(1-Math.cos(k*Math.PI))/2;this.extBr=this.brT.from+(this.brT.to-this.brT.from)*e}
   if(this.extBr!=null)br=this.extBr*2.4;
   // parole (imitation)
   let mo=c.mouth;if(this.lvl!=null&&this.state==='parole'){mo=lerp(this._m||0,this.lvl*1.15,.45);this._m=mo}

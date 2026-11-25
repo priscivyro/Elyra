@@ -579,3 +579,10 @@ body:has(#v-sommeil.on){--bg:#1B1B30}
 body:has(#v-sommeil.on) .top{background:color-mix(in srgb,#1B1B30 80%,transparent);color:#F3F0FA}
 body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 .smasc{width:130px;height:130px;margin:-40px auto 0}.smasc svg.masc{width:100%;height:100%;overflow:visible}
+/* respiration avec la mascotte */
+.bmasc{width:min(52vw,250px);aspect-ratio:240/250;z-index:1;pointer-events:auto}
+.bmasc svg.masc{width:100%;height:100%;overflow:visible}
+.stage.wm .bub{opacity:.35}
+.stage.wm .lbl{align-self:end;margin-bottom:-6px}
+.stage.wm .lbl b{font-size:1.35rem}
+.sosm{width:96px;height:100px;float:right;margin:-6px -4px 0 8px}.sosm svg.masc{width:100%;height:100%;overflow:visible}
