@@ -30,9 +30,9 @@ const S={
 
 function markup(id){return `<svg viewBox="0 0 240 250" class="masc" role="img" aria-label="ELYRA, une petite goutte de lumière">
 <defs>
-<radialGradient id="${id}b" cx="40%" cy="32%" r="78%"><stop offset="0" stop-color="#F2FCF9"/><stop offset=".35" stop-color="#B9E8DD"/><stop offset=".7" stop-color="#55C6B8" stop-opacity=".94"/><stop offset="1" stop-color="#8A79E0" stop-opacity=".9"/></radialGradient>
-<radialGradient id="${id}h"><stop offset="0" class="hs" stop-color="#7fe0d2" stop-opacity=".55"/><stop offset="1" class="hs" stop-color="#7fe0d2" stop-opacity="0"/></radialGradient>
-<radialGradient id="${id}c"><stop offset="0" class="cs" stop-color="#FFFDF2"/><stop offset="1" class="cs" stop-color="#FFFDF2" stop-opacity="0"/></radialGradient>
+<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF9FF"/><stop offset=".36" stop-color="#ADC7F6" stop-opacity=".96"/><stop offset=".7" stop-color="#BBA7EF" stop-opacity=".94"/><stop offset="1" stop-color="#F5BFD7" stop-opacity=".95"/></linearGradient><radialGradient id="${id}t" cx="50%" cy="6%" r="26%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<radialGradient id="${id}h"><stop offset="0" class="hs" stop-color="#9FBFFF" stop-opacity=".55"/><stop offset="1" class="hs" stop-color="#9FBFFF" stop-opacity="0"/></radialGradient>
+<radialGradient id="${id}c"><stop offset="0" class="cs" stop-color="#FFE6C4"/><stop offset=".6" class="cs2" stop-color="#FFC6D8" stop-opacity=".5"/><stop offset="1" class="cs2" stop-color="#FFC6D8" stop-opacity="0"/></radialGradient>
 <filter id="${id}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
 <filter id="${id}s" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4"/></filter>
 </defs>
@@ -40,25 +40,25 @@ function markup(id){return `<svg viewBox="0 0 240 250" class="masc" role="img" a
 <g class="fl">
 <circle class="ha" cx="120" cy="138" r="112" fill="url(#${id}h)"/>
 <g class="bd">
-<path class="sp" fill="url(#${id}b)"/>
-<ellipse class="co" cx="122" cy="150" rx="46" ry="38" fill="url(#${id}c)" filter="url(#${id}f)"/>
+<path class="sp" fill="url(#${id}b)"/><path class="sp2" fill="url(#${id}t)"/>
+<ellipse class="co" cx="120" cy="164" rx="46" ry="36" fill="url(#${id}c)" filter="url(#${id}f)"/>
 <path class="ri" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.6"/>
-<path class="lo" fill="none" stroke="#7966D9" stroke-opacity=".25" stroke-width="5" filter="url(#${id}s)"/>
+<path class="lo" fill="none" stroke="#8C7BE6" stroke-opacity=".22" stroke-width="5" filter="url(#${id}s)"/>
 <ellipse cx="90" cy="92" rx="19" ry="10" fill="#fff" opacity=".78" transform="rotate(-32 90 92)" filter="url(#${id}s)"/>
 <circle cx="76" cy="114" r="3.2" fill="#fff" opacity=".85"/>
 <g class="fc">
 <ellipse class="ck" cx="86" cy="158" rx="11" ry="6" fill="#F28C83" filter="url(#${id}s)"/><ellipse class="ck" cx="154" cy="158" rx="11" ry="6" fill="#F28C83" filter="url(#${id}s)"/>
-<g class="ey" data-x="100"><g class="eo"><ellipse class="ir" cx="100" cy="138" rx="7.2" ry="10" fill="#292943"/><circle class="gl" cx="102.8" cy="133.4" r="2.7" fill="#fff"/><circle class="gl2" cx="97.5" cy="143" r="1.4" fill="#fff" opacity=".8"/></g><path class="ea" fill="none" stroke="#292943" stroke-width="3.2" stroke-linecap="round"/></g>
-<g class="ey" data-x="140"><g class="eo"><ellipse class="ir" cx="140" cy="138" rx="7.2" ry="10" fill="#292943"/><circle class="gl" cx="142.8" cy="133.4" r="2.7" fill="#fff"/><circle class="gl2" cx="137.5" cy="143" r="1.4" fill="#fff" opacity=".8"/></g><path class="ea" fill="none" stroke="#292943" stroke-width="3.6" stroke-linecap="round"/></g>
-<path class="mo" fill="#7A3550" stroke="#7A3550" stroke-width="1.4" stroke-linejoin="round"/>
+<g class="ey" data-x="100"><g class="eo"><ellipse class="ir" cx="100" cy="138" rx="7.2" ry="10" fill="#2B2850"/><circle class="gl" cx="102.8" cy="133.4" r="2.7" fill="#fff"/><circle class="gl2" cx="97.5" cy="143" r="1.4" fill="#fff" opacity=".8"/></g><path class="ea" fill="none" stroke="#292943" stroke-width="3.2" stroke-linecap="round"/></g>
+<g class="ey" data-x="140"><g class="eo"><ellipse class="ir" cx="140" cy="138" rx="7.2" ry="10" fill="#2B2850"/><circle class="gl" cx="142.8" cy="133.4" r="2.7" fill="#fff"/><circle class="gl2" cx="137.5" cy="143" r="1.4" fill="#fff" opacity=".8"/></g><path class="ea" fill="none" stroke="#292943" stroke-width="3.6" stroke-linecap="round"/></g>
+<path class="mo" fill="#5B3058" stroke="#5B3058" stroke-width="1.4" stroke-linejoin="round"/>
 </g></g></g>
 <g class="fx"></g>
 </svg>`}
 
-function bodyPath(t,wob){const N=16,cx=120,cy=144,P=[];
+function bodyPath(t,wob){const N=28,cx=120,cy=146,P=[];
  for(let i=0;i<N;i++){const a=i/N*Math.PI*2-Math.PI/2,s=Math.sin(a),c=Math.cos(a);
-  let r=78*(1+.24*Math.pow(Math.max(0,-s),7))*(1+.05*s)*(1+.03*Math.cos(a-.7));
-  r*=1+wob*(.022*Math.sin(t*1.3+i*1.9)+.012*Math.sin(t*2.1+i*.7));
+  let r=76*(1+.62*Math.pow(Math.max(0,-s),14))*(1+.06*s)*(1+.02*Math.cos(a-.7));
+  r*=1+wob*(.016*Math.sin(t*1.3+a*2)+.009*Math.sin(t*2.1+a*3));
   P.push([cx+c*r*1.02,cy+s*r*.97])}
  let d=`M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
  for(let i=0;i<N;i++){const p0=P[(i-1+N)%N],p1=P[i],p2=P[(i+1)%N],p3=P[(i+2)%N];
@@ -70,13 +70,13 @@ const lerp=(a,b,k)=>a+(b-a)*k;
 
 class Masc{
  constructor(host,state,opt){opt=opt||{};this.id='m'+(++uid);host.innerHTML=markup(this.id);this.svg=host.querySelector('svg');const q=s=>this.svg.querySelector(s),qa=s=>[...this.svg.querySelectorAll(s)];
-  Object.assign(this,{sh:q('.sh'),fl:q('.fl'),ha:q('.ha'),bd:q('.bd'),sp:q('.sp'),co:q('.co'),ri:q('.ri'),lo:q('.lo'),fc:q('.fc'),ck:qa('.ck'),eyes:qa('.ey'),mo:q('.mo'),fx:q('.fx'),hs:qa('.hs'),cs:qa('.cs')});
+  Object.assign(this,{sh:q('.sh'),fl:q('.fl'),ha:q('.ha'),bd:q('.bd'),sp:q('.sp'),sp2:q('.sp2'),co:q('.co'),ri:q('.ri'),lo:q('.lo'),fc:q('.fc'),ck:qa('.ck'),eyes:qa('.ey'),mo:q('.mo'),fx:q('.fx'),hs:qa('.hs'),cs:qa('.cs')});
   this.cur={...E[S[state]?S[state].e:'sourire']};this.state=null;this.t0=performance.now();this.blinkAt=0;this.blink=-1;this.gz=[0,0];this.gzT=[0,0];this.gzAt=0;this.squish=0;this.bounce=-9;this.talk=null;this.fxAt=0;this.static=!!opt.static;
   this.set(state);this.svg.addEventListener('click',()=>this.poke());}
  set(st){this.state=st;this.tgt={...E[S[st].e]};this.st0=performance.now();this.fx.innerHTML='';
   if(st==='joie')this.bounce=0;this.talk=st==='parole';if(st!=='parole'){this.seq=null;this.lvl=null}
-  const warm=st==='reconfort';this.hs.forEach(s=>s.setAttribute('stop-color',warm?'#F7A99F':st==='ecoute'||st==='reflexion'?'#a99af0':st==='joie'?'#F5C96B':st==='sommeil'?'#7a74c9':'#7fe0d2'));
-  this.cs.forEach(s=>s.setAttribute('stop-color',warm?'#FFE2C8':'#FFFDF2'))}
+  const warm=st==='reconfort';this.hs.forEach(s=>s.setAttribute('stop-color',warm?'#F7A99F':st==='ecoute'||st==='reflexion'?'#a99af0':st==='joie'?'#F5C96B':st==='sommeil'?'#7a74c9':'#9FBFFF'));
+  this.cs.forEach(s=>s.setAttribute('stop-color',warm?'#FFD2B0':'#FFE6C4'))}
  expr(name){this.tgt={...E[name]}}
  poke(){this.squish=1;if(this.state!=='sommeil'&&this.state!=='respiration'){const prev=this.tgt;this.tgt={...E.joie};clearTimeout(this.pk);this.pk=setTimeout(()=>{this.tgt={...E[S[this.state].e]}},900)}}
  frame(now){const t=(now-this.t0)/1000*(this.state==='reconfort'||this.state==='sommeil'?.55:1),c=this.cur,g=this.tgt,k=.08;
@@ -107,7 +107,7 @@ class Masc{
   this.fl.setAttribute('transform',`translate(0 ${fy.toFixed(2)}) rotate(${(c.tilt+(RM?0:Math.sin(t*.7)*1.2)+(this.talk?Math.sin(t*3)*1.2:0)).toFixed(2)} 120 200)`);
   this.bd.setAttribute('transform',`translate(120 222) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(-120 -222)`);
   this.sh.setAttribute('rx',(56-fy*.9).toFixed(1));this.sh.setAttribute('opacity',(.15-fy*.003).toFixed(3));
-  const d=bodyPath(t,RM?0:1);this.sp.setAttribute('d',d);this.ri.setAttribute('d',d);this.lo.setAttribute('d',d);
+  const d=bodyPath(t,RM?0:1);this.sp.setAttribute('d',d);this.sp2.setAttribute('d',d);this.ri.setAttribute('d',d);this.lo.setAttribute('d',d);
   const pulse=this.state==='reflexion'?.25*Math.sin(t*4.5):this.state==='ecoute'?.15*Math.sin(t*6):0;
   const gl=c.glow+pulse;this.co.setAttribute('opacity',Math.max(.15,Math.min(1,gl*.85)).toFixed(3));this.ha.setAttribute('opacity',Math.max(.2,Math.min(1,gl*.8)).toFixed(3));
   this.ha.setAttribute('r',(108+br*8+pulse*14).toFixed(1));this.svg.style.opacity=this.state==='sommeil'?.88:1;

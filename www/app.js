@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.3.1";
+const APP_VERSION="2.4.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -646,7 +646,10 @@ const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto',
 const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
-function applyPrefs(){const r=document.documentElement;const pf=faceSrc();r.classList.toggle('portrait',!!pf);if(pf)r.style.setProperty('--portrait',`url("${pf}")`);else r.style.removeProperty('--portrait');r.dataset.size=ST.prof.size||'m';r.dataset.anim=ST.prof.anim||'on';r.dataset.img=ST.prof.img||'photos';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
+const isDark=()=>{const t=ST.prof.theme||'auto';return t==='dark'||(t==='auto'&&(document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)))};
+function syncThm(){const b=$('#thmBtn');if(!b)return;const d=isDark();b.classList.toggle('dark',d);b.setAttribute('aria-label',d?'Passer en mode clair':'Passer en mode sombre')}
+document.addEventListener('click',e=>{if(!e.target.closest('#thmBtn'))return;const d=isDark();setP(p=>p.theme=d?'light':'dark');applyPrefs();toast(d?'Mode clair':'Mode sombre');haptic()});
+function applyPrefs(){const r=document.documentElement;const pf=faceSrc();r.classList.toggle('portrait',!!pf);if(pf)r.style.setProperty('--portrait',`url("${pf}")`);else r.style.removeProperty('--portrait');r.dataset.size=ST.prof.size||'m';r.dataset.anim=ST.prof.anim||'on';setTimeout(syncThm,0);r.dataset.img=ST.prof.img||'photos';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
 function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const L=CapTTS()?NV:voices;$('#pVoiceSelBox').hidden=!L.length;
   s.innerHTML=`<option value="">Voix par défaut</option>`+L.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};

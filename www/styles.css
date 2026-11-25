@@ -644,3 +644,9 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 :is(.item,.tool,.tile):has(.cov[data-c=hypnose]){--cat:#8E7CC3}
 #medCats [data-cat=hypnose][aria-pressed=true]{background:#8E7CC3;border-color:#8E7CC3;color:#fff}
 .cov[data-c=hypnose]{--c1:#C9B8F0;--c2:#5A50A8;--c3:#7C6CC4}
+/* bouton mode clair / sombre */
+.thm{margin-left:auto;margin-right:8px;width:42px;height:42px;min-height:0;padding:0;border-radius:50%;background:color-mix(in srgb,var(--card) 80%,transparent);border:1px solid var(--line);color:var(--ink);display:grid;place-items:center}
+.thm svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.thm .sun{display:none}.thm.dark .sun{display:inline}.thm.dark .moon{display:none}
+/* la mascotte brille un peu plus la nuit */
+:root[data-theme=dark] svg.masc .co{opacity:1}
