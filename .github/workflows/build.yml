@@ -110,12 +110,34 @@ jobs:
           node tools/voix/lignes.mjs > lignes.json
           python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache/siwis 1.18
           python tools/voix/render.py modeles/fr_FR-tom-medium.onnx lignes.json voix-cache/tom 1.12
+          mkdir -p voix-cache/modele && cp modeles/fr_FR-siwis-medium.onnx* modeles/fr_FR-tom-medium.onnx* voix-cache/modele/ && ls -la voix-cache/modele
           du -sh voix-cache/*
       - uses: actions/upload-artifact@v4
         with:
           name: voix
           path: voix-cache
           retention-days: 7
+
+  # Vraie voix naturelle, calculée dans un vrai navigateur (Chrome) : vérification.
+  voixtest:
+    needs: voix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: voix
+          path: www/voix
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tester la voix naturelle
+        run: |
+          npm ci && sh tools/vendor.sh
+          (cd www && python3 -m http.server 8766 >/dev/null 2>&1 &)
+          mkdir -p /tmp/p && cd /tmp/p && npm init -y >/dev/null && npm i puppeteer-core@24 >/dev/null
+          cp $GITHUB_WORKSPACE/tests/piper.test.js . && sleep 1
+          CHROME=$(which google-chrome || which chromium) node piper.test.js http://localhost:8766/index.html
 
   web:
     needs: [voix, tests, serveur]
@@ -134,6 +156,11 @@ jobs:
       - name: Adresse du serveur ELYRA
         if: needs.serveur.outputs.url != ''
         run: echo "window.ELYRA_CONFIG={voix:'${{ needs.serveur.outputs.url }}'};" > www/config.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Moteurs de la voix naturelle
+        run: npm ci && sh tools/vendor.sh
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -165,6 +192,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: L'APK télécharge la voix naturelle au besoin (il reste léger)
+        run: rm -rf www/voix/modele www/vendor
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

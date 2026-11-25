@@ -287,9 +287,12 @@ sounds: [
  ['pluie','Pluie douce','Gouttes et averse tranquille.'],['vagues','Vagues','La mer qui va et vient.'],['vent','Vent léger','Un souffle qui monte et redescend.'],
  ['foret','Forêt','Feuillage et oiseaux au loin.'],['ruisseau','Ruisseau','Une eau vive qui murmure.'],['feu','Feu de cheminée','Bûches qui crépitent.'],
  ['nuit','Nuit d’été','Grillons sous les étoiles.'],['bol','Bol chantant','Un son qui résonne longuement.'],['musique','Musique douce','Nappes lentes et notes légères.'],
- ['brun','Bruit brun','Grave et feutré, pour masquer les bruits.']
+ ['brun','Bruit brun','Grave et feutré, pour masquer les bruits.'],
+ ['orage','Orage lointain','Pluie fine et tonnerre au loin.'],['cascade','Cascade','Une chute d’eau puissante et régulière.'],['carillon','Carillon à vent','Des notes qui tintent au gré de la brise.'],
+ ['matin','Oiseaux du matin','Un jardin qui s’éveille.'],['harpe','Harpe douce','Des arpèges lents et lumineux.'],['nappe','Nappe méditative','Un son grave et profond pour méditer.'],
+ ['ronron','Chat qui ronronne','Un ronronnement chaud et apaisant.'],['cigales','Cigales','Un après-midi d’été dans le Sud.'],['rose','Bruit rose','Un souffle régulier pour dormir ou se concentrer.']
 ],
-mixes: [['Nuit de pluie',['pluie','feu']],['Bord de mer',['vagues','vent']],['Forêt paisible',['foret','ruisseau']],['Méditation',['bol','musique']],['Soir d’été',['nuit','musique']]],
+mixes: [['Nuit de pluie',['pluie','feu']],['Orage au chalet',['orage','feu']],['Matin au jardin',['matin','ruisseau']],['Temple',['nappe','bol','carillon']],['Sieste d’été',['cigales','vent']],['Câlin du soir',['ronron','pluie']],['Bord de mer',['vagues','vent']],['Forêt paisible',['foret','ruisseau']],['Méditation',['bol','musique']],['Soir d’été',['nuit','musique']]],
 
 progs: [
  {id:'anx',n:'Anxiété quotidienne',d:"Apprivoiser l'inquiétude de tous les jours.",s:[

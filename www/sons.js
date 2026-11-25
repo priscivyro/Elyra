@@ -96,10 +96,45 @@ const SND={
   return{nodes:[],tick(t){
    if(n<t+.5){const T=Math.max(n,t);chord(o,w,T,prog[i%prog.length],13);i++;n=T+10}
    if(m<t+.4){const T=Math.max(m,t)+rr(1,2);note(w,T,scale[Math.floor(R()*scale.length)]);m=T+rr(2.5,6)}}}},
- brun(o){const s=src(S.buf.brown),l=bq('lowpass',480),g=gn(.6);s.connect(l).connect(g).connect(o);return{nodes:[s],tick(){}}}
+ brun(o){const s=src(S.buf.brown),l=bq('lowpass',480),g=gn(.6);s.connect(l).connect(g).connect(o);return{nodes:[s],tick(){}}},
+ /* — nouvelles ambiances — */
+ orage(o,w){const s=src(S.buf.pink),hp=bq('highpass',600),lp=bq('lowpass',5200),g=gn(.45);s.connect(hp).connect(lp).connect(g).connect(o);
+  const r=src(S.buf.brown),rl=bq('lowpass',120),rg=gn(0);r.connect(rl).connect(rg);rg.connect(o);rg.connect(w);let n=0,th=A().currentTime+rr(4,10);
+  return{nodes:[s,r],tick(t){
+   while(n<t+.3){if(n<t)n=t;burst(o,n,{f:rr(1500,5000),q:rr(2,6),dur:rr(.02,.05),vol:rr(.01,.04),p:rr(-.9,.9)});n+=rr(.02,.09)}
+   if(th<t+.5){const T=Math.max(th,t),up=rr(1.2,2.6),dn=rr(5,9),pk=rr(.55,1.1);rg.gain.setValueAtTime(.0001,T);rg.gain.exponentialRampToValueAtTime(pk,T+up);
+     rg.gain.exponentialRampToValueAtTime(.0001,T+up+dn);rl.frequency.setValueAtTime(rr(70,110),T);rl.frequency.linearRampToValueAtTime(rr(140,220),T+up);rl.frequency.linearRampToValueAtTime(80,T+up+dn);th=T+up+dn+rr(14,34)}}}},
+ cascade(o){const s=src(S.buf.white),b=bq('bandpass',1400,.35),g=gn(.28),s2=src(S.buf.pink),l2=bq('lowpass',700),g2=gn(.4),s3=src(S.buf.brown),l3=bq('lowpass',180),g3=gn(.3);
+  s.connect(b).connect(g).connect(o);s2.connect(l2).connect(g2).connect(o);s3.connect(l3).connect(g3).connect(o);let n=0;
+  return{nodes:[s,s2,s3],tick(t){if(n<t+.3){const T=Math.max(n,t);b.frequency.setTargetAtTime(rr(1000,2000),T,1.5);g.gain.setTargetAtTime(rr(.2,.34),T,1.2);n=T+rr(1.5,3)}}}},
+ carillon(o,w){const s=src(S.buf.pink),f=bq('bandpass',420,.8),g=gn(.08);s.connect(f).connect(g).connect(o);
+  const sc=[523.25,587.33,659.25,783.99,880,1046.5,1174.66];let n=0,gust=0,busy=.3;
+  return{nodes:[s],tick(t){
+   if(gust<t+.3){const T=Math.max(gust,t);busy=rr(.15,.9);g.gain.setTargetAtTime(.04+busy*.08,T,1);gust=T+rr(3,8)}
+   while(n<t+.3){if(n<t)n=t;if(R()<busy)chime(o,w,n,sc[Math.floor(R()*sc.length)],rr(-.7,.7));n+=rr(.25,1.4)/Math.max(.3,busy)}}}},
+ matin(o,w){const s=src(S.buf.pink),f=bq('bandpass',3000,.5),g=gn(.035);s.connect(f).connect(g).connect(o);let n=0,m=0;
+  return{nodes:[s],tick(t){
+   if(n<t+.3){const T=Math.max(n,t);bird(o,w,T);n=T+rr(.5,2.4)}
+   if(m<t+.3){const T=Math.max(m,t);warble(o,w,T);m=T+rr(3,9)}}}},
+ harpe(o,w){const sc=[261.63,293.66,329.63,392,440,523.25,587.33,659.25,783.99];const roots=[130.81,110,146.83,98];let n=0,i=0,ph=0;
+  return{nodes:[],tick(t){if(n<t+.5){const T=Math.max(n,t)+.05,r=roots[i%roots.length];pluck(o,w,T,r,.14,5);
+    const base=Math.floor(R()*3),len=4+Math.floor(R()*3);for(let k=0;k<len;k++)pluck(o,w,T+.45+k*rr(.38,.55),sc[(base+k*2+ph)%sc.length],.1,3.2);ph=(ph+1)%3;i++;n=T+rr(6,8)}}}},
+ nappe(o,w){const g=gn(0),lp=bq('lowpass',520,.7);lp.connect(g);g.connect(o);g.connect(w);const a=A(),t0=a.currentTime;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.09,t0+6);
+  const O=[[110,-4],[110,4],[164.81,-3],[164.81,3],[220,0],[55,0]].map(([f,d],i)=>{const os=osc(i===5?'sine':'triangle',f);os.detune.value=d;const og=gn(i===5?.9:.5);os.connect(og).connect(lp);os.start(t0);return os});
+  let n=0;return{nodes:O,tick(t){if(n<t+.3){const T=Math.max(n,t),d=rr(6,12);lp.frequency.setTargetAtTime(rr(320,900),T,d/2);n=T+d}}}},
+ ronron(o){const s=src(S.buf.brown),l=bq('lowpass',260,1.2),am=gn(0),g=gn(.9);s.connect(l).connect(am).connect(g).connect(o);
+  const lfo=osc('sine',24),lg=gn(.5);lfo.connect(lg).connect(am.gain);lfo.start();let n=0;
+  return{nodes:[s,lfo],tick(t){if(n<t+.3){const T=Math.max(n,t),inn=rr(1.4,1.9),out=rr(1.6,2.2);
+    g.gain.setValueAtTime(.35,T);g.gain.linearRampToValueAtTime(.9,T+inn*.5);g.gain.linearRampToValueAtTime(.55,T+inn);g.gain.linearRampToValueAtTime(.85,T+inn+out*.5);g.gain.linearRampToValueAtTime(.35,T+inn+out);
+    lfo.frequency.setValueAtTime(rr(22,26),T);lfo.frequency.linearRampToValueAtTime(rr(20,24),T+inn);n=T+inn+out+rr(.1,.4)}}}},
+ cigales(o){const s=src(S.buf.white),b=bq('bandpass',5200,3),am=gn(0),g=gn(.5);s.connect(b).connect(am).connect(g).connect(o);
+  const lfo=osc('square',rr(42,52)),lg=gn(.5);lfo.connect(lg).connect(am.gain);lfo.start();
+  const s2=src(S.buf.pink),l2=bq('lowpass',400),g2=gn(.1);s2.connect(l2).connect(g2).connect(o);let n=0;
+  return{nodes:[s,lfo,s2],tick(t){if(n<t+.3){const T=Math.max(n,t),d=rr(4,9);g.gain.setTargetAtTime(R()<.2?.05:rr(.25,.6),T,1.4);b.frequency.setTargetAtTime(rr(4600,6000),T,2);n=T+d}}}},
+ rose(o){const s=src(S.buf.pink),l=bq('lowpass',3500),g=gn(.5);s.connect(l).connect(g).connect(o);return{nodes:[s],tick(){}}}
 };
-const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7};
-const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25};
+const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7,orage:1.6,cascade:.9,carillon:3.2,matin:9,harpe:4,nappe:1,ronron:2.2,cigales:3.3,rose:.85};
+const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25,orage:.25,carillon:.75,matin:.35,harpe:.7,nappe:.6};
 
 function bird(o,w,t){const a=A(),p=rr(-.8,.8),f0=rr(2200,4400),n=1+Math.floor(R()*5),kind=Math.floor(R()*3);let T=t;
   for(let i=0;i<n;i++){const d=rr(.05,.14),os=osc('sine',f0),g=gn(0),pn=pan(p);
@@ -119,6 +154,15 @@ function chord(o,w,t,notes,len){const lp=bq('lowpass',1100,.4),g=gn(0);lp.connec
   for(const f of notes){for(const det of [-2.5,2.5]){const os=osc('triangle',f);os.detune.value=det;os.connect(lp);os.start(t);os.stop(t+len+.1)}}}
 function note(w,t,f){const os=osc('sine',f),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+3.2);
   os.connect(g).connect(w);os.start(t);os.stop(t+3.3)}
+
+function chime(o,w,t,f,p){const pn=pan(p);pn.connect(o);pn.connect(w);for(const [r,v,d] of [[1,.05,2.6],[2.76,.022,1.4],[5.4,.01,.7]]){const os=osc('sine',f*r),g=gn(0);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+d);os.connect(g).connect(pn);os.start(t);os.stop(t+d+.05)}}
+function warble(o,w,t){const a=A(),p=rr(-.7,.7),f0=rr(1800,2800),n=6+Math.floor(R()*8);let T=t;const pn=pan(p);pn.connect(o);pn.connect(w);
+  for(let i=0;i<n;i++){const d=rr(.04,.08),os=osc('sine',f0*rr(.9,1.25)),g=gn(0);os.frequency.linearRampToValueAtTime(f0*rr(.95,1.4),T+d);
+    g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(rr(.01,.025),T+.008);g.gain.exponentialRampToValueAtTime(.0001,T+d);os.connect(g).connect(pn);os.start(T);os.stop(T+d+.03);T+=d+rr(.01,.05)}}
+function pluck(o,w,t,f,v,d){const lp=bq('lowpass',f*4,.5),g=gn(0);lp.connect(g);g.connect(o);g.connect(w);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);lp.frequency.setValueAtTime(f*6,t);lp.frequency.exponentialRampToValueAtTime(f*1.5,t+d*.6);
+  for(const [m,a] of [[1,1],[2,.35],[3,.12]]){const os=osc('triangle',f*m),og=gn(a);os.connect(og).connect(lp);os.start(t);os.stop(t+d+.05)}}
 
 /* couches */
 function on(k,vol){if(!SND[k]||S.layers[k])return;if(!ctx())return;const a=S.ac;

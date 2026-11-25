@@ -56,10 +56,10 @@ w.addEventListener('load',async()=>{try{
   click('#plClose');ok(/Scan du soir/.test($('#resume').textContent),'reprise de lecture proposée');
   click($('#calTabs [data-t="histoires"]'));ok(d.querySelectorAll('#stories .item').length===4,'4 histoires');
   click($('#stories [data-ex="story:phare"]'));ok(/phare/.test($('#plT').textContent),'histoire ouverte');click('#plClose');
-  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===10,'10 sons');
+  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===19,'19 sons');
   click($('#sounds [data-snd="pluie"]'));click($('#sounds [data-snd="feu"]'));ok(/Pluie douce, Feu/.test($('#sndState').textContent),'mélange de deux sons');
   ok(!!$('#sounds [data-vol="pluie"]'),'réglage de volume par son');click('#sndStop');await wait(50);ok(/Aucun/.test($('#sndState').textContent),'tout arrêter');
-  click($('#mixes [data-mix="1"]'));await wait(120);ok(/Vagues/.test($('#sndState').textContent),'mélange prédéfini');click('#sndStop');
+  click([...d.querySelectorAll('#mixes [data-mix]')].find(b=>/Bord de mer/.test(b.textContent)));await wait(120);ok(/Vagues/.test($('#sndState').textContent),'mélange prédéfini');click('#sndStop');
   // Journal + pensée
   go('journal');ok($('#jPrompt').textContent.length>5,'question pour écrire');click($('#moodJ button[data-v="3"]'));click($('#emoJ button'));click($('#sitJ button'));$('#jNote').value='Test';
   submit('#jForm');ok(/noté/.test($('#jMsg').textContent),'note de journal');

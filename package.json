@@ -15,6 +15,8 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
-    "@capacitor/cli": "^8.6.2"
+    "@capacitor/cli": "^8.6.2",
+    "@diffusionstudio/piper-wasm": "1.0.0",
+    "onnxruntime-web": "1.18.0"
   }
 }

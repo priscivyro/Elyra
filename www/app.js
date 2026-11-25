@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.4.0";
+const APP_VERSION="1.5.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -1088,7 +1088,7 @@ function openConv(o){o=o||{};const c=cvP();CV.open=true;CV.sess=0;CV.textMode=!!
   if(!VOIX_URL()){cvSet('idle');CV.face.expr('sourire');$('#cvMic').disabled=true;
     cvExtra(`<div class="card flat cv-card"><p style="margin:0"><b>La conversation à voix haute n'est pas encore activée.</b> Il faut, une seule fois, un compte Cloudflare gratuit (sans carte bancaire). Les étapes sont dans <a href="https://github.com/priscivyro/Elyra#activer-la-conversation-%C3%A0-voix-haute" target="_blank" rel="noopener">le guide</a>.</p>
       <p>En attendant, tu peux parler à ELYRA dans Claude.</p><a class="btn main mt" href="${esc(chatHref(CV.mode,o.text||''))}" target="_blank" rel="noopener">Écrire à ELYRA dans Claude</a></div>`);return}
-  $('#cvMic').disabled=false;
+  $('#cvMic').disabled=false;if(wantPiper()&&!(navigator.connection&&navigator.connection.saveData))piperStart();piperUI();
   if(c.memOn===null){cvSet('idle');CV.face.expr('sourire');
     cvExtra(`<div class="card flat cv-card"><p style="margin:0"><b>Avant de commencer :</b> veux-tu qu'ELYRA se souvienne du sujet de vos conversations, et de ce que tu choisis de garder ? Tu pourras tout voir et tout effacer dans Mon espace.</p>
       <div class="row mt"><button class="main" data-cvmem="1">Oui, avec plaisir</button><button class="ghost" data-cvmem="0">Non, merci</button></div></div>`);CV.pending=o;return}
@@ -1154,13 +1154,45 @@ async function cvAsk(messages,greet){const c=cvP(),P=ST.prof,tk=++CV.ticket;CV.b
     if(!CV.queue.length&&!CV.speaking)cvAfterTalk()}
   catch(e){CV.busy=false;if(e&&e.name==='AbortError')return;if(tk===CV.ticket)cvNetErr(e)}}
 /* la voix : celle du téléphone, avec les lèvres au rythme du texte */
-function cvSpeak(t){CV.queue.push(t);if(!CV.speaking)cvNext()}
-function cvSpeakAll(list,then){CV.queue.push(...list);CV.after=then;if(!CV.speaking)cvNext()}
-function cvNext(){const t=CV.queue.shift();if(!t){CV.speaking=false;CV.face.quiet();if(!CV.busy)cvAfterTalk();return}
+/* voix naturelle d'ELYRA (Piper, calculée sur le téléphone) */
+const PV={state:'off',pct:0,w:null,cb:{},n:0,ac:null,src:null,raf:0,voice:'',ms:[]};
+const PV_TOTAL=92e6;
+const piperBase=()=>isNative?'https://priscivyro.github.io/Elyra/':new URL('.',location.href).href;
+const piperVoice=()=>VV()==='tom'?'fr_FR-tom-medium':'fr_FR-siwis-medium';
+const wantPiper=()=>cvP().voice!=='tel';
+function piperStart(){if(PV.state==='loading'||(PV.state==='ready'&&PV.voice===piperVoice()))return;
+  if(!window.Worker||!window.WebAssembly||typeof BigInt64Array==='undefined'){PV.state='nosupport';piperUI();return}
+  if(PV.w){try{PV.w.terminate()}catch(e){}}PV.state='loading';PV.pct=0;PV.voice=piperVoice();const prog={};
+  try{PV.w=new Worker('piper-worker.js')}catch(e){PV.state='error';piperUI();return}
+  PV.w.onmessage=e=>{const m=e.data;
+    if(m.type==='progress'){prog[m.url]=m.got;const g=Object.values(prog).reduce((a,x)=>a+x,0);PV.pct=Math.min(99,Math.round(g/PV_TOTAL*100));piperUI()}
+    else if(m.type==='ready'){PV.state='ready';PV.pct=100;piperUI()}
+    else if(m.type==='audio'){const c=PV.cb[m.id];delete PV.cb[m.id];PV.ms.push(m.ms);if(c)c.res(m)}
+    else if(m.type==='error'){if(m.id!=null&&PV.cb[m.id]){PV.cb[m.id].rej(new Error(m.msg));delete PV.cb[m.id]}else if(PV.state!=='ready'){PV.state='error';PV.err=m.msg;piperUI()}}};
+  PV.w.onerror=()=>{if(PV.state!=='ready'){PV.state='error';piperUI()}};
+  PV.w.postMessage({type:'init',base:piperBase(),voice:PV.voice,lengthScale:VV()==='tom'?1.12:1.18})}
+function piperSay(text){return new Promise((res,rej)=>{const id=++PV.n;PV.cb[id]={res,rej};PV.w.postMessage({type:'say',id,text});setTimeout(()=>{if(PV.cb[id]){delete PV.cb[id];rej(new Error('lent'))}},20000)})}
+function pvPlay(pcm,sr,onEnd){try{if(!PV.ac)PV.ac=new (window.AudioContext||window.webkitAudioContext)();const ac=PV.ac;if(ac.state==='suspended')ac.resume();
+  const b=ac.createBuffer(1,pcm.length,sr);b.getChannelData(0).set(pcm);const s=ac.createBufferSource();s.buffer=b;s.playbackRate.value=+ST.prof.rate||1;
+  const g=ac.createGain();g.gain.value=1.5;const an=ac.createAnalyser();an.fftSize=1024;s.connect(g).connect(an).connect(ac.destination);
+  PV.src=s;const d=new Float32Array(an.fftSize);
+  const loop=()=>{if(PV.src!==s)return;an.getFloatTimeDomainData(d);let e=0;for(let i=0;i<d.length;i++)e+=d[i]*d[i];CV.face&&CV.face.level(Math.min(1,Math.sqrt(e/d.length)*6));PV.raf=requestAnimationFrame(loop)};loop();
+  s.onended=()=>{if(PV.src!==s)return;PV.src=null;cancelAnimationFrame(PV.raf);CV.face&&CV.face.level(0);onEnd()};s.start()}catch(e){onEnd()}}
+function pvStop(){const s=PV.src;PV.src=null;cancelAnimationFrame(PV.raf);if(s){try{s.stop()}catch(e){}}}
+function piperUI(){const t=PV.state==='ready'?"La voix naturelle d'ELYRA est prête, sur ce téléphone.":PV.state==='loading'?`Téléchargement de la voix naturelle : ${PV.pct} %. En attendant, c'est la voix du téléphone.`
+    :PV.state==='error'?"La voix naturelle n'a pas pu être préparée. C'est la voix du téléphone qui parle. Réessaie avec une bonne connexion.":PV.state==='nosupport'?"Ce téléphone ne peut pas calculer la voix naturelle : c'est la voix du téléphone qui parle.":'';
+  const n=$('#cvVoiceNote');if(n)n.textContent=wantPiper()&&PV.state!=='ready'?t:'';const e=$('#pvStat');if(e)e.textContent=wantPiper()?(t||"Pas encore téléchargée (environ 90 Mo, une seule fois, de préférence en Wi-Fi)."):'';
+  const b=$('#pvGo');if(b)b.hidden=!wantPiper()||PV.state==='ready'||PV.state==='loading'||PV.state==='nosupport'}
+function cvSpeak(t){const it={t,p:null};if(wantPiper()&&PV.state==='ready'&&!cvP().muted)it.p=piperSay(t).catch(()=>null);CV.queue.push(it);if(!CV.speaking)cvNext()}
+function cvSpeakAll(list,then){CV.after=then;list.forEach(cvSpeak)}
+function cvNext(){const it=CV.queue.shift();if(!it){CV.speaking=false;CV.face.quiet();if(!CV.busy)cvAfterTalk();return}const t=it.t;
   CV.speaking=true;CV.lastSaid=t;cvSet('speak');if(CV.mic&&CV.mic.on){CV.mic.sens=cvP().interrupt?.42:1;CV.mic.pause(!cvP().interrupt)}
   const rate=+ST.prof.rate||1,sec=Math.max(1.2,t.length/14.5/rate),my=++CV.utt;
   const fin=()=>{if(my!==CV.utt)return;CV.utt++;cvNext()};
   if(cvP().muted){CV.face.talk(t,sec);setTimeout(fin,Math.min(6000,600+t.length*35));return}
+  if(it.p){CV.face.quiet();it.p.then(r=>{if(my!==CV.utt)return;if(r&&r.pcm&&r.pcm.length)pvPlay(r.pcm,r.sr,fin);else cvPhone(t,sec,fin)});return}
+  cvPhone(t,sec,fin)}
+function cvPhone(t,sec,fin){const rate=+ST.prof.rate||1;
   CV.face.talk(t,sec);const guard=setTimeout(fin,sec*1600+3000);const ok=()=>{clearTimeout(guard);fin()};
   const cap=CapTTS();
   if(cap){try{cap.speak({text:t,lang:'fr-FR',rate:.95*rate,pitch:1,volume:1,category:'playback'}).then(ok,ok)}catch(e){ok()}return}
@@ -1169,7 +1201,7 @@ function cvNext(){const t=CV.queue.shift();if(!t){CV.speaking=false;CV.face.quie
     u.onboundary=e=>{CV.face.sync(e.charIndex||0,t)};u.onend=ok;u.onerror=ok;ss.speak(u)}catch(e){ok()}}
 CV.utt=0;
 function cvAfterTalk(){CV.speaking=false;CV.face&&CV.face.quiet();const a=CV.after;CV.after=null;if(a){a();return}if(CV.mic&&CV.mic.on){CV.mic.sens=1;CV.mic.pause(false)}cvSet(CV.live?'listen':'idle')}
-function cvStopTalk(){CV.queue=[];CV.utt++;CV.after=null;try{CV.abort&&CV.abort.abort()}catch(e){}CV.busy=false;CV.speaking=false;
+function cvStopTalk(){CV.queue=[];CV.utt++;pvStop();CV.after=null;try{CV.abort&&CV.abort.abort()}catch(e){}CV.busy=false;CV.speaking=false;
   const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}CV.face&&CV.face.quiet()}
 async function closeConv(){if(!CV.open)return;CV.open=false;cvStopTalk();cvMicOff();CV.ticket++;$('#conv').classList.remove('on');document.body.style.overflow='';SND.duck(false);$('#cvHistBox').hidden=true;
   const c=cvP();if(c.memOn&&CV.sess>=2&&VOIX_URL()){try{const r=await fetch(VOIX_URL()+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({summary:true,messages:c.msgs.slice(-16).map(m=>({role:m.r,content:m.c}))})});
@@ -1203,13 +1235,15 @@ function renderCvMem(){const b=$('#cvMemBox');if(!b)return;const c=cvP();
    ${c.last&&c.last.txt?`<div class="entry"><div><small>Dernière conversation · ${esc(fmtD(c.last.t))}</small><p>${esc(c.last.txt)}</p></div><button class="del" data-cvforget="last">Oublier</button></div>`:''}
    ${c.mem.map(m=>`<div class="mi"><input type="text" value="${esc(m.txt)}" data-cvedit="${esc(m.id)}" maxlength="200" aria-label="Modifier"><button class="del" data-cvforget="${esc(m.id)}">Supprimer</button></div>`).join('')}
    ${!c.mem.length&&!(c.last&&c.last.txt)?'<p class="sub">ELYRA n’a rien retenu pour le moment.</p>':''}
+   <p class="mt" style="font-weight:600">Voix de la conversation</p><div class="row chips" id="cvVoiceSel">${[['elyra','ELYRA (naturelle)'],['tel','Voix du téléphone']].map(([k,n])=>`<button data-cvvoice="${k}" aria-pressed="${(c.voice||'elyra')===k}">${n}</button>`).join('')}</div>
+   <p class="note" id="pvStat"></p><button class="ghost" id="pvGo" hidden>Télécharger la voix naturelle maintenant</button>
    <div class="sw"><span>Pouvoir interrompre ELYRA en parlant (si elle se coupe toute seule, désactive)</span><input type="checkbox" id="cvIntOn" ${c.interrupt?'checked':''}></div>
    <div class="row mt"><button class="ghost" id="cvWipe" style="color:var(--warm)">Effacer mémoire et historique</button></div>
    <details class="mt"><summary class="note" style="cursor:pointer">Réglage avancé : adresse du serveur</summary><label class="f">Adresse du petit serveur ELYRA<input type="url" id="cvUrl" value="${esc(ST.prof.voixUrl||'')}" placeholder="${esc(CFG.voix||'https://elyra-voix.….workers.dev')}"></label><p class="note">Laisse vide pour utiliser l'adresse prévue par l'appli${CFG.voix?'':' (pas encore configurée)'}.</p></details>`;
-  $('#cvMemOn').onchange=e=>{c.memOn=e.target.checked;save()};$('#cvIntOn').onchange=e=>{c.interrupt=e.target.checked;save()};
+  $('#cvMemOn').onchange=e=>{c.memOn=e.target.checked;save()};$('#pvGo').onclick=()=>{piperStart();piperUI()};piperUI();$('#cvIntOn').onchange=e=>{c.interrupt=e.target.checked;save()};
   $('#cvUrl').onchange=e=>{const v=e.target.value.trim();if(v&&!/^https:\/\/[^\s]+$/.test(v)){toast('Adresse invalide (elle doit commencer par https://).');return}setP(p=>p.voixUrl=v)};
   $('#cvWipe').onclick=()=>ask('Tout effacer ?',"La mémoire et l'historique de la conversation à voix haute seront effacés de ce téléphone.",'Effacer',()=>{Object.assign(c,{msgs:[],mem:[],last:null});save();renderCvMem()})}
-$('#cvMemBox').addEventListener('click',e=>{const f=e.target.closest('[data-cvforget]');if(!f)return;const c=cvP();if(f.dataset.cvforget==='last')c.last=null;else c.mem=c.mem.filter(m=>m.id!==f.dataset.cvforget);save();renderCvMem()});
+$('#cvMemBox').addEventListener('click',e=>{const vb=e.target.closest('[data-cvvoice]');if(vb){cvP().voice=vb.dataset.cvvoice;save();renderCvMem();return}const f=e.target.closest('[data-cvforget]');if(!f)return;const c=cvP();if(f.dataset.cvforget==='last')c.last=null;else c.mem=c.mem.filter(m=>m.id!==f.dataset.cvforget);save();renderCvMem()});
 $('#cvMemBox').addEventListener('change',e=>{const i=e.target.closest('[data-cvedit]');if(!i)return;const c=cvP(),m=c.mem.find(x=>x.id===i.dataset.cvedit);if(!m)return;const v=i.value.trim();if(v)m.txt=v.slice(0,200);else c.mem=c.mem.filter(x=>x!==m);save()});
 /* points d'entrée */
 function talkEntry(e,o){if(!VOIX_URL())return;e.preventDefault();openConv(o||{})}
