@@ -162,6 +162,7 @@ function tileHTML(ex){const [k,v]=ex.split(':');const lab=EX[ex];
 function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST.prof.name:'';
   $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
   $('#hero').className='hero t-'+slot();
+  if(window.ElyraMascotte&&!$('#homeMasc .masc')){const hm=ElyraMascotte.create($('#homeMasc'),'repos');hm.svg.setAttribute('aria-label','ELYRA, touche-la pour dire bonjour')}
   $('#homeTiles').innerHTML=homePicks().map(tileHTML).join('');
   const ht=helpTop(1).slice(0,4);$('#homeHelp').innerHTML=ht.length?`<div class="sect"><h2>Ce qui t'aide</h2><a href="#outils">Ma boîte à outils</a></div><div class="tiles">${ht.map(([id])=>tileHTML(id)).join('')}</div>`:'';
   const hr=new Date().getHours();$('#homeNight').innerHTML=hr<5||hr>=23?`<div class="card nightc"><span class="tag lav">La nuit</span><h3 class="mt">${esc(G(hr<5?'Réveillé{e} cette nuit ?':'Pas encore endormi{e} ?'))}</h3><p class="sub">Un écran sombre et calme, pour te reposer sans pression.</p><button class="main mt" data-ex="nuit:1">Ouvrir l'écran de nuit</button></div>`:'';
@@ -483,7 +484,7 @@ $('#slForm').onsubmit=e=>{e.preventDefault();if(!slQ){$('#slMsg').textContent='C
   const date=$('#slDate').value||dkey();ST.items=ST.items.filter(x=>!(x.kind==='sommeil'&&x.night===date));
   addItem({kind:'sommeil',night:date,bed:$('#slBed').value,wake:$('#slWake').value,q:slQ,w:slW==null?null:slW,note:$('#slNote').value.trim().slice(0,1000)});
   slQ=null;slW=null;slChips();$('#slNote').value='';$('#slMsg').textContent='Nuit enregistrée.'};
-function renderSommeil(){$('#nightTiles').innerHTML=['med:scandodo','story:phare','story:cabane','story:jardinnuit','story:train','br:dodo','med:dodo','med:reveil','snd:pluie'].map(tileHTML).join('');
+function renderSommeil(){if(window.ElyraMascotte&&!$('#sleepMasc .masc'))ElyraMascotte.create($('#sleepMasc'),'sommeil');$('#nightTiles').innerHTML=['med:scandodo','story:phare','story:cabane','story:jardinnuit','story:train','br:dodo','med:dodo','med:reveil','snd:pluie'].map(tileHTML).join('');
   const R=ST.prof.routine;const today=dkey();const ch=R.checks[today]||[];
   $('#routine').innerHTML=R.items.map((t,i)=>`<div class="sw"><label style="display:flex;gap:12px;align-items:center;flex:1"><input type="checkbox" data-rt="${i}" ${ch.includes(t)?'checked':''}><span>${esc(t)}</span></label><button class="del" data-rtdel="${i}" aria-label="Retirer ${esc(t)}">Retirer</button></div>`).join('')||'<p class="sub">Ajoute un premier geste.</p>';
   const N=ST.items.filter(x=>x.kind==='sommeil').slice(0,7);
@@ -588,7 +589,7 @@ const SIZES=[['m','Normal'],['l','Grand'],['xl','Très grand']],THEMES=[['auto',
 const VVOICES=[['siwis','Voix féminine'],['tom','Voix masculine']];
 const VMODES=[['elyra','Voix ELYRA'],['tel','Voix du téléphone'],['off','Sans voix']],RATES=[['1','Normal'],['0.9','Plus lent']];
 const viewerTheme=document.documentElement.getAttribute('data-theme');
-function applyPrefs(){const r=document.documentElement;const pf=faceSrc();r.classList.toggle('portrait',!!pf);if(pf)r.style.setProperty('--portrait',`url("${pf}")`);else r.style.removeProperty('--portrait');r.dataset.size=ST.prof.size||'m';r.dataset.anim=ST.prof.anim||'on';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
+function applyPrefs(){const r=document.documentElement;const pf=faceSrc();r.classList.toggle('portrait',!!pf);if(pf)r.style.setProperty('--portrait',`url("${pf}")`);else r.style.removeProperty('--portrait');r.dataset.size=ST.prof.size||'m';r.dataset.anim=ST.prof.anim||'on';r.dataset.img=ST.prof.img||'photos';if(ST.prof.theme==='auto'){if(viewerTheme)r.dataset.theme=viewerTheme;else r.removeAttribute('data-theme')}else r.dataset.theme=ST.prof.theme}
 function renderVoiceSel(){const s=$('#pVoiceSel');if(!s)return;const L=CapTTS()?NV:voices;$('#pVoiceSelBox').hidden=!L.length;
   s.innerHTML=`<option value="">Voix par défaut</option>`+L.map(v=>`<option value="${esc(v.name)}" ${v.name===ST.prof.vname?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
 const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button data-${attr}="${k}" aria-pressed="${String(cur)===k}">${n}</button>`).join('')};

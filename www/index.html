@@ -59,31 +59,7 @@
   <div class="hero" id="hero">
     <h1 id="hello">Bonsoir</h1>
     <p class="sig">Tu n'as pas besoin de tout maîtriser pour avancer.</p>
-    <svg class="bloom" viewBox="0 0 340 236" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <defs>
-        <radialGradient id="halo"><stop offset="0" style="stop-color:var(--champ);stop-opacity:.8"/><stop offset="1" style="stop-color:var(--champ);stop-opacity:0"/></radialGradient>
-        <linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--lav)"/><stop offset="1" style="stop-color:var(--lav);stop-opacity:.55"/></linearGradient>
-        <linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sage)"/><stop offset="1" style="stop-color:var(--sage);stop-opacity:.5"/></linearGradient>
-        <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--champ)"/><stop offset="1" style="stop-color:var(--champ);stop-opacity:.4"/></linearGradient>
-      </defs>
-      <path d="M-400 196 C-200 176 -40 190 60 182 C120 176 150 190 200 192 S300 172 380 184 S600 198 740 186 V260 H-400Z" style="fill:var(--sage)" opacity=".14"/>
-      <path d="M-400 214 C-250 200 -60 212 40 206 C120 200 160 212 220 214 S330 202 420 208 S620 216 740 206 V260 H-400Z" style="fill:var(--sage)" opacity=".2"/>
-      <circle cx="170" cy="112" r="108" fill="url(#halo)"/>
-      <circle cx="170" cy="112" r="90" fill="none" style="stroke:var(--line)" stroke-width="1.5" stroke-dasharray="2 7"/>
-      <g class="breathe">
-        <ellipse cx="170" cy="108" rx="34" ry="66" transform="rotate(-32 170 164)" fill="url(#gl)"/>
-        <ellipse cx="170" cy="108" rx="34" ry="66" transform="rotate(32 170 164)" fill="url(#gs)"/>
-        <ellipse cx="170" cy="102" rx="24" ry="56" fill="url(#gc)"/>
-        <path d="M158 66 q12 -26 24 0" fill="none" style="stroke:var(--card)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
-        <circle cx="170" cy="156" r="13" style="fill:var(--card)"/>
-        <circle cx="170" cy="156" r="5" style="fill:var(--champ)"/>
-      </g>
-      <g style="fill:var(--card)">
-        <circle class="mote" cx="92" cy="150" r="3"/><circle class="mote" cx="250" cy="130" r="2.5" style="animation-delay:-4s"/>
-        <circle class="mote" cx="118" cy="96" r="2" style="animation-delay:-8s"/><circle class="mote" cx="232" cy="78" r="3" style="animation-delay:-11s"/>
-        <circle class="mote" cx="200" cy="170" r="2" style="animation-delay:-6s"/>
-      </g>
-    </svg>
+    <div class="hmasc" id="homeMasc" title="Touche ELYRA"></div>
     <nav class="doors" aria-label="Que veux-tu faire ?">
       <a class="door d1" id="talkHome" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><b>Parler</b><span>à ELYRA</span></a>
       <a class="door d2" href="#programme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></svg><b>Apprendre</b><span>sur l'anxiété</span></a>
@@ -137,7 +113,7 @@
 </section>
 
 <!-- ELYRA -->
-<section class="view" id="v-elyra" aria-labelledby="elyT">
+<section class="view" data-ph id="v-elyra" style="--vph:url(photos/emotion.webp)" aria-labelledby="elyT">
   <div class="elyhead"><svg class="face big" aria-hidden="true"><use href="#face"/></svg><h1 id="elyT">Parler à ELYRA</h1></div>
   <p class="sub">La conversation s'ouvre dans Claude, avec ton propre compte. Ce que tu y écris reste dans ton espace privé.</p>
   <div class="card elylive"><div id="elyFace" class="elyface"></div><div><h3>Parler à voix haute</h3><p class="sub">ELYRA t'écoute et te répond avec sa voix, sans appuyer à chaque phrase. Tu peux aussi lui écrire.</p><button class="main mt" id="elyLive">Commencer</button><p class="note" id="elyLiveNote"></p></div></div>
@@ -152,7 +128,7 @@
 </section>
 
 <!-- CALME -->
-<section class="view" id="v-calme" aria-labelledby="calT">
+<section class="view" data-ph id="v-calme" style="--vph:url(photos/relax.webp)" aria-labelledby="calT">
   <h1 id="calT">Ma bulle de calme</h1>
   <p class="sub">Respirer, méditer, écouter. Rien d'obligatoire : prends ce qui te fait du bien.</p>
   <div id="favBox"></div>
@@ -206,7 +182,7 @@
 </section>
 
 <!-- JOURNAL -->
-<section class="view" id="v-journal" aria-labelledby="jT">
+<section class="view" data-ph id="v-journal" style="--vph:url(photos/culpabilite.webp)" aria-labelledby="jT">
   <h1 id="jT">Mon journal</h1>
   <p class="sub">Note ce que tu vis pour mieux te comprendre. Tout reste sur ton téléphone.</p>
   <div class="card row between"><div><h3>Démêler une pensée</h3><p class="sub">Un outil pas à pas quand une pensée te pèse.</p></div><a class="btn ghost" href="#pensee">Commencer</a></div>
@@ -225,7 +201,7 @@
 </section>
 
 <!-- PENSÉE -->
-<section class="view" id="v-pensee" aria-labelledby="penT">
+<section class="view" data-ph id="v-pensee" style="--vph:url(photos/nuages.webp)" aria-labelledby="penT">
   <button class="back" data-back="journal">‹ Journal</button>
   <h1 id="penT">Démêler une pensée</h1>
   <p class="sub">Inspiré des thérapies cognitives. Prends ton temps, tu peux sauter une étape.</p>
@@ -243,7 +219,7 @@
 </section>
 
 <!-- MOI -->
-<section class="view" id="v-moi" aria-labelledby="moiT">
+<section class="view" data-ph id="v-moi" style="--vph:url(photos/montagne.webp)" aria-labelledby="moiT">
   <h1 id="moiT">Moi</h1>
   <p class="sub">Ton parcours, tes nuits, tes progrès et tes repères.</p>
   <div class="hub">
@@ -261,13 +237,13 @@
 </section>
 
 <!-- PROGRAMME TAG -->
-<section class="view" id="v-programme" aria-label="Programme TAG">
+<section class="view" data-ph id="v-programme" style="--vph:url(photos/eftstress.webp)" aria-label="Programme TAG">
   <button class="back" data-back="moi">‹ Moi</button>
   <div id="tagBox"></div>
 </section>
 
 <!-- PARCOURS -->
-<section class="view" id="v-parcours" aria-labelledby="parT">
+<section class="view" data-ph id="v-parcours" style="--vph:url(photos/foret.webp)" aria-labelledby="parT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="parT">Mon parcours</h1>
   <p class="sub">Des programmes courts, à ton rythme. Tu peux faire une pause quand tu veux : rien n'est perdu.</p>
@@ -275,14 +251,15 @@
 </section>
 
 <!-- COMPRENDRE -->
-<section class="view" id="v-comprendre" aria-label="Comprendre">
+<section class="view" data-ph id="v-comprendre" style="--vph:url(photos/bibliotheque.webp)" aria-label="Comprendre">
   <button class="back" id="comBack">‹ Moi</button>
   <div id="comBox"></div>
 </section>
 
 <!-- SOMMEIL -->
-<section class="view" id="v-sommeil" aria-labelledby="somT">
+<section class="view night" data-ph id="v-sommeil" style="--vph:url(photos/scandodo.webp)" aria-labelledby="somT">
   <button class="back" data-back="moi">‹ Moi</button>
+  <div class="smasc" id="sleepMasc"></div>
   <h1 id="somT">Sommeil</h1>
   <p class="sub">Préparer la nuit, la traverser, et noter comment elle s'est passée.</p>
   <div class="sect"><h2>Pour cette nuit</h2></div>
@@ -307,7 +284,7 @@
 </section>
 
 <!-- PROGRÈS -->
-<section class="view" id="v-progres" aria-labelledby="proT">
+<section class="view" data-ph id="v-progres" style="--vph:url(photos/matin.webp)" aria-labelledby="proT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="proT">Mes progrès</h1>
   <p class="sub">Pas de score à battre. Juste un regard bienveillant sur ton chemin.</p>
@@ -334,7 +311,7 @@
 </section>
 
 <!-- KIT -->
-<section class="view" id="v-kit" aria-labelledby="kitT">
+<section class="view" data-ph id="v-kit" style="--vph:url(photos/tisane.webp)" aria-labelledby="kitT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="kitT">Mon kit de secours</h1>
   <p class="sub">Tes repères à toi, à portée de main. Ils s'affichent aussi dans le mode SOS.</p>
@@ -349,7 +326,7 @@
 </section>
 
 <!-- ESPACE -->
-<section class="view" id="v-espace" aria-labelledby="espT">
+<section class="view" data-ph id="v-espace" style="--vph:url(photos/refuge.webp)" aria-labelledby="espT">
   <button class="back" data-back="moi">‹ Moi</button>
   <h1 id="espT">Mon espace</h1>
   <div class="card"><h3>Profil</h3><label class="f">Ton prénom<input type="text" id="pName" maxlength="40" autocomplete="given-name"></label>
@@ -401,7 +378,7 @@
 </section>
 
 <!-- BOÎTE À OUTILS -->
-<section class="view" id="v-outils" aria-label="Ma boîte à outils">
+<section class="view" data-ph id="v-outils" style="--vph:url(photos/jardinzen.webp)" aria-label="Ma boîte à outils">
   <button class="back" data-back="moi">‹ Moi</button>
   <div id="outBox"></div>
 </section>
@@ -409,15 +386,15 @@
   <button class="back" data-back="outils">‹ Boîte à outils</button>
   <div id="toolBox"></div>
 </section>
-<section class="view" id="v-expo" aria-label="Coach d'exposition">
+<section class="view" data-ph id="v-expo" style="--vph:url(photos/avant.webp)" aria-label="Coach d'exposition">
   <button class="back" id="expoBack">‹ Boîte à outils</button>
   <div id="expoBox"></div>
 </section>
-<section class="view" id="v-corps" aria-label="Mon corps">
+<section class="view" data-ph id="v-corps" style="--vph:url(photos/douleur.webp)" aria-label="Mon corps">
   <button class="back" data-back="moi">‹ Moi</button>
   <div id="corpsBox"></div>
 </section>
-<section class="view" id="v-consult" aria-label="Préparer une consultation">
+<section class="view" data-ph id="v-consult" style="--vph:url(photos/rdvmed.webp)" aria-label="Préparer une consultation">
   <button class="back" data-back="moi">‹ Moi</button>
   <div id="consultBox"></div>
 </section>
