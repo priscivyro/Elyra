@@ -294,6 +294,8 @@ sounds: [
  ['flute','Flûte et bourdon','Une flûte lointaine sur une note grave tenue.','m'],
  ['berceuse','Berceuse','Une petite boîte à musique, pour le soir.','m'],
  ['guitare','Guitare','Des arpèges tranquilles, au coin du feu.','m'],
+ ['alterne','Notes gauche-droite','Une note douce passe d’une oreille à l’autre.','g'],
+ ['gouttes','Gouttes gauche-droite','Des gouttes d’eau qui tombent à gauche, puis à droite.','g'],
  ['orage','Orage lointain','Pluie fine et tonnerre au loin.'],['cascade','Cascade','Une chute d’eau puissante et régulière.'],['carillon','Carillon à vent','Des notes qui tintent au gré de la brise.'],
  ['matin','Oiseaux du matin','Un jardin qui s’éveille.'],['harpe','Harpe douce','Des arpèges lents et lumineux.','m'],['nappe','Nappe méditative','Un son grave et profond pour méditer.'],
  ['ronron','Chat qui ronronne','Un ronronnement chaud et apaisant.'],['cigales','Cigales','Un après-midi d’été dans le Sud.'],['rose','Bruit rose','Un souffle régulier pour dormir ou se concentrer.']

@@ -190,11 +190,12 @@
   </div>
   <div class="pane" id="p-mediter" role="tabpanel">
     <div class="sect"><h2>J'ai besoin d'une séance pour…</h2></div>
-    <div class="scrollx chips mt" id="medSits"></div>
+    <div class="scrollx sits mt" id="medSits"></div>
     <div class="sect"><h2>Toutes les séances</h2></div>
     <div class="scrollx chips mt" id="medCats"></div>
     <div id="resume"></div>
     <p class="note" id="medSitT" hidden></p>
+    <div class="card mt" id="eftBox" hidden></div>
     <div class="list" id="meds"></div>
     <div class="card mt2" id="libre"></div>
   </div>
@@ -210,6 +211,9 @@
     <div class="sect"><h2>Musiques douces</h2></div>
     <p class="note" style="margin:6px 2px 0">Composées en direct par ton téléphone : elles ne se répètent jamais tout à fait. Tu peux les mélanger avec une ambiance.</p>
     <div class="snd" id="musics"></div>
+    <div class="sect"><h2>Gauche-droite</h2></div>
+    <p class="note" style="margin:6px 2px 0">À écouter au casque ou avec des écouteurs. Un son doux passe d'une oreille à l'autre : certaines personnes trouvent que ça aide à se recentrer. Ce n'est pas une thérapie, et ça ne remplace pas l'EMDR, qui se pratique avec un thérapeute formé.</p>
+    <div class="snd" id="alts"></div>
     <div class="card">
       <label class="f" style="margin:0">Minuterie
         <select id="sndTimer"><option value="0">Sans arrêt</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">1 heure</option><option value="90">1 h 30</option></select></label>
@@ -444,7 +448,7 @@
   <div class="aura" id="plAura"></div>
   <div class="pl-top"><button class="round" id="plClose" aria-label="Fermer"><svg class="icon"><use href="#i-down"/></svg></button><span class="tag lav" id="plTag"></span><span style="width:52px"></span></div>
   <div class="pl-main">
-    <div class="cov big" id="plCov"></div>
+    <div class="cov big" id="plCov"></div><div class="plEft" id="plEft" hidden></div>
     <div><h2 id="plT"></h2><p class="sub" id="plSub"></p></div>
     <p class="pl-say" id="plSay" aria-live="polite"></p>
   </div>
@@ -528,6 +532,7 @@
 
 <script src="content.js"></script>
 <script src="seances.js"></script>
+<script src="art.js"></script>
 <script src="tag.js"></script>
 <script src="outils.js"></script>
 <script src="config.js"></script>

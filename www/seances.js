@@ -367,3 +367,104 @@ C.stories.push(...STORIES);
 C.situations = SITUATIONS;
 C.progs.unshift(...SERIES);
 })();
+
+/* ================= EFT ================= */
+(function(){
+const C = window.ELYRA_CONTENT;
+/* Points : code → [nom, où, comment] */
+C.eftPoints = [
+ ['MK','Tranche de la main',"Le côté charnu de la main, sous le petit doigt, là où on donnerait un « coup de karaté ».","Tapote avec le bout des doigts de l'autre main, pendant les phrases de préparation."],
+ ['ST','Sommet de la tête',"Le haut du crâne, au milieu.","Tapote doucement avec le plat des doigts."],
+ ['DS','Début du sourcil',"Le début du sourcil, juste au-dessus du nez.","Deux doigts, d'un côté ou des deux."],
+ ['CO','Coin de l’œil',"Sur l'os, au coin extérieur de l'œil.","Tout doucement : c'est une zone fine."],
+ ['SO','Sous l’œil',"Sur l'os, sous l'œil, à hauteur de la pupille.","Deux doigts, sans appuyer."],
+ ['SN','Sous le nez',"Entre le nez et la lèvre du haut.","Un ou deux doigts."],
+ ['ME','Creux du menton',"Le creux entre la lèvre du bas et le menton.","Un ou deux doigts."],
+ ['CL','Sous la clavicule',"Juste sous la clavicule, près du haut du sternum.","Les doigts en paquet, ou le poing ouvert."],
+ ['SB','Sous le bras',"Sur le côté du corps, environ une main sous l'aisselle.","Le plat de la main."]
+];
+const PN = Object.fromEntries(C.eftPoints.map(p=>[p[0],p[1]]));
+const R8 = ['ST','DS','CO','SO','SN','ME','CL','SB'];
+function ronde(k,t,d,intro,sujet,setup,neg,pos){
+ const s=[
+  ["Installe-toi confortablement. Cette ronde d'EFT dure quelques minutes. Tapote toujours doucement, sans te faire mal. Si quelque chose devient trop fort, arrête-toi et respire.",14,'MK'],
+  [intro,14,'MK'],
+  ["Note ce que tu ressens maintenant, de zéro à dix. Zéro, c'est pas du tout. Dix, c'est le plus fort possible. Garde ce chiffre en tête.",14,'MK'],
+  ["On commence par la tranche de la main. Tapote-la doucement, et répète intérieurement, ou à voix haute, ces phrases.",10,'MK'],
+  ...setup.map(x=>[x,10,'MK']),
+  ["Maintenant, on fait le tour des points. Je te dis le point, puis une petite phrase. Tu tapotes environ sept fois, sans compter.",10,'ST'],
+  ...R8.map((p,i)=>[PN[p]+'. « '+neg[i]+' »',9,p]),
+  ["Prends une respiration tranquille. Laisse l'air ressortir lentement.",10,'SB'],
+  ["Encore un tour, avec des phrases plus douces.",6,'ST'],
+  ...R8.map((p,i)=>[PN[p]+'. « '+pos[i]+' »',9,p]),
+  ["Pose tes mains. Respire. Remarque ce qui a changé, même un tout petit peu, ou ce qui n'a pas changé. Les deux sont normaux.",16,'SB'],
+  ["Note à nouveau de zéro à dix, à propos de "+sujet+". Si c'est encore élevé, tu peux refaire une ronde. Si ça ne t'aide pas, d'autres outils te conviendront peut-être mieux, et c'est très bien.",16,'SB']];
+ return {k,c:'eft',t,d,eft:1,s};
+}
+const RONDES=[
+ ronde('eftstress','EFT · Le stress du moment',"Une ronde de tapotements pour faire redescendre la pression.",
+  "Pense au stress que tu ressens aujourd'hui. Où est-il dans ton corps ? Comment le décrirais-tu en quelques mots ?","ce stress",
+  ["Même si je ressens tout ce stress, je m'accepte comme je suis.","Même si mon corps est tendu, je suis {gentil|gentille} avec moi.","Même si j'ai trop de choses en tête, je m'accorde ce moment."],
+  ["Tout ce stress.","Cette pression dans mon corps.","Trop de choses à la fois.","Je le sens bien.","Ce stress dans mes épaules.","Cette tension.","Tout ce que je porte.","Ce stress."],
+  ["Je peux respirer.","Je n'ai pas à tout régler maintenant.","Une chose à la fois.","Je relâche un peu.","Je laisse mes épaules descendre.","Je fais de mon mieux.","Je peux poser un peu de ce poids.","Je m'offre un peu de calme."]),
+ ronde('eftpeur',"EFT · Quand j'ai peur de ce qui va arriver","Pour l'anxiété qui imagine le pire.",
+  "Pense à ce qui t'inquiète pour plus tard. Remarque la peur, et l'endroit où tu la sens.","cette inquiétude",
+  ["Même si j'ai peur de ce qui pourrait arriver, je m'accepte complètement.","Même si mon esprit imagine le pire, je peux être {doux|douce} avec moi.","Même si je ne sais pas comment ça va se passer, je suis ici, maintenant."],
+  ["Cette peur.","Et si ça se passait mal ?","Mon esprit imagine le pire.","Cette inquiétude.","Je ne sais pas ce qui va arriver.","Cette boule dans le ventre.","Toute cette anxiété.","Cette peur de l'avenir."],
+  ["Pour l'instant, je suis ici.","Le pire n'est pas encore arrivé.","Je ferai face quand ce sera le moment.","Je peux vivre avec un peu d'incertitude.","Je respire, maintenant.","J'ai déjà traversé des choses difficiles.","Je peux me faire confiance.","Je reviens au moment présent."]),
+ ronde('eftcolere','EFT · Colère et frustration',"Laisser retomber la colère, sans la juger.",
+  "Pense à ce qui t'a mis en colère. Sens la chaleur, la tension, l'envie de réagir.","cette colère",
+  ["Même si je suis en colère, je m'accepte comme je suis.","Même si je trouve ça injuste, je peux prendre soin de moi.","Même si j'ai envie d'exploser, je choisis de respirer."],
+  ["Toute cette colère.","C'est injuste.","Cette chaleur en moi.","Cette frustration.","Je serre les dents.","Cette envie de réagir.","Toute cette colère dans mon corps.","Cette colère."],
+  ["Ma colère a le droit d'exister.","Elle me dit que quelque chose compte pour moi.","Je n'ai pas à réagir tout de suite.","Je laisse la chaleur redescendre.","Je desserre la mâchoire.","Je choisirai ma réponse plus tard.","Je respire plus lentement.","Je retrouve un peu de calme."]),
+ ronde('eftdodo',"EFT · Pour s'endormir","Une ronde lente, au lit, pour calmer le mental.",
+  "Tu peux faire cette ronde {allongé|allongée}. Pense à ce qui t'empêche de dormir : des pensées, une agitation, une inquiétude.","ton agitation",
+  ["Même si ma tête n'arrive pas à s'arrêter, je m'accepte complètement.","Même si j'ai peur de ne pas dormir, je peux me reposer.","Même si la journée a été lourde, je la laisse derrière moi."],
+  ["Toutes ces pensées.","Ma tête qui tourne.","Je n'arrive pas à décrocher.","Cette agitation.","Toute cette journée.","Ce qui reste à faire.","Cette inquiétude.","Toutes ces pensées."],
+  ["Tout peut attendre demain.","Je dépose ma journée.","Mon corps peut se reposer.","Je laisse les pensées passer.","Je respire plus lentement.","Je suis en sécurité, dans mon lit.","Je me détends un peu plus.","Je laisse venir le repos."]),
+ ronde('eftrumine','EFT · Les pensées qui tournent en boucle',"Quand une pensée revient sans arrêt.",
+  "Pense à la pensée qui revient sans cesse. Résume-la en quelques mots.","cette pensée",
+  ["Même si cette pensée tourne en boucle, je m'accepte complètement.","Même si je n'arrive pas à m'en défaire, je suis {gentil|gentille} avec moi.","Même si mon esprit veut tout comprendre, je peux lâcher un peu."],
+  ["Cette pensée.","Elle revient sans arrêt.","Je tourne en rond.","Je n'arrive pas à m'arrêter.","Cette boucle.","Encore et encore.","Toutes ces questions.","Cette pensée."],
+  ["Ce n'est qu'une pensée.","Je ne suis pas obligé{e} de la suivre.","Je peux la laisser passer.","Je reviens à mon corps.","Je sens mes pieds.","Je respire.","Mon attention peut aller ailleurs.","Je choisis de me reposer."]),
+ ronde('eftestime','EFT · Confiance en moi',"Adoucir la critique intérieure.",
+  "Pense à une critique que tu te fais souvent. Remarque comment elle te fait te sentir.","cette critique",
+  ["Même si je me critique, je choisis de m'accepter.","Même si je doute de moi, je mérite de la gentillesse.","Même si je ne suis pas parfait{e}, je suis assez."],
+  ["Cette voix qui me critique.","Je ne suis pas à la hauteur.","Ce doute.","Je me compare.","Cette dureté envers moi.","Je me sens petit{e}.","Toute cette critique.","Ce manque de confiance."],
+  ["Je fais de mon mieux.","J'ai le droit de me tromper.","J'ai des qualités, même si je les oublie.","Je peux me parler gentiment.","Je mérite du respect.","J'avance à mon rythme.","Je suis assez, tel{|le} que je suis.","Je choisis la douceur envers moi."])
+];
+C.meds.push(...RONDES);
+C.cats.push(['eft','EFT']);
+C.situations.splice(1,0,['eft','Tapoter pour m’apaiser (EFT)',['eftstress','eftpeur','eftcolere','eftdodo','eftrumine','eftestime']]);
+
+C.meds.push({k:'tisane',c:'quotidien',t:'Le rituel de la tisane',d:"Savourer une boisson chaude en pleine conscience. Le geste lui-même apaise.",s:[
+ ["Prépare une boisson chaude que tu aimes : une tisane, un thé, un lait chaud. Prends-la entre tes mains, et installe-toi.",20],
+ ["Sens d'abord la chaleur de la tasse dans tes paumes. Laisse cette chaleur remonter dans tes mains, tes poignets.",30],
+ ["Regarde la vapeur qui monte, lentement. Elle danse, puis disparaît.",25],
+ ["Approche la tasse de ton visage. Respire son parfum, sans te presser.",30],
+ ["Prends une première petite gorgée. Remarque la température, le goût, la sensation dans la bouche, puis dans la gorge.",35],
+ ["Pose la tasse un moment. Remarque la chaleur qui reste en toi.",30],
+ ["Continue à boire à ton rythme. À chaque gorgée, laisse les épaules descendre un peu.",45],
+ ["Ce petit rituel, tu peux le refaire chaque soir. C'est une manière simple de dire à ton corps : maintenant, on ralentit.",20]]});
+
+C.fiches.push(
+{k:'eft',t:'L’EFT, concrètement',d:"Tapoter sur des points du visage et du corps en mettant des mots sur ce qu'on ressent.",b:[
+ "L'EFT, pour « Emotional Freedom Techniques », consiste à tapoter doucement du bout des doigts sur quelques points du visage et du haut du corps, tout en nommant ce que l'on ressent.",
+ ["Comment ça se passe","On note d'abord l'intensité de ce qu'on ressent, de 0 à 10. On tapote la tranche de la main en disant une phrase d'acceptation. Puis on fait le tour des points avec une courte phrase. À la fin, on note à nouveau."],
+ ["Ce qu'on en sait","Plusieurs études suggèrent que l'EFT peut aider à faire baisser le stress et l'anxiété chez certaines personnes, mais leur qualité est variable et on ne sait pas exactement pourquoi ça aide. Le fait de s'arrêter, de nommer son émotion, de s'accepter et de se toucher avec douceur y contribue sans doute."],
+ ["Les bonnes règles","Tapote doucement, jamais jusqu'à avoir mal. Tu peux utiliser un seul côté. Si une émotion devient trop forte, arrête et reviens à ta respiration ou à l'ancrage."],
+ ["Ce que l'EFT ne remplace pas","L'EFT ne remplace ni un traitement ni un suivi. Pour des souvenirs très douloureux ou un traumatisme, il vaut mieux être {accompagné|accompagnée} par un ou une professionnelle formée."],
+ "Dans ELYRA, tu trouves les points dans Méditer, catégorie EFT, et des rondes guidées par thème."]},
+{k:'plantes',t:'Les plantes qui apaisent',d:"Tisanes et plantes pour le stress et le sommeil : ce qu'on sait, et les précautions.",b:[
+ "Certaines plantes sont utilisées depuis longtemps pour le stress léger et le sommeil. Leur effet est en général modeste, et « naturel » ne veut pas dire « sans risque ». Cette fiche t'aide à t'y retrouver : elle ne remplace pas l'avis de ton pharmacien ou de ton médecin.",
+ ["Les plantes reconnues pour un usage traditionnel","L'Agence européenne des médicaments reconnaît un usage traditionnel de la mélisse, de la passiflore, de la valériane, du houblon et de la fleur de lavande pour soulager le stress léger et aider au sommeil. « Usage traditionnel » veut dire qu'elles sont utilisées sans problème depuis au moins trente ans, mais que les études cliniques ne suffisent pas à prouver leur efficacité."],
+ ["Si ça dure","Si le stress ou les troubles du sommeil durent plus de deux semaines, ou s'aggravent, parles-en à ton médecin."],
+ ["La valériane","Elle peut rendre somnolent{e}. Prudence avant de conduire, et pas avec de l'alcool, des somnifères ou des calmants sans avis médical. Elle peut aussi donner des nausées ou des crampes au ventre."],
+ ["La lavande","Une préparation précise d'huile essentielle de lavande en capsules a été étudiée dans plusieurs essais : elle a réduit l'anxiété mieux qu'un placebo. Ces résultats valent pour ce produit précis seulement. N'avale jamais une huile essentielle du commerce : celles pour diffuseurs ne se boivent pas."],
+ ["La camomille","Douce, en tisane. Attention si tu es allergique aux plantes de la famille des marguerites (comme l'ambroisie ou l'armoise)."],
+ ["Le millepertuis : grande prudence","Il interagit avec beaucoup de médicaments : la pilule contraceptive (avec des grossesses non désirées signalées), les anticoagulants, les antidépresseurs, et bien d'autres. Il rend aussi la peau plus sensible au soleil. Ne le prends jamais sans en parler à ton médecin ou ton pharmacien."],
+ ["Les compléments à la mode","Rhodiola, safran, ashwagandha… Ils sont très vendus, mais les preuves restent limitées. Des cas de problèmes de foie ont été signalés avec l'ashwagandha. Demande conseil avant d'en prendre."],
+ ["Toujours demander au pharmacien","Surtout si tu prends déjà des médicaments, si tu es enceinte ou allaites, si tu as un problème de foie ou de reins, ou avant une opération. N'arrête jamais un traitement prescrit pour le remplacer par des plantes."],
+ ["Le meilleur de la tisane","Souvent, c'est aussi le rituel qui apaise : la chaleur, l'odeur, la pause. Essaie la séance « Le rituel de la tisane »."]]}
+);
+})();

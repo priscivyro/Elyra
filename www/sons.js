@@ -166,10 +166,16 @@ const SND={
  guitare(o,w){const CH=[[82.41,123.47,164.81,196,246.94,329.63],[130.81,164.81,196,261.63,329.63,392],[98,123.47,146.83,196,246.94,392],[146.83,220,293.66,369.99,440,293.66]];
   const PAT=[0,3,4,5,4,3];let n=0,c=0,j=0,bar=0;return{nodes:[],tick(t){while(n<t+.5){const T=Math.max(n,t)+.03,ch=CH[c%CH.length],x=PAT[j];
    gtr(o,w,T,ch[x===0?0:Math.min(ch.length-1,x)],x===0?.16:rr(.08,.11),x===0?-.15:rr(-.3,.3));if(x===0&&R()<.4)gtr(o,w,T+.02,ch[2],.07,.1);
-   j++;n=T+.43+rr(-.015,.03);if(j>=PAT.length){j=0;bar++;if(bar%2===0)c++;if(bar%8===0)n+=rr(.6,1.4)}}}}}
+   j++;n=T+.43+rr(-.015,.03);if(j>=PAT.length){j=0;bar++;if(bar%2===0)c++;if(bar%8===0)n+=rr(.6,1.4)}}}}},
+ /* — gauche-droite : un son doux qui passe d'une oreille à l'autre (au casque) — */
+ alterne(o,w){const CH=[[392,493.88],[349.23,440],[329.63,415.3],[349.23,440]];let n=0,b=0;
+  return{nodes:[],tick(t){while(n<t+.5){const T=Math.max(n,t)+.03,c=CH[Math.floor(b/8)%CH.length];
+   tick2(o,w,T,c[b%2],b%2?.85:-.85,.07);if(b%16===0)chord(o,w,T,[c[0]/2,c[1]/2],14,.022);b++;n=T+.92}}}},
+ gouttes(o,w){const s=src(S.buf.pink),hp=bq('highpass',900),g=gn(.05);s.connect(hp).connect(g).connect(o);let n=0,b=0;
+  return{nodes:[s],tick(t){while(n<t+.5){const T=Math.max(n,t)+.03;drop(o,w,T,rr(1300,1700),b%2?.85:-.85,.09);b++;n=T+.85}}}}
 };
-const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7,orage:1.6,cascade:.9,carillon:3.2,matin:9,harpe:4,nappe:1,ronron:2.2,cigales:3.3,rose:.85,piano:5,kalimba:4.4,handpan:3,flute:1.1,berceuse:2.5,guitare:2.5};
-const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25,orage:.25,carillon:.75,matin:.35,harpe:.7,nappe:.6,piano:.45,kalimba:.5,handpan:.55,flute:.55,berceuse:.5,guitare:.35};
+const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7,orage:1.6,cascade:.9,carillon:3.2,matin:9,harpe:4,nappe:1,ronron:2.2,cigales:3.3,rose:.85,piano:5,kalimba:4.4,handpan:3,flute:1.1,berceuse:2.5,guitare:2.5,alterne:3,gouttes:3};
+const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25,orage:.25,carillon:.75,matin:.35,harpe:.7,nappe:.6,piano:.45,kalimba:.5,handpan:.55,flute:.55,berceuse:.5,guitare:.35,alterne:.3,gouttes:.25};
 
 function bird(o,w,t){const a=A(),p=rr(-.8,.8),f0=rr(2200,4400),n=1+Math.floor(R()*5),kind=Math.floor(R()*3);let T=t;
   for(let i=0;i<n;i++){const d=rr(.05,.14),os=osc('sine',f0),g=gn(0),pn=pan(p);
@@ -222,6 +228,11 @@ function ksBuf(f){const a=A(),sr=a.sampleRate,k=Math.round(f);if(KS[k])return KS
   let mx=0;for(let i=0;i<len;i++)mx=Math.max(mx,Math.abs(y[i]));if(mx)for(let i=0;i<len;i++)y[i]/=mx;return KS[k]=buf}
 function gtr(o,w,t,f,v,p){const a=A(),b=a.createBufferSource();b.buffer=ksBuf(f);const lp=bq('lowpass',2600,.4),g=gn(v),pn=pan(p||0);
   b.connect(lp).connect(g).connect(pn);pn.connect(o);pn.connect(w);b.start(t);b.stop(t+3.2)}
+
+function tick2(o,w,t,f,p,v){const pn=pan(p);pn.connect(o);pn.connect(w);for(const [m,a,d] of [[1,1,1.5],[2,.18,.6]]){const os=osc('sine',f*m),g=gn(0);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+d);os.connect(g).connect(pn);os.start(t);os.stop(t+d+.05)}}
+function drop(o,w,t,f,p,v){const pn=pan(p);pn.connect(o);pn.connect(w);const os=osc('sine',f),g=gn(0);os.frequency.setValueAtTime(f,t);os.frequency.exponentialRampToValueAtTime(f*.55,t+.09);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+.22);os.connect(g).connect(pn);os.start(t);os.stop(t+.25)}
 
 /* couches */
 function on(k,vol){if(!SND[k]||S.layers[k])return;if(!ctx())return;const a=S.ac;

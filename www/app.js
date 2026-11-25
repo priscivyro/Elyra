@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.6.0";
+const APP_VERSION="1.7.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -38,7 +38,8 @@ Object.assign(EX,{libre:'Méditation libre','calme:respirer':'Respiration guidé
 const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
 const isStory=k=>STORIES.some(s=>s.k===k);
 function catOf(ex){const [k,v]=ex.split(':');if(k==='outil'&&O.tools[v])return O.tools[v].c;if(k==='br')return'breath';if(k==='snd'){const x=C.sounds.find(y=>y[0]===v);return x&&x[3]==='m'?'musique':'son'}if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
-const covHTML=(cat,cls='')=>`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
+const ART=window.ElyraArt;
+const covHTML=(cat,cls='',key)=>key&&ART?`<span class="cov ${cls} art" data-c="${esc(cat)}" aria-hidden="true">${ART.scene(cat,key)}</span>`:`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
 
 /* ============ DONNÉES (sur le téléphone) ============ */
 const KEY='elyra.v1';
@@ -147,7 +148,7 @@ function homePicks(){const S={matin:['med:matin','br:coh','med:respi','med:minut
 function sessMin(k){const m=findSess(k);if(!m)return 0;return Math.max(1,Math.round(durs(m).reduce((a,b)=>a+b,0)/60))}
 function tileHTML(ex){const [k,v]=ex.split(':');const lab=EX[ex];
   const meta=k==='br'?`${PRESETS[v].d} min · respiration`:k==='snd'?'son':k==='story'?`${sessMin(v)} min · histoire`:k==='med'?`${sessMin(v)} min`:'';
-  return `<button class="tile" data-ex="${esc(ex)}">${covHTML(catOf(ex))}<b>${esc(G(lab))}</b><span>${esc(meta)}</span></button>`}
+  return `<button class="tile" data-ex="${esc(ex)}">${covHTML(catOf(ex),'',(k==='med'||k==='story')?v:null)}<b>${esc(G(lab))}</b><span>${esc(meta)}</span></button>`}
 function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST.prof.name:'';
   $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
   $('#hero').className='hero t-'+slot();
@@ -215,17 +216,29 @@ selP('coh');selD(5);
 const lenF=m=>ST.prof.long&&!m.sos?1.9:1;
 const durs=m=>m.s.map(s=>{const r=+ST.prof.rate||1;const lf=lenF(m);const c=ST.prof.vmode==='elyra'?clip(G(s[0])):null;const v=c?c[1]/r:(ST.prof.vmode==='off'?0:est(s[0])/r);return Math.max(Math.round(s[1]*lf),Math.ceil(v+3))});
 function itemHTML(m,story){const key=(story?'story:':'med:')+m.k;const f=ST.prof.favs.includes(key);
-  return `<div class="item"><button class="go" data-ex="${key}">${covHTML(story?'histoire':m.c)}<span><h3>${esc(G(m.t))}</h3><p>${esc(G(m.d))}</p><span class="meta">${sessMin(m.k)} min</span></span></button><button class="star" data-fav="${key}" aria-pressed="${f}" aria-label="Favori : ${esc(G(m.t))}">${f?'★':'☆'}</button></div>`}
+  return `<div class="item"><button class="go" data-ex="${key}">${covHTML(story?'histoire':m.c,'',m.k)}<span><h3>${esc(G(m.t))}</h3><p>${esc(G(m.d))}</p><span class="meta">${sessMin(m.k)} min</span></span></button><button class="star" data-fav="${key}" aria-pressed="${f}" aria-label="Favori : ${esc(G(m.t))}">${f?'★':'☆'}</button></div>`}
 function renderMeds(){const cat=ST.prof.medCat||'tout';const sit=(C.situations||[]).find(x=>x[0]===ST.prof.medSit);
-  $('#medSits').innerHTML=(C.situations||[]).map(([k,n])=>`<button data-sit="${k}" aria-pressed="${!!sit&&sit[0]===k}">${esc(G(n))}</button>`).join('');
+  $('#medSits').innerHTML=(C.situations||[]).map(([k,n,l])=>{const m0=findSess(l[0]);return `<button class="sitc" data-sit="${k}" aria-pressed="${!!sit&&sit[0]===k}">${covHTML(m0?m0.c:'stress','',k==='eft'?'eft':l[0])}<b>${esc(G(n))}</b><small>${l.length} séances</small></button>`}).join('');
+  const showE=(sit&&sit[0]==='eft')||(!sit&&cat==='eft');$('#eftBox').hidden=!showE;if(showE)renderEftBox();
   $('#medCats').innerHTML=C.cats.map(([k,n])=>`<button data-cat="${k}" aria-pressed="${!sit&&k===cat}">${esc(n)}</button>`).join('');
   $('#medSitT').textContent=sit?G(sit[1]):'';$('#medSitT').hidden=!sit;
   $('#meds').innerHTML=(sit?sit[2].map(findSess).filter(Boolean):MEDS.filter(m=>cat==='tout'||m.c===cat)).map(m=>itemHTML(m,isStory(m.k))).join('');renderLibre();
   const r=ST.prof.resume;const rm=r&&findSess(r.k);
-  $('#resume').innerHTML=rm?`<div class="card row between">${covHTML(isStory(rm.k)?'histoire':rm.c)}<div style="flex:1"><span class="tag lav">À reprendre</span><h3 class="mt">${esc(G(rm.t))}</h3></div><button class="main" id="resGo">Reprendre</button></div>`:'';
+  $('#resume').innerHTML=rm?`<div class="card row between">${covHTML(isStory(rm.k)?'histoire':rm.c,'',rm.k)}<div style="flex:1"><span class="tag lav">À reprendre</span><h3 class="mt">${esc(G(rm.t))}</h3></div><button class="main" id="resGo">Reprendre</button></div>`:'';
   if(rm)$('#resGo').onclick=()=>openPlayer(rm.k,r.i)}
 $('#medCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(b)setP(p=>{p.medCat=b.dataset.cat;p.medSit=null})};
 $('#medSits').onclick=e=>{const b=e.target.closest('[data-sit]');if(!b)return;const k=b.dataset.sit;setP(p=>p.medSit=p.medSit===k?null:k);haptic()};
+
+/* ============ EFT ============ */
+const EFTP=Object.fromEntries((C.eftPoints||[]).map(p=>[p[0],p]));
+function eftShow(box,pt){if(!box||!ART)return;const p=EFTP[pt];box.innerHTML=ART.eft(pt)+(p?`<p class="eftlab"><b>${esc(p[1])}</b><span>${esc(p[2])}</span></p>`:'')}
+let eftSel='MK';
+function renderEftBox(){const b=$('#eftBox');const order=['MK','ST','DS','CO','SO','SN','ME','CL','SB'];
+  b.innerHTML=`<span class="tag lav">EFT</span><h3 class="mt">Où tapoter ?</h3><p class="sub">Touche un point pour le voir. Tapote toujours doucement, du bout des doigts.</p>
+   <div class="eftw" id="eftView"></div><div class="row chips mt" id="eftChips">${order.map((k,i)=>`<button data-pt="${k}" aria-pressed="${k===eftSel}" aria-label="${esc(EFTP[k][1])}">${i?i:'Main'}</button>`).join('')}</div>
+   <p class="note" id="eftHow"></p><div class="row mt"><button class="ghost" data-ex="fiche:eft">Lire : l'EFT, concrètement</button><button class="ghost" data-ex="sos:eft">Tapotements express</button></div>`;
+  const upd=()=>{eftShow($('#eftView'),eftSel);$('#eftHow').textContent=EFTP[eftSel][3];$$('#eftChips button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.pt===eftSel))};upd();
+  b.onclick=e=>{const t=e.target.closest('[data-pt]');if(t){eftSel=t.dataset.pt;upd();haptic()}}}
 
 /* ============ MÉDITATION LIBRE ============ */
 const LB={on:false,end:0,start:0,min:10,every:0,iv:null,next:0};
@@ -255,13 +268,13 @@ function openPlayer(k,from){const m=findSess(k);if(!m)return;SND.ctx();if(brMain
   const story=isStory(k);PL.key=(story?'story:':'med:')+k;sessVoice=true;
   PL.m=m;PL.d=durs(m);PL.tot=PL.d.reduce((a,b)=>a+b,0);const start=Math.max(0,Math.min(from||0,m.s.length-1));PL.el=PL.d.slice(0,start).reduce((a,b)=>a+b,0);
   PL.done=false;PL.paused=false;const cat=story?'histoire':m.c;
-  $('#plCov').outerHTML=covHTML(cat,'big').replace('class="cov big"','class="cov big" id="plCov"');
+  $('#plCov').outerHTML=covHTML(cat,'big',k).replace('class="cov big art"','class="cov big art" id="plCov"');$('#plCov').hidden=!!m.eft;$('#plEft').hidden=!m.eft;
   const cs=getComputedStyle($('#plCov'));$('#plAura').style.setProperty('--c1',cs.getPropertyValue('--c1'));$('#plAura').style.setProperty('--c2',cs.getPropertyValue('--c2'));
   $('#plT').textContent=G(m.t);$('#plSub').textContent=G(m.d);syncPlLen();$('#plTag').textContent=story?'Histoire':(C.cats.find(c=>c[0]===m.c)||['',''])[1];
   $('#plTot').textContent=mmss(PL.tot);setPlay(true);syncPlVoice();syncPlFav();syncAmb();
   $('#player').classList.add('on');document.body.style.overflow='hidden';SND.bell();
   clearInterval(PL.iv);PL.iv=setInterval(tick,250);step(start);$('#plPlay').focus()}
-function step(i){PL.i=i;PL.stepEl=0;const t=G(PL.m.s[i][0]);const say=$('#plSay');say.classList.add('fade');
+function step(i){PL.i=i;PL.stepEl=0;const t=G(PL.m.s[i][0]);if(PL.m.eft)eftShow($('#plEft'),PL.m.s[i][2]);const say=$('#plSay');say.classList.add('fade');
   setTimeout(()=>{say.textContent=t;say.classList.remove('fade')},250);speak(t);updBar()}
 function tick(){if(PL.paused||PL.done)return;PL.stepEl+=.25;PL.el+=.25;updBar();if(PL.stepEl>=PL.d[PL.i])advance()}
 function advance(){if(PL.i+1>=PL.m.s.length)return finish();step(PL.i+1)}
@@ -300,11 +313,11 @@ function renderSounds(){const a=SND.active();
   $('#mixes').innerHTML=C.mixes.map(([n,l],i)=>`<button data-mix="${i}" aria-pressed="${l.length===a.length&&l.every(x=>a.includes(x))}">${esc(n)}</button>`).join('');
   const card=([k,n,d,g])=>{const on=a.includes(k);const v=ST.prof.sndVol[k]!=null?ST.prof.sndVol[k]:.8;
     return `<div class="sndc" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}">${covHTML(g==='m'?'musique':'son')}<span>${esc(n)}<small>${on?'En cours':esc(d)}</small></span></button>${on?`<input type="range" min="0" max="1" step="0.05" value="${v}" data-vol="${k}" aria-label="Volume : ${esc(n)}">`:''}</div>`};
-  $('#sounds').innerHTML=C.sounds.filter(x=>x[3]!=='m').map(card).join('');$('#musics').innerHTML=C.sounds.filter(x=>x[3]==='m').map(card).join('');
+  $('#sounds').innerHTML=C.sounds.filter(x=>!x[3]).map(card).join('');$('#musics').innerHTML=C.sounds.filter(x=>x[3]==='m').map(card).join('');$('#alts').innerHTML=C.sounds.filter(x=>x[3]==='g').map(card).join('');
   $('#sndState').textContent=a.length?`En cours : ${a.map(k=>EX['snd:'+k]).join(', ')}.`:'Aucun son en cours.';$('#sndStop').hidden=!a.length}
-$('#sounds').onclick=$('#musics').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;const was=SND.active().length;
+$('#sounds').onclick=$('#musics').onclick=$('#alts').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;const was=SND.active().length;
   if(SND.active().includes(k))SND.off(k);else{SND.on(k,ST.prof.sndVol[k]);if(!was)SND.timer(+$('#sndTimer').value)}haptic()};
-$('#sounds').oninput=$('#musics').oninput=e=>{const r=e.target.closest('[data-vol]');if(!r)return;SND.vol(r.dataset.vol,+r.value);ST.prof.sndVol[r.dataset.vol]=+r.value;save()};
+$('#sounds').oninput=$('#musics').oninput=$('#alts').oninput=e=>{const r=e.target.closest('[data-vol]');if(!r)return;SND.vol(r.dataset.vol,+r.value);ST.prof.sndVol[r.dataset.vol]=+r.value;save()};
 $('#mixes').onclick=e=>{const b=e.target.closest('[data-mix]');if(!b)return;const l=C.mixes[+b.dataset.mix][1];SND.only(null);setTimeout(()=>{l.forEach(k=>SND.on(k,ST.prof.sndVol[k]));SND.timer(+$('#sndTimer').value)},50)};
 $('#sndTimer').onchange=e=>{if(SND.active().length)SND.timer(+e.target.value)};
 $('#sndStop').onclick=()=>SND.stopAll();

@@ -47,9 +47,13 @@ w.addEventListener('load',async()=>{try{
   // Calme
   go('calme');click($('#presets [data-k="vague"]'));click('#brBtn');ok($('#brBtn').textContent==='Arrêter','respiration démarre');click('#brBtn');
   click('#brFav');ok(/Vague/.test($('#favBox').textContent),'favori affiché');
-  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===48,'48 séances');
+  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===55,'55 séances');
+  ok(d.querySelectorAll('#medSits .sitc svg.art').length===13,'situations illustrées');ok(!!$('#meds .cov.art svg'),'couvertures illustrées');
+  click($('#medCats [data-cat="eft"]'));ok(!$('#eftBox').hidden&&d.querySelectorAll('#meds .item').length===6,'catégorie EFT');click($('#eftChips [data-pt="CO"]'));ok(/Coin de l/.test($('#eftView').textContent)&&!!$('#eftView .ep.on[data-pt="CO"]'),'point EFT affiché');
+  click($('#meds [data-ex="med:eftstress"]'));await wait(400);ok(!$('#plEft').hidden&&!!$('#plEft .ep.on[data-pt="MK"]'),'ronde EFT : point dans le lecteur');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');await wait(350);ok(!!$('#plEft .ep.on[data-pt="ST"]'),'ronde EFT : point suivant');click('#plClose');
+  click($('#medCats [data-cat="tout"]'));
   click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===5&&/examen/.test($('#meds').textContent),'séances par situation');
-  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===48,'situation désélectionnée');
+  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===55,'situation désélectionnée');
   click($('#lbMin [data-m="5"]'));click('#lbGo');ok(/En cours/.test($('#libre').textContent),'méditation libre démarre');click('#lbStop');ok(!!$('#lbGo'),'méditation libre arrêtée');
   click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===5,'filtre sommeil');
   click($('#meds [data-ex="med:scandodo"]'));ok($('#player').classList.contains('on'),'lecteur ouvert');
@@ -60,7 +64,7 @@ w.addEventListener('load',async()=>{try{
   click('#plClose');ok(/Scan du soir/.test($('#resume').textContent),'reprise de lecture proposée');
   click($('#calTabs [data-t="histoires"]'));ok(d.querySelectorAll('#stories .item').length===12,'12 histoires');
   click($('#stories [data-ex="story:phare"]'));ok(/phare/.test($('#plT').textContent),'histoire ouverte');click('#plClose');
-  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===17,'17 ambiances');ok(d.querySelectorAll('#musics .sndc').length===8,'8 musiques');
+  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===17,'17 ambiances');ok(d.querySelectorAll('#musics .sndc').length===8,'8 musiques');ok(d.querySelectorAll('#alts .sndc').length===2,'2 sons gauche-droite');
   click($('#musics [data-snd="piano"]'));ok(/Piano doux/.test($('#sndState').textContent),'musique lancée');click('#sndStop');await wait(50);
   click($('#sounds [data-snd="pluie"]'));click($('#sounds [data-snd="feu"]'));ok(/Pluie douce, Feu/.test($('#sndState').textContent),'mélange de deux sons');
   ok(!!$('#sounds [data-vol="pluie"]'),'réglage de volume par son');click('#sndStop');await wait(50);ok(/Aucun/.test($('#sndState').textContent),'tout arrêter');
@@ -95,8 +99,8 @@ w.addEventListener('load',async()=>{try{
   d.querySelector('#tagBox .steprow input[type=text]').value='Photo de station';click('#tagExSave');await wait(350);ok(modOk('m6','ex'),'échelle enregistrée');
   click('#tagBack');ok(/1 module\(s\) terminé/.test($('#tagBox').textContent),'progression du programme');
   // Comprendre
-  go('comprendre');ok(d.querySelectorAll('#comBox .item').length===11,'11 fiches');click($('#comBox [data-ex="fiche:aide"]'));ok(/0800 32 123/.test($('#comBox').textContent)&&/11 €/.test($('#comBox').textContent),'fiche « Demander de l\'aide »');
-  click('#ficheNext');ok(/proche/.test($('#comBox').textContent),'fiche suivante');click('#comBack');ok(d.querySelectorAll('#comBox .item').length===11,'retour à la liste');
+  go('comprendre');ok(d.querySelectorAll('#comBox .item').length===13,'13 fiches');click($('#comBox [data-ex="fiche:aide"]'));ok(/0800 32 123/.test($('#comBox').textContent)&&/11 €/.test($('#comBox').textContent),'fiche « Demander de l\'aide »');
+  click('#ficheNext');ok(/proche/.test($('#comBox').textContent),'fiche suivante');click('#comBack');ok(d.querySelectorAll('#comBox .item').length===13,'retour à la liste');
   // Progrès
   go('progres');$('#upTxt').value='Réunion';$('#upDate').value=new Date(Date.now()+864e5).toISOString().slice(0,10);submit('#upForm');go('accueil');ok(/Réunion/.test($('#homeUp').textContent),'situation à venir');
   go('progres');$('#goalTxt').value='Respirer';submit('#goalForm');ok(/Respirer/.test($('#goals').textContent),'objectif');
