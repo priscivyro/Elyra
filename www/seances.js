@@ -556,3 +556,187 @@ C.tcc = [
   ['med:hyplieu',"Créer un refuge intérieur."],['med:hypvolume',"Baisser l'intensité de l'anxiété."],['med:hypconfiance',"Retrouver ta force intérieure."],['med:hypdodo',"Glisser dans le sommeil."],['outil:accueil',"Faire de la place à une émotion."]]]
 ];
 })();
+
+/* ================= CATALOGUE D'EXERCICES : mouvement, ancrage, Jacobson, respiration, TCC/ACT, visualisation ================= */
+(function(){
+const C = window.ELYRA_CONTENT;
+const SAFE = "Écoute ton corps : jamais de douleur, seulement des sensations douces. Si tu as un problème de dos, d'articulations ou si tu es enceinte, adapte ou demande conseil à ton médecin.";
+const M = [
+/* ---- yoga doux et mouvement ---- */
+{k:'yogamatin',c:'mouvement',t:'Yoga doux du matin',d:"Dix minutes pour réveiller le corps en douceur, debout ou sur un tapis.",s:[
+ [SAFE,14],
+ ["Debout, les pieds écartés de la largeur du bassin. Sens le sol sous tes pieds. Laisse les bras le long du corps.",25],
+ ["Inspire en levant lentement les bras sur les côtés, jusqu'au-dessus de la tête. Expire en les redescendant. Encore deux fois, au rythme de ton souffle.",40],
+ ["Bras en l'air, attrape ton poignet gauche avec la main droite. Penche-toi doucement vers la droite, comme un arbre dans le vent. Respire dans le côté gauche.",30],
+ ["Reviens au centre, et change de côté. Penche-toi vers la gauche, doucement.",30],
+ ["Pose les mains sur les hanches. Fais de grands cercles lents avec le bassin, dans un sens, puis dans l'autre.",35],
+ ["Plie légèrement les genoux et enroule ton dos vers l'avant, vertèbre après vertèbre, en laissant pendre la tête et les bras. Pas besoin de toucher le sol.",35],
+ ["Reste là quelques respirations, les genoux pliés. Laisse la tête lourde, dis oui de la tête, puis non, tout doucement.",30],
+ ["Remonte très lentement, vertèbre par vertèbre, la tête en dernier.",30],
+ ["La posture de l'arbre : pose le poids sur le pied gauche, et place le pied droit contre la cheville ou le mollet gauche. Mains jointes devant le cœur. Tu peux t'appuyer contre un mur.",35],
+ ["Change de pied. Si tu vacilles, c'est normal : souris, et reviens à ton point d'appui.",35],
+ ["Pour finir, mains sur le cœur. Trois respirations lentes. Remercie ton corps pour ce qu'il fait pour toi chaque jour.",30]]},
+{k:'yogachaise',c:'mouvement',t:'Yoga doux sur une chaise',d:"Pour le bureau ou quand se lever est difficile. Huit minutes.",s:[
+ [SAFE,14],
+ ["{Assis|Assise} au bord de la chaise, les pieds bien à plat, le dos droit sans être raide. Mains sur les cuisses.",22],
+ ["Inspire en ouvrant la poitrine, les épaules vers l'arrière, le regard un peu vers le haut. Expire en arrondissant le dos, le menton vers la poitrine. Cinq fois, lentement.",45],
+ ["Pose la main droite sur le genou gauche, la main gauche derrière toi sur la chaise. Tourne doucement le buste vers la gauche en expirant. Grandis-toi en inspirant.",35],
+ ["Reviens au centre et change de côté.",35],
+ ["Lève le bras droit et penche-toi vers la gauche, en sentant l'étirement sur le côté droit. Puis change.",40],
+ ["Tends une jambe devant toi, talon au sol, et penche-toi légèrement vers l'avant, le dos droit, jusqu'à sentir l'arrière de la cuisse. Puis l'autre jambe.",40],
+ ["Pose les mains sur les cuisses, ferme les yeux si tu veux. Sens le poids du corps sur la chaise. Respire tranquillement.",35],
+ ["Reviens doucement. Tu peux reprendre ta journée.",12]]},
+{k:'yogasoir',c:'mouvement',t:'Yoga doux du soir',d:"Des postures au sol pour relâcher la journée avant de dormir.",s:[
+ [SAFE,14],
+ ["Installe-toi sur un tapis ou sur ton lit, à quatre pattes, les mains sous les épaules, les genoux sous les hanches.",22],
+ ["Inspire en creusant doucement le dos et en levant le regard. Expire en arrondissant le dos, comme un chat. Suis le rythme de ton souffle, cinq fois.",45],
+ ["Recule les fesses vers les talons, les bras allongés devant toi ou le long du corps, le front posé. C'est la posture de l'enfant. Reste là, et respire dans le dos.",50],
+ ["Allonge-toi sur le dos. Ramène les genoux vers la poitrine et entoure-les de tes bras. Berce-toi doucement de droite à gauche.",40],
+ ["Laisse tomber les deux genoux pliés sur le côté droit, les bras en croix, la tête tournée à gauche si c'est confortable. Respire.",40],
+ ["Ramène les genoux au centre, et laisse-les tomber de l'autre côté.",40],
+ ["Allonge les jambes. Laisse tout le corps se déposer. Les paumes vers le ciel.",50],
+ ["Reste là, sans rien faire. Le corps est prêt pour la nuit.",45]]},
+{k:'bureau',c:'mouvement',t:'Étirements au bureau',d:"Cinq minutes pour délier le corps entre deux tâches.",s:[
+ [SAFE,12],
+ ["Lâche l'écran. Pose les deux pieds au sol, et grandis-toi en imaginant un fil qui te tire vers le haut par le sommet de la tête.",22],
+ ["Entrecroise les doigts, retourne les paumes et pousse les bras devant toi. Arrondis le haut du dos. Respire.",25],
+ ["Maintenant les bras au-dessus de la tête, paumes vers le plafond. Étire-toi comme au réveil.",25],
+ ["Penche doucement l'oreille droite vers l'épaule droite. Laisse le poids de la tête étirer le côté gauche du cou. Puis l'autre côté.",40],
+ ["Ouvre et ferme les mains plusieurs fois. Fais tourner les poignets dans un sens, puis dans l'autre.",25],
+ ["Tourne doucement le buste à droite, une main sur le dossier. Puis à gauche.",30],
+ ["Pour finir, regarde au loin par une fenêtre ou un point éloigné, quelques secondes. Tes yeux aussi méritent une pause.",20]]},
+{k:'epaules',c:'mouvement',t:'Dénouer les épaules et le dos',d:"Des mouvements simples pour la nuque, les épaules et le haut du dos.",s:[
+ [SAFE,12],
+ ["Debout ou {assis|assise}, laisse les bras le long du corps.",15],
+ ["Monte les épaules vers les oreilles en inspirant… et laisse-les tomber d'un coup en expirant. Trois fois.",30],
+ ["Fais de grands cercles avec les épaules, vers l'arrière, lentement. Cinq cercles. Puis vers l'avant.",40],
+ ["Pose les mains sur les épaules, et dessine de grands cercles avec les coudes, comme des ailes.",35],
+ ["Croise les bras devant toi et attrape tes épaules, comme pour te faire un câlin. Respire dans le haut du dos, entre les omoplates.",30],
+ ["Joins les mains derrière le dos si c'est possible, et ouvre la poitrine en ramenant les omoplates l'une vers l'autre. Sinon, pose juste les mains sur le bas du dos.",30],
+ ["Fais rouler doucement la tête : le menton vers la poitrine, puis d'une épaule à l'autre, en demi-cercle, sans jamais la renverser en arrière.",35],
+ ["Secoue doucement les bras et les mains, comme pour faire tomber des gouttes d'eau.",20],
+ ["Remarque la différence dans tes épaules. Un peu plus de place, un peu plus de souplesse.",20]]},
+/* ---- ancrage ---- */
+{k:'ancrage54321',c:'corps',t:'Ancrage 5-4-3-2-1',d:"Revenir ici et maintenant grâce aux cinq sens, quand la tête s'emballe.",s:[
+ ["On va revenir au moment présent, à l'aide de tes sens. Tu peux garder les yeux ouverts.",15],
+ ["Regarde autour de toi, et nomme cinq choses que tu vois. Prends ton temps. Une couleur, un objet, une forme.",40],
+ ["Maintenant, quatre choses que tu peux toucher. Le tissu de tes vêtements, la chaise, tes mains l'une contre l'autre, le sol sous tes pieds.",40],
+ ["Trois choses que tu entends. Un bruit proche, un bruit lointain, peut-être ta propre respiration.",35],
+ ["Deux choses que tu peux sentir, avec ton nez. Ou deux odeurs que tu aimes, si rien ne vient.",30],
+ ["Une chose que tu peux goûter. Le goût dans ta bouche en ce moment, ou une gorgée d'eau.",25],
+ ["Tu es ici. Dans cette pièce. Maintenant. Ton corps est posé, et tu peux continuer, à ton rythme.",20]]},
+{k:'ancragepieds',c:'corps',t:'Ancrage par les pieds',d:"Une minute pour te sentir solide, debout ou {assis|assise}.",s:[
+ ["Pose les deux pieds bien à plat sur le sol.",10],
+ ["Appuie-les un peu plus fort, comme pour laisser une empreinte. Sens le sol qui te porte.",20],
+ ["Remue les orteils. Sens les talons, la plante, les bords des pieds.",20],
+ ["Imagine des racines qui partent de tes pieds et s'enfoncent dans la terre, profondément.",25],
+ ["Tu peux te dire : je suis là, mes pieds sont sur le sol, je suis en sécurité maintenant.",20],
+ ["Garde cette sensation de stabilité avec toi.",10]]},
+/* ---- Jacobson ---- */
+{k:'jacobson',c:'corps',t:'Relaxation de Jacobson, version complète',d:"La relaxation musculaire progressive : contracter puis relâcher chaque groupe de muscles. Environ 15 minutes.",s:[
+ ["La méthode de Jacobson : pour chaque partie du corps, tu contractes les muscles environ cinq secondes, sans te faire mal, puis tu relâches d'un coup et tu observes la détente. Si une zone est douloureuse, saute-la.",25],
+ ["Installe-toi {assis|assise} ou {allongé|allongée}. Respire tranquillement.",20],
+ ["Main et avant-bras droits : serre le poing fort… encore… et relâche. Sens la différence entre la tension et la détente.",30],
+ ["Bras droit : plie le coude et contracte le biceps… tiens… relâche. Laisse le bras lourd.",30],
+ ["Main et avant-bras gauches : serre le poing… tiens… et relâche.",30],
+ ["Bras gauche : contracte le biceps… tiens… relâche.",30],
+ ["Le front : lève les sourcils très haut… tiens… relâche. Sens le front se lisser.",25],
+ ["Les yeux et le nez : plisse les yeux et fronce le nez… tiens… relâche.",25],
+ ["La mâchoire : serre les dents et tire les coins de la bouche… tiens… relâche. Laisse la bouche entrouverte.",25],
+ ["La nuque : pousse doucement la tête vers l'arrière contre le dossier ou le sol… tiens… relâche.",25],
+ ["Les épaules : monte-les vers les oreilles… tiens… relâche d'un coup.",25],
+ ["Le dos : rapproche les omoplates en bombant légèrement la poitrine… tiens… relâche.",25],
+ ["Le ventre : rentre-le fort, ou durcis-le… tiens… relâche, et laisse-le libre.",25],
+ ["Les cuisses : serre-les, ou appuie les talons au sol… tiens… relâche.",25],
+ ["Les mollets : tire les pointes de pied vers toi… tiens… relâche.",25],
+ ["Les pieds : recroqueville les orteils… tiens… relâche.",25],
+ ["Maintenant, parcours tout le corps du regard intérieur. Là où il reste une tension, relâche-la encore, en expirant.",45],
+ ["Profite de cette détente. Plus tu t'entraînes, plus ton corps apprend à se relâcher vite.",40],
+ ["Reviens doucement : bouge les doigts, les orteils, étire-toi.",15]]},
+{k:'jacobsonexpress',c:'corps',t:'Jacobson express',d:"La relaxation musculaire en quatre grands groupes, en cinq minutes.",s:[
+ ["Version courte de la relaxation musculaire progressive. Contracte sans te faire mal, puis relâche d'un coup.",15],
+ ["Les deux bras : serre les poings et contracte les bras… tiens… relâche.",30],
+ ["Le visage et la nuque : plisse tout le visage, épaules aux oreilles… tiens… relâche.",30],
+ ["Le tronc : rentre le ventre et rapproche les omoplates… tiens… relâche.",30],
+ ["Les jambes : tends les jambes et tire les pointes de pied vers toi… tiens… relâche.",30],
+ ["Tout le corps en même temps : contracte tout… tiens… et relâche tout, en soufflant.",30],
+ ["Reste quelques instants dans cette détente. Remarque ton corps plus lourd, plus chaud.",35]]},
+/* ---- respiration ---- */
+{k:'expiration',c:'stress',t:"Respiration à expiration prolongée",d:"Expirer plus longtemps qu'on inspire : le signal le plus simple pour dire au corps de ralentir.",s:[
+ ["Quand l'expiration est plus longue que l'inspiration, le corps active son frein naturel. Pas besoin de respirer fort : juste plus long en sortant.",20],
+ ["Respire d'abord normalement, quelques fois. Observe simplement.",25],
+ ["Maintenant, inspire par le nez en comptant jusqu'à quatre… et expire par la bouche, lentement, en comptant jusqu'à six. Comme pour souffler doucement sur une bougie sans l'éteindre.",35],
+ ["Continue : inspire sur quatre… expire sur six. Si c'est trop, inspire sur trois et expire sur cinq.",45],
+ ["Si tu es à l'aise, allonge un peu : inspire sur quatre, expire sur huit. Sans forcer, sans bloquer.",50],
+ ["Laisse les épaules descendre à chaque expiration.",45],
+ ["Reprends ta respiration naturelle. Remarque comment tu te sens maintenant.",20]]},
+/* ---- TCC / ACT ---- */
+{k:'stop',c:'pensees',t:'La pause STOP',d:"Une minute de TCC et de pleine conscience : S'arrêter, respirer, observer, poursuivre.",s:[
+ ["La pause STOP, pour quand tu sens que tu pars en pilote automatique, ou que le stress monte.",12],
+ ["S, comme s'arrêter. Quoi que tu fasses, fais une pause. Pose ce que tu tiens.",15],
+ ["T, comme… prends une respiration. Une seule, lente et consciente. Sens l'air entrer, et sortir.",20],
+ ["O, comme observer. Qu'est-ce qui se passe dans ton corps ? Quelles émotions sont là ? Quelles pensées ? Juste les remarquer, sans les juger.",35],
+ ["Tu peux te demander : est-ce un fait, ou une interprétation ? Est-ce que je vois toute la situation ?",25],
+ ["P, comme poursuivre. Choisis la prochaine petite action, en conscience. Ce qui compte vraiment, maintenant.",20],
+ ["Tu peux refaire cette pause STOP plusieurs fois par jour. Elle ne prend qu'une minute.",12]]},
+{k:'riviere',c:'pensees',t:'Les pensées sur la rivière',d:"Un exercice de défusion (ACT) : regarder passer ses pensées au lieu de monter dedans.",s:[
+ ["Installe-toi confortablement, les yeux fermés ou posés sur un point.",15],
+ ["Imagine que tu es {assis|assise} au bord d'une rivière tranquille. Des feuilles flottent à la surface et passent devant toi.",30],
+ ["Chaque fois qu'une pensée arrive, quelle qu'elle soit, pose-la sur une feuille. Et regarde la feuille s'éloigner avec le courant.",40],
+ ["Une pensée agréable, une inquiétude, un souvenir, une liste de choses à faire : tout va sur une feuille. Tu n'as pas à les trier.",45],
+ ["Si tu te rends compte que tu es {parti|partie} avec une pensée, c'est normal. Remarque-le, et reviens au bord de la rivière.",40],
+ ["Tu n'essaies pas de chasser les pensées, ni d'accélérer la rivière. Tu les regardes passer, simplement.",45],
+ ["Tu es celui ou celle qui regarde, pas les feuilles. Les pensées passent, toi, tu restes.",30],
+ ["Laisse l'image s'effacer doucement, et reviens dans la pièce.",15]]},
+{k:'reportguide',c:'pensees',t:"Mon moment d'inquiétude",d:"Le report des inquiétudes : quinze minutes guidées pour traiter tes soucis à heure fixe.",s:[
+ ["C'est ton moment d'inquiétude du jour. Prends la liste des soucis que tu as rangés dans ta boîte, ou ceux qui te viennent maintenant.",20],
+ ["Pour chaque inquiétude, demande-toi d'abord : est-ce qu'elle compte encore ? Souvent, certaines ont perdu leur force depuis ce matin.",40],
+ ["Pour celles qui restent, demande-toi : est-ce un problème réel, sur lequel je peux agir ? Ou une hypothèse, un « et si » ?",40],
+ ["Si c'est un problème réel : choisis une seule petite action concrète, et quand tu la feras.",50],
+ ["Si c'est une hypothèse : reconnais-la. « C'est une inquiétude, pas un fait. » Et laisse-la là, sans chercher à la résoudre.",50],
+ ["Le moment se termine. Ce qui n'est pas réglé peut attendre demain, au même rendez-vous.",25],
+ ["Si une inquiétude revient d'ici là, tu peux lui dire : je t'ai notée, on se voit demain.",20]]},
+{k:'exposeprep',c:'pensees',t:"Me préparer à une exposition",d:"À écouter juste avant d'affronter une marche de ton échelle.",s:[
+ ["Tu vas affronter une situation que tu évitais. C'est courageux, et c'est comme ça que la peur diminue.",15],
+ ["Rappelle-toi la règle : on reste dans la situation assez longtemps pour que l'anxiété monte… puis redescende toute seule. Elle redescend toujours.",30],
+ ["Note mentalement ta prédiction : qu'est-ce que tu crains qu'il arrive ? Et à combien, sur dix, tu y crois ?",30],
+ ["Pendant l'exposition, essaie de laisser de côté tes habitudes rassurantes : la bouteille d'eau, le téléphone, vérifier ton pouls. Elles empêchent le cerveau d'apprendre.",30],
+ ["Si l'anxiété monte, c'est le signe que l'exercice fonctionne. Observe-la comme une vague : elle monte, atteint un sommet, et redescend.",30],
+ ["Respire normalement, sans chercher à contrôler. Regarde autour de toi, sens tes pieds.",25],
+ ["Après, compare ce qui s'est vraiment passé avec ta prédiction. Note-le dans ton coach d'exposition. Vas-y, à ton rythme.",20]]},
+/* ---- visualisation ---- */
+{k:'lumiere',c:'visu',t:'La lumière qui apaise',d:"Une visualisation guidée : une lumière douce qui traverse et apaise tout le corps.",s:[
+ ["Installe-toi confortablement et ferme les yeux si tu veux.",15],
+ ["Imagine, au-dessus de ta tête, une lumière douce. Choisis sa couleur : dorée, lavande, bleu clair… celle qui t'apaise.",35],
+ ["Cette lumière se pose sur le sommet de ta tête, tiède et légère. Ton front se détend.",35],
+ ["Elle descend sur ton visage, ta mâchoire, ta nuque. Partout où elle passe, les tensions fondent.",40],
+ ["Elle coule dans tes épaules, tes bras, jusqu'au bout de tes doigts.",40],
+ ["Elle remplit ta poitrine, ton ventre. Ta respiration devient plus calme, plus ample.",40],
+ ["Elle descend dans tes jambes, jusqu'à tes pieds. Tout ton corps baigne dans cette lumière.",40],
+ ["Imagine maintenant qu'elle forme autour de toi une bulle protectrice. Rien ne te presse, ici.",40],
+ ["Garde un peu de cette lumière avec toi en revenant. Bouge doucement, et ouvre les yeux.",15]]},
+{k:'lac',c:'visu',t:'Le lac de calme',d:"Une visualisation guidée : ton esprit comme un lac qui retrouve sa surface lisse.",s:[
+ ["Installe-toi, et laisse ta respiration ralentir.",15],
+ ["Imagine un lac de montagne, au petit matin. L'air est frais, la lumière douce.",35],
+ ["Au début, la surface est agitée par le vent. Des vagues, des remous. Comme ton esprit quand il s'inquiète.",35],
+ ["Puis le vent faiblit. Les vagues deviennent des rides, de plus en plus petites.",40],
+ ["Peu à peu, la surface devient lisse comme un miroir. Elle reflète les montagnes et le ciel.",40],
+ ["Sous la surface, même quand il y a des vagues, les profondeurs du lac restent calmes. Il y a en toi aussi un endroit calme, toujours.",45],
+ ["Reste un moment à contempler ce lac paisible.",45],
+ ["Quand tu es {prêt|prête}, reviens doucement, en emportant ce calme profond.",15]]}
+];
+C.meds.push(...M);
+C.cats.push(['mouvement','Yoga et mouvement'],['pensees','Pensées (TCC et ACT)']);
+C.presets.longue={n:'Expiration longue 4-8',d:5,i:"Inspire sur 4, expire lentement sur 8 : l'expiration prolongée active le frein naturel du corps. Si c'est trop, reviens à la 4-6.",ph:[['Inspire',4,1],['Expire',8,0]]};
+/* rangement dans l'espace « Apprivoiser l'anxiété » */
+if(C.tcc){
+ C.tcc[1][2].push(['med:stop',"Une minute pour s'arrêter, respirer, observer et poursuivre."],['med:riviere',"Regarder passer ses pensées au lieu de monter dedans."],['med:reportguide',"Quinze minutes guidées pour traiter tes soucis à heure fixe."]);
+ C.tcc[2][2].push(['med:exposeprep',"À écouter juste avant d'affronter une situation évitée."]);
+ C.tcc.push(['Bouger et ancrer le corps',"Yoga doux, étirements, ancrage et relaxation musculaire.",[
+  ['med:yogamatin',"Réveiller le corps en douceur."],['med:yogachaise',"Au bureau, ou quand se lever est difficile."],['med:yogasoir',"Relâcher la journée avant de dormir."],['med:bureau',"Délier le corps entre deux tâches."],['med:epaules',"Nuque, épaules et haut du dos."],
+  ['med:ancrage54321',"Revenir ici et maintenant par les cinq sens."],['med:ancragepieds',"Une minute pour te sentir solide."],['med:jacobson',"La relaxation musculaire progressive complète."],['med:jacobsonexpress',"La même, en cinq minutes."]]]);
+ C.tcc.push(['Respirer et visualiser',"Ralentir le souffle, apaiser l'esprit par l'image.",[
+  ['outil:bio',"Vois ton propre rythme de respiration et apprends à le ralentir."],['med:expiration',"Expirer plus longtemps qu'on inspire."],['br:longue',"Le rythme 4-8, guidé par la goutte."],['med:lumiere',"Une lumière douce qui traverse le corps."],['med:lac',"Ton esprit comme un lac qui se calme."]]]);
+}
+C.situations.push(['bouger','Bouger en douceur',['yogamatin','yogachaise','bureau','epaules','yogasoir']]);
+})();

@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.4.0";
+const APP_VERSION="2.5.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -913,6 +913,7 @@ function toolDraw(){toolStop();const T=O.tools[TR.k];if(!T)return;const N=T.s.le
   else if(st.t==='timer')b=`<h2>${tsub(st.h)}</h2>${tps(st.p)}${timerHTML(st.s)}`;
   else if(st.t==='matrix')b=`<h2>Ta boussole</h2>${matrixHTML(A)}`;
   else if(st.t==='cercle')b=cercleHTML(A);
+  else if(st.t==='bio')b=bioHTML();
   else if(st.t==='sum'){let c='';if(st.cmp){const [x,y,t]=st.cmp;if(A[x]!=null&&A[y]!=null)c=`<p class="bigv sm">${tsub(t)}</p>`}
     const sh=st.show?`<div class="sumlist">${st.show.filter(([k])=>A[k]!=null&&A[k]!==''&&!(Array.isArray(A[k])&&!A[k].length)).map(([k,l])=>`<div><small>${esc(l)}</small><p>${esc(tval(A[k]))}</p></div>`).join('')}</div>`:'';
     const g=st.goal&&A[st.goal]?`<button class="ghost mt" id="trGoal">Ajouter à mes objectifs</button>`:'';
@@ -920,6 +921,7 @@ function toolDraw(){toolStop();const T=O.tools[TR.k];if(!T)return;const N=T.s.le
   const last=TR.i===N-1;
   toolRender(`${TR.ctx==='sos'?'':`<span class="tag lav">${esc(T.n)}</span>`}<div class="dots mt">${T.s.map((_,i)=>`<i class="${i<=TR.i?'on':''}"></i>`).join('')}</div>
    <div class="card tstepc">${b}</div><div class="row between mt"><button class="ghost" id="trPrev" ${TR.i===0?'disabled':''}>Précédent</button>${st.t==='pick'?'<span></span>':`<button class="main" id="trNext">${last?'Terminer':'Suivant'}</button>`}</div><p class="note" id="trMsg" role="status"></p>`);
+  if(st.t==='bio')bioInit(A);
   const R=$('#trR');if(R)R.oninput=e=>{$('#trV').textContent=e.target.value};
   const ch=$('#trCh');if(ch)ch.onclick=e=>{const x=e.target.closest('button');if(!x)return;if(ch.dataset.one)ch.querySelectorAll('button').forEach(y=>y.setAttribute('aria-pressed',y===x&&y.getAttribute('aria-pressed')!=='true'));else x.setAttribute('aria-pressed',x.getAttribute('aria-pressed')!=='true')};
   $$('[data-pick]').forEach(x=>x.onclick=()=>{TR.ans[st.k]=+x.dataset.pick;TR.i++;toolDraw()});
@@ -936,6 +938,25 @@ function toolRead(){const T=O.tools[TR.k],st=T.s[TR.i];if(!st||!st.k)return;
   if(st.t==='in'){const i=$('#trIn');if(i)TR.ans[st.k]=i.value.trim().slice(0,1500)}
   else if(st.t==='scale'){const r=$('#trR');if(r)TR.ans[st.k]=+r.value}
   else if(st.t==='one'||st.t==='chips'){const v=$$('#trCh button[aria-pressed=true]').map(b=>b.dataset.v);TR.ans[st.k]=st.t==='one'?(v[0]||''):v}}
+/* biofeedback respiratoire */
+function bioHTML(){return `<h2>Respire avec la goutte</h2><p class="sub">Appuie et garde le doigt pendant que tu inspires. Relâche pendant que tu expires. Fais au moins une dizaine de respirations.</p>
+  <div class="bio"><div class="biom" id="bioM"></div><button type="button" class="biop" id="bioP">Appuie pour inspirer</button></div>
+  <div class="biostats"><div><b id="bioR">–</b><small>respirations par minute</small></div><div><b id="bioX">–</b><small>expiration ÷ inspiration</small></div><div><b id="bioN">0</b><small>respirations</small></div></div>
+  <div class="biog" aria-hidden="true"><span class="zone"></span><i id="bioG"></i></div><p class="biol"><span>Rapide</span><span style="margin-right:7%">Apaisant</span></p>
+  <p class="note" id="bioT" aria-live="polite">Fais d'abord quelques respirations naturelles.</p>`}
+function bioInit(A){const P=$('#bioP');if(!P)return;const M=window.ElyraMascotte?ElyraMascotte.create($('#bioM'),'respiration'):null;if(M){M.extBr=0}
+  const cy=[];let t0=0,tx=0,down=false;const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  const upd=()=>{const L=cy.slice(-4);$('#bioN').textContent=cy.length;if(L.length<2)return;const ins=avg(L.map(c=>c.i)),exs=avg(L.map(c=>c.e)),r=60/(ins+exs),x=exs/ins;
+    $('#bioR').textContent=r.toFixed(1);$('#bioX').textContent=x.toFixed(1);$('#bioG').style.left=Math.max(0,Math.min(100,(16-r)/12*100))+'%';
+    if(cy.length>=3&&A.r0==null)A.r0=+r.toFixed(1);if(A.r0!=null)A.r1=+r.toFixed(1);
+    $('#bioT').textContent=r>9?"Ralentis un peu : allonge surtout l'expiration, sans forcer.":x<1.25?"Essaie d'expirer un peu plus longtemps que tu n'inspires.":r<4.5?"Pas besoin d'aller si lentement : reste confortable.":"C'est le rythme qui apaise. Continue comme ça.";
+    if(r>=5&&r<=7.5&&x>=1.25&&M&&!M._ok){M._ok=1;M.set('joie');setTimeout(()=>{if(M.state==='joie')M.set('respiration')},1800)}};
+  const start=e=>{e.preventDefault();if(down)return;down=true;const now=performance.now();if(tx&&cy.length&&cy[cy.length-1].e==null)cy[cy.length-1].e=(now-tx)/1000;
+    if(cy.length&&cy[cy.length-1].e!=null)upd();t0=now;P.classList.add('on');P.textContent='Inspire… relâche pour expirer';const L=cy.slice(-3);if(M)M.brT={from:M.extBr||0,to:1,t0:now,d:L.length?avg(L.map(c=>c.i)):4};haptic(8)};
+  const end=e=>{e&&e.preventDefault();if(!down)return;down=false;const now=performance.now(),i=(now-t0)/1000;if(i<.4){P.classList.remove('on');return}
+    cy.push({i,e:null});tx=now;P.classList.remove('on');P.textContent='Expire… appuie pour inspirer';const L=cy.filter(c=>c.e!=null).slice(-3);if(M)M.brT={from:M.extBr||1,to:0,t0:now,d:L.length?avg(L.map(c=>c.e)):5}};
+  P.addEventListener('pointerdown',start);P.addEventListener('pointerup',end);P.addEventListener('pointercancel',end);P.addEventListener('pointerleave',end);P.addEventListener('contextmenu',e=>e.preventDefault());
+  P.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')start(e)});P.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')end(e)})}
 /* le cercle anxieux, dessiné avec tes réponses */
 function cercleHTML(A){const t=(x,n)=>{const v=Array.isArray(x)?x.join(', '):String(x||'…');return v.length>n?v.slice(0,n-1)+'…':v};
   const N=[['Situation',t(A.dec,46),'#4F7DA8'],['Pensée de danger',t(A.pen,52),'#7966D9'],['Sensations',t(A.sen,48),'#F28C83'],['Ce que je fais',t(A.act,52),'#2E9B8E']];

@@ -650,3 +650,16 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 .thm .sun{display:none}.thm.dark .sun{display:inline}.thm.dark .moon{display:none}
 /* la mascotte brille un peu plus la nuit */
 :root[data-theme=dark] svg.masc .co{opacity:1}
+/* biofeedback */
+.bio{display:grid;justify-items:center;gap:10px;margin-top:10px}
+.biom{width:170px;height:178px}.biom svg.masc{width:100%;height:100%;overflow:visible}
+.biop{width:100%;min-height:76px;border-radius:24px;background:var(--lavs);color:var(--lavd);font-weight:700;font-size:1.05rem;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:background-color .3s,transform .2s}
+.biop.on{background:var(--violet);color:#fff;transform:scale(.98)}
+.biostats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px;text-align:center}
+.biostats b{display:block;font-family:"DM Serif Display",Georgia,serif;font-size:1.6rem;font-weight:400}.biostats small{color:var(--soft);font-size:.78rem;line-height:1.2;display:block}
+.biog{position:relative;height:12px;border-radius:8px;margin-top:14px;background:linear-gradient(90deg,#F28C83,#F5C96B 30%,#42BFB0 50%,#7966D9 85%)}
+.biog .zone{position:absolute;left:70%;width:21%;top:-3px;bottom:-3px;border:2px solid var(--ink);border-radius:8px;opacity:.35}
+.biog i{position:absolute;top:50%;left:0;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:#fff;border:3px solid var(--ink);transition:left .6s}
+.biol{display:flex;justify-content:space-between;font-size:.75rem;color:var(--soft);margin:4px 0 0}
+:is(.item,.tool,.tile):has(.cov[data-c=mouvement]){--cat:#E39A5B}#medCats [data-cat=mouvement][aria-pressed=true]{background:#E39A5B;border-color:#E39A5B;color:#fff}.cov[data-c=mouvement]{--c1:#F8D3A8;--c2:#E39A5B;--c3:#EFB07A}
+:is(.item,.tool,.tile):has(.cov[data-c=pensees]){--cat:#5A7FD1}#medCats [data-cat=pensees][aria-pressed=true]{background:#5A7FD1;border-color:#5A7FD1;color:#fff}.cov[data-c=pensees]{--c1:#B3C6F2;--c2:#5A7FD1;--c3:#7C98DC}

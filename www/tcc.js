@@ -44,6 +44,16 @@ O.tools.intero = {n:'Tolérer les sensations',c:'corps',min:5,s:[
  {t:'sum',h:"Tu l'as fait",cmp:['pa','pp','Peur avant : {pa}/10. Peur pendant : {pp}/10.'],p:["Refais ce même exercice d'autres jours, jusqu'à ce que la peur descende vers 2 sur 10. Ensuite, passe au suivant.","Chaque répétition apprend au cerveau que ces sensations sont désagréables, mais pas dangereuses."]}
 ]};
 
+
+/* biofeedback respiratoire : on montre son propre souffle, ELYRA aide à le ralentir */
+O.tools.bio = {n:'Biofeedback respiratoire',c:'stress',min:3,s:[
+ {t:'txt',h:'Voir son souffle pour le ralentir',p:["Le biofeedback consiste à voir ce que fait ton corps pour apprendre à le réguler. Ici, pas de capteur : c'est toi qui montres ton souffle à ELYRA.","Appuie sur le bouton pendant que tu inspires, relâche pendant que tu expires. ELYRA calcule ton rythme et t'aide à te rapprocher d'environ six respirations par minute, avec une expiration plus longue : le rythme qui apaise le plus le corps.","Ce n'est pas une mesure médicale : juste un miroir de ta respiration."]},
+ {t:'bio'},
+ {t:'sum',h:'Ton souffle a ralenti',cmp:['r0','r1','Au début : {r0} respirations par minute. À la fin : {r1}.'],p:["Plus tu t'entraînes, plus ce rythme lent devient facile à retrouver, même sans l'appli.","Tu peux ensuite le pratiquer avec la cohérence cardiaque ou l'expiration longue 4-8, dans Respirer."]}
+]};
+const resp = O.boite.find(g => /Respirer/.test(g.g));
+if (resp) resp.i.push(['outil:bio','Biofeedback respiratoire',"Montre ton souffle à ELYRA en appuyant à chaque inspiration : elle t'aide à le ralentir.",'Relaxation',['now','corps']]);
+
 /* rangées dans la boîte à outils */
 O.boite.unshift({g:'Apprivoiser la peur',i:[
  ['outil:cercle','Mon cercle anxieux',"Dessiner la boucle qui entretient ta peur, et repérer où la casser.",'TCC',['eviter','avancer','pensees']],

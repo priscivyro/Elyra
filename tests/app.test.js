@@ -47,13 +47,13 @@ w.addEventListener('load',async()=>{try{
   // Calme
   go('calme');click($('#presets [data-k="vague"]'));click('#brBtn');ok($('#brBtn').textContent==='Arrêter','respiration démarre');click('#brBtn');
   click('#brFav');ok(/Vague/.test($('#favBox').textContent),'favori affiché');
-  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===59,'59 séances');
-  ok(d.querySelectorAll('#medSits .sitc .cov.art').length===13,'situations illustrées');ok(!!$('#meds .cov.art'),'couvertures illustrées');
+  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===75,'75 séances');
+  ok(d.querySelectorAll('#medSits .sitc .cov.art').length===14,'situations illustrées');ok(!!$('#meds .cov.art'),'couvertures illustrées');
   click($('#medCats [data-cat="eft"]'));ok(!$('#eftBox').hidden&&d.querySelectorAll('#meds .item').length===6,'catégorie EFT');click($('#eftChips [data-pt="CO"]'));ok(/Coin de l/.test($('#eftView').textContent)&&!!$('#eftView .ep.on[data-pt="CO"]'),'point EFT affiché');
   click($('#meds [data-ex="med:eftstress"]'));await wait(400);ok(!$('#plEft').hidden&&!!$('#plEft .ep.on[data-pt="MK"]'),'ronde EFT : point dans le lecteur');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');await wait(350);ok(!!$('#plEft .ep.on[data-pt="ST"]'),'ronde EFT : point suivant');click('#plClose');
   click($('#medCats [data-cat="tout"]'));
   click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===5&&/examen/.test($('#meds').textContent),'séances par situation');
-  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===59,'situation désélectionnée');
+  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===75,'situation désélectionnée');
   click($('#lbMin [data-m="5"]'));click('#lbGo');ok(/En cours/.test($('#libre').textContent),'méditation libre démarre');click('#lbStop');ok(!!$('#lbGo'),'méditation libre arrêtée');
   click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===5,'filtre sommeil');
   click($('#meds [data-ex="med:scandodo"]'));ok($('#player').classList.contains('on'),'lecteur ouvert');
