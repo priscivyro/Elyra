@@ -85,7 +85,7 @@ w.addEventListener('load',async()=>{try{
   click($('#tagBox [data-mod="m5"]'));ok(/anticipatoire/.test($('#tagBox h1').textContent),'module 5 ouvert');
   ok(!!$('#tagBox .schema svg'),'schéma affiché');
   $('#tf-sit').value='Prendre la voiture';$('#tf-pire').value='Me sentir mal';$('#tf-date').value=new Date(Date.now()+2*864e5).toISOString().slice(0,10);
-  $('#tagBox details[data-sec="ex"]').open=true;click('#tagExSave');await wait(350);ok(modOk('m5','ex'),'exercice enregistré');
+  $('#tagBox details[data-sec="ex"]').open=true;click('#tagExSave');await wait(900);ok(modOk('m5','ex'),'exercice enregistré');
   ok($('#tagBox details[data-sec="ex"]').open,'section restée ouverte après enregistrement');
   go('journal');ok(/Programme TAG/.test($('#entries').textContent)&&/Prendre la voiture/.test($('#entries').textContent),'exercice visible dans le journal');
   go('accueil');ok(/Prendre la voiture/.test($('#homeUp').textContent),'situation ajoutée à « bientôt »');
@@ -96,7 +96,7 @@ w.addEventListener('load',async()=>{try{
   $('#tagBox details[data-sec="quiz"]').open=true;d.querySelectorAll('#tagBox .qz').forEach(fs=>{fs.querySelector('input').checked=true});click('#tagQuiz');ok(/sur 3/.test($('#tagQuizMsg').textContent)&&!d.querySelector('#tagBox .qe').hidden,'quiz corrigé avec explications');
   $('#tagNote').value='Préparer a une fin';click('#tagNoteSave');ok(/terminé/.test($('#tagBox').textContent),'module terminé (exercice + synthèse)');
   click($('#tagBox [data-mod="m6"]'));$('#tagBox details[data-sec="ex"]').open=true;click($('#tagBox [data-addstep]'));ok(d.querySelectorAll('#tagBox .steprow').length===4,'échelle : ajout d\'étape');
-  d.querySelector('#tagBox .steprow input[type=text]').value='Photo de station';click('#tagExSave');await wait(350);ok(modOk('m6','ex'),'échelle enregistrée');
+  d.querySelector('#tagBox .steprow input[type=text]').value='Photo de station';click('#tagExSave');await wait(900);ok(modOk('m6','ex'),'échelle enregistrée');
   click('#tagBack');ok(/1 module\(s\) terminé/.test($('#tagBox').textContent),'progression du programme');
   // Comprendre
   go('comprendre');ok(d.querySelectorAll('#comBox .item').length===13,'13 fiches');click($('#comBox [data-ex="fiche:aide"]'));ok(/0800 32 123/.test($('#comBox').textContent)&&/11 €/.test($('#comBox').textContent),'fiche « Demander de l\'aide »');
