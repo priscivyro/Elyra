@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.2.0";
+const APP_VERSION="2.3.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -41,6 +41,7 @@ for(const k in PRESETS)EX['br:'+k]=PRESETS[k].n;MEDS.forEach(m=>EX['med:'+m.k]=m
 for(const k in SOSF)EX['sos:'+k]=SOSF[k].n;C.sounds.forEach(s=>EX['snd:'+s[0]]=s[1]);FICHES.forEach(f=>EX['fiche:'+f.k]='Lire : '+f.t);
 window.ELYRA_TAG.mods.forEach((m,i)=>EX['tag:'+m.id]=`Module ${i+1} : ${m.n}`);
 for(const k in O.tools)EX['outil:'+k]=O.tools[k].n;
+PROGS.forEach(P=>EX['prog:'+P.id]=P.n);Object.assign(EX,{'tcc:dialogue':'Examiner une pensée avec ELYRA',pensee:'Démêler une pensée',sosopen:'Ouvrir le SOS',tcc:"Apprivoiser l'anxiété"});
 Object.assign(EX,{libre:'Méditation libre','calme:respirer':'Respiration guidée','calme:mediter':'Méditations guidées',expo:"Coach d'exposition",outils:'Ma boîte à outils',corps:'Mon corps',consult:'Préparer une consultation',nuit:'Réveil la nuit',programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
   'chat:comprend':'En parler avec ELYRA','chat:accompagne':'En parler avec ELYRA','chat:encourage':'En parler avec ELYRA','chat:ecoute':'En parler avec ELYRA'});
 const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
@@ -99,8 +100,8 @@ function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'|
 function stopVoice(){if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
 
 /* ============ NAVIGATION ============ */
-const VIEWS=['accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
-const TABOF={outils:'moi',outil:'moi',expo:'moi',corps:'moi',consult:'moi',programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
+const VIEWS=['tcc','accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
+const TABOF={tcc:'moi',outils:'moi',outil:'moi',expo:'moi',corps:'moi',consult:'moi',programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
 const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],['elyra','ELYRA','<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>'],
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
@@ -137,6 +138,9 @@ function doEx(id){if(!id)return;const [k,v]=id.split(':');
   else if(k==='libre'){location.hash='calme';calTab('mediter');setTimeout(()=>{const l=$('#libre');if(l)l.scrollIntoView({behavior:'smooth'})},80)}
   else if(k==='programme'){tagOpen=null;location.hash='programme';renderProgramme()}
   else if(k==='chat'){openChat(v)}
+  else if(k==='tcc'&&v==='dialogue'){if(VOIX_URL())openConv({mode:'tcc',text:true});else openChat('comprend')}
+  else if(k==='sosopen'){openSOS()}
+  else if(k==='prog'){progOpen=v;location.hash='parcours';setTimeout(()=>{renderParcours();window.scrollTo(0,0)},30)}
   else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},80)}
   else if(VIEWS.includes(k))location.hash=k}
 function toggleFav(id){if(!ST.prof.favs.includes(id)&&lastTap)sparkle(lastTap[0],lastTap[1],8);setP(p=>{p.favs=p.favs.includes(id)?p.favs.filter(x=>x!==id):[...p.favs,id]});selP(pk);syncPlFav();haptic()}
@@ -905,6 +909,7 @@ function toolDraw(){toolStop();const T=O.tools[TR.k];if(!T)return;const N=T.s.le
   else if(st.t==='picked'){const pk=T.s.find(x=>x.t==='pick'&&x.k===st.k);const o=pk.o[A[st.k]||0];b=`<h2>${esc(G(o.n))}</h2>${tps(o.p)}${o.anim==='leaf'?riverHTML():''}${o.timer?timerHTML(o.timer):''}`}
   else if(st.t==='timer')b=`<h2>${tsub(st.h)}</h2>${tps(st.p)}${timerHTML(st.s)}`;
   else if(st.t==='matrix')b=`<h2>Ta boussole</h2>${matrixHTML(A)}`;
+  else if(st.t==='cercle')b=cercleHTML(A);
   else if(st.t==='sum'){let c='';if(st.cmp){const [x,y,t]=st.cmp;if(A[x]!=null&&A[y]!=null)c=`<p class="bigv sm">${tsub(t)}</p>`}
     const sh=st.show?`<div class="sumlist">${st.show.filter(([k])=>A[k]!=null&&A[k]!==''&&!(Array.isArray(A[k])&&!A[k].length)).map(([k,l])=>`<div><small>${esc(l)}</small><p>${esc(tval(A[k]))}</p></div>`).join('')}</div>`:'';
     const g=st.goal&&A[st.goal]?`<button class="ghost mt" id="trGoal">Ajouter à mes objectifs</button>`:'';
@@ -928,6 +933,15 @@ function toolRead(){const T=O.tools[TR.k],st=T.s[TR.i];if(!st||!st.k)return;
   if(st.t==='in'){const i=$('#trIn');if(i)TR.ans[st.k]=i.value.trim().slice(0,1500)}
   else if(st.t==='scale'){const r=$('#trR');if(r)TR.ans[st.k]=+r.value}
   else if(st.t==='one'||st.t==='chips'){const v=$$('#trCh button[aria-pressed=true]').map(b=>b.dataset.v);TR.ans[st.k]=st.t==='one'?(v[0]||''):v}}
+/* le cercle anxieux, dessiné avec tes réponses */
+function cercleHTML(A){const t=(x,n)=>{const v=Array.isArray(x)?x.join(', '):String(x||'…');return v.length>n?v.slice(0,n-1)+'…':v};
+  const N=[['Situation',t(A.dec,46),'#4F7DA8'],['Pensée de danger',t(A.pen,52),'#7966D9'],['Sensations',t(A.sen,48),'#F28C83'],['Ce que je fais',t(A.act,52),'#2E9B8E']];
+  return `<h2>Ton cercle</h2><div class="cercle">${N.map(([h,v,c],i)=>`<div class="cn n${i}" style="--cc:${c}"><small>${h}</small><p>${esc(G(v))}</p></div>`).join('')}<svg class="ca" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 14 A36 36 0 1 1 49.9 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3"/><path d="M84 46 l2 5 l3-4.5M54 87 l-5 2 l4.5 3M14 54 l-2-5 l-3 4.5M46 13 l5-2 l-4.5-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><div class="cmid">La peur<br>se renforce</div></div>
+   <p class="sub mt">${esc(G("Ce que tu fais soulage sur le moment. Mais ton cerveau retient que c'était dangereux, et la peur revient, souvent plus vite."))}</p>
+   <div class="blk"><b>Où casser la boucle</b><p>La pensée : la regarder avec du recul (Démêler une pensée, ou avec ELYRA).</p><p>Les sensations : apprendre qu'elles ne sont pas dangereuses (Tolérer les sensations).</p><p>Ce que tu fais : réduire les comportements de sécurité, et t'exposer pas à pas (Coach d'exposition).</p><p class="note">Tous ces outils sont dans « Apprivoiser l'anxiété ».</p></div>`}
+function renderTcc(){const box=$('#tccBox');if(!box||!C.tcc)return;
+  box.innerHTML=C.tcc.map(([h,d,items])=>`<div class="sect"><h2>${esc(h)}</h2></div><p class="sub" style="margin-top:4px">${esc(G(d))}</p><div class="list">${items.filter(([id])=>EX[id]).map(([id,dd])=>{const [k,v]=id.split(':'),key=(k==='med'||k==='story')?v:null,cat=k==='outil'&&O.tools[v]?O.tools[v].c:k==='tcc'?'stress':catOf(id);
+    return `<div class="item"><button class="go" data-ex="${esc(id)}">${covHTML(cat,'',key)}<span><h3>${esc(G(EX[id]))}</h3><p>${esc(G(dd))}</p></span></button></div>`}).join('')}</div>`).join('')}
 function toolFinish(){const k=TR.k,T=O.tools[k],A=TR.ans,ctx=TR.ctx;const sum=T.s.find(x=>x.t==='sum');toolStop();TR.k=null;
   if(sum&&sum.souci&&A[sum.souci])ST.prof.soucis.push({id:'w'+uid(),t:Date.now(),txt:String(A[sum.souci]).slice(0,200)});
   const it=addItem({kind:'outil',ex:'outil:'+k,tool:k,label:T.n,min:T.min,ans:A});
@@ -1201,7 +1215,7 @@ const CFG=window.ELYRA_CONFIG||{};
 const VOIX_URL=()=>String(ST.prof.voixUrl||CFG.voix||'').replace(/\/+$/,'');
 const CRISIS=/suicid|me tuer|en finir avec (la vie|tout)|mettre fin à (ma vie|mes jours)|plus envie de vivre|envie de mourir|veux mourir|me faire du mal|me blesser|me scarifi|overdose|disparaître pour toujours/i;
 const BODY=/(douleur|mal|serrement|pression|oppression) (à|a|dans|sur) la poitrine|douleur thoracique|n'arrive plus à respirer|arrive pas à respirer|j'étouffe|bras gauche|paralys|engourdi|perdre connaissance|évanoui|malaise/i;
-const CVM=[['ecoute','Écoute'],['apaise','Apaise'],['comprend','Comprend'],['accompagne','Accompagne'],['encourage','Encourage'],['apprendre','Explique'],['nuit','La nuit']];
+const CVM=[['ecoute','Écoute'],['apaise','Apaise'],['comprend','Comprend'],['tcc','Séance TCC'],['accompagne','Accompagne'],['encourage','Encourage'],['apprendre','Explique'],['nuit','La nuit']];
 const cvP=()=>{const p=ST.prof;if(!p.cv||typeof p.cv!=='object')p.cv={};const c=p.cv;if(!Array.isArray(c.msgs))c.msgs=[];if(!Array.isArray(c.mem))c.mem=[];
   if(c.memOn===undefined)c.memOn=null;if(c.subs===undefined)c.subs=true;if(c.interrupt===undefined)c.interrupt=true;return c};
 const CV={open:false,face:null,mic:null,live:false,mode:'ecoute',speaking:false,queue:[],abort:null,busy:false,lastSaid:'',sess:0,textMode:false,ticket:0};
@@ -1395,7 +1409,7 @@ $('#talkHome').addEventListener('click',e=>talkEntry(e,{voice:true}));
 $('#elyLive').onclick=()=>openConv({voice:true});
 
 /* ============ RENDU GLOBAL ============ */
-function renderAll(){for(const f of [renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace,renderOutils,renderCorps,renderLockBox,renderRappels,renderConsult,renderCvMem,()=>{if(XP.mode==='list')renderExpo()}]){try{f()}catch(e){console.error(e)}}}
+function renderAll(){for(const f of [renderTcc,renderHome,renderHomeTag,renderProgramme,renderElyra,renderMeds,renderStories,renderSounds,renderFavs,renderJournal,renderSommeil,renderParcours,renderComprendre,renderProgres,renderKit,renderEspace,renderOutils,renderCorps,renderLockBox,renderRappels,renderConsult,renderCvMem,()=>{if(XP.mode==='list')renderExpo()}]){try{f()}catch(e){console.error(e)}}}
 
 /* ============ DÉMARRAGE ============ */
 load();applyPrefs();renderAll();route();loadNativeVoices();

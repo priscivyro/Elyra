@@ -634,3 +634,13 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 .bilanh{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink);margin-top:14px}
 .vict{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
 .vict li{display:flex;gap:10px;align-items:baseline}.vict li::before{content:"";width:10px;height:10px;border-radius:50%;background:#F5C96B;flex:none;transform:translateY(1px)}
+/* cercle anxieux */
+.cercle{position:relative;aspect-ratio:1;max-width:340px;margin:12px auto 0;color:color-mix(in srgb,var(--soft) 60%,transparent)}
+.cercle .ca{position:absolute;inset:12%;width:76%;height:76%}
+.cn{position:absolute;width:44%;background:color-mix(in srgb,var(--cc) 14%,var(--card));border:1.5px solid color-mix(in srgb,var(--cc) 45%,transparent);border-radius:18px;padding:8px 10px;color:var(--ink);z-index:1;font-size:.86rem;line-height:1.25}
+.cn small{display:block;font-weight:700;color:var(--cc);font-size:.75rem}.cn p{margin:2px 0 0}
+.cn.n0{left:28%;top:0}.cn.n1{right:0;top:36%}.cn.n2{left:28%;bottom:0}.cn.n3{left:0;top:36%}
+.cmid{display:none;position:absolute;inset:0;place-items:center;text-align:center;font-family:"DM Serif Display",Georgia,serif;font-size:1.05rem;color:var(--ink);pointer-events:none}
+:is(.item,.tool,.tile):has(.cov[data-c=hypnose]){--cat:#8E7CC3}
+#medCats [data-cat=hypnose][aria-pressed=true]{background:#8E7CC3;border-color:#8E7CC3;color:#fff}
+.cov[data-c=hypnose]{--c1:#C9B8F0;--c2:#5A50A8;--c3:#7C6CC4}

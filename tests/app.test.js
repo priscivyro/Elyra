@@ -47,13 +47,13 @@ w.addEventListener('load',async()=>{try{
   // Calme
   go('calme');click($('#presets [data-k="vague"]'));click('#brBtn');ok($('#brBtn').textContent==='Arrêter','respiration démarre');click('#brBtn');
   click('#brFav');ok(/Vague/.test($('#favBox').textContent),'favori affiché');
-  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===55,'55 séances');
+  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===59,'59 séances');
   ok(d.querySelectorAll('#medSits .sitc .cov.art').length===13,'situations illustrées');ok(!!$('#meds .cov.art'),'couvertures illustrées');
   click($('#medCats [data-cat="eft"]'));ok(!$('#eftBox').hidden&&d.querySelectorAll('#meds .item').length===6,'catégorie EFT');click($('#eftChips [data-pt="CO"]'));ok(/Coin de l/.test($('#eftView').textContent)&&!!$('#eftView .ep.on[data-pt="CO"]'),'point EFT affiché');
   click($('#meds [data-ex="med:eftstress"]'));await wait(400);ok(!$('#plEft').hidden&&!!$('#plEft .ep.on[data-pt="MK"]'),'ronde EFT : point dans le lecteur');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');click('#plNext');await wait(350);ok(!!$('#plEft .ep.on[data-pt="ST"]'),'ronde EFT : point suivant');click('#plClose');
   click($('#medCats [data-cat="tout"]'));
   click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===5&&/examen/.test($('#meds').textContent),'séances par situation');
-  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===55,'situation désélectionnée');
+  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===59,'situation désélectionnée');
   click($('#lbMin [data-m="5"]'));click('#lbGo');ok(/En cours/.test($('#libre').textContent),'méditation libre démarre');click('#lbStop');ok(!!$('#lbGo'),'méditation libre arrêtée');
   click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===5,'filtre sommeil');
   click($('#meds [data-ex="med:scandodo"]'));ok($('#player').classList.contains('on'),'lecteur ouvert');
@@ -69,6 +69,8 @@ w.addEventListener('load',async()=>{try{
   click($('#sounds [data-snd="pluie"]'));click($('#sounds [data-snd="feu"]'));ok(/Pluie douce, Feu/.test($('#sndState').textContent),'mélange de deux sons');
   ok(!!$('#sounds [data-vol="pluie"]'),'réglage de volume par son');click('#sndStop');await wait(50);ok(/Aucun/.test($('#sndState').textContent),'tout arrêter');
   click([...d.querySelectorAll('#mixes [data-mix]')].find(b=>/Bord de mer/.test(b.textContent)));await wait(120);ok(/Vagues/.test($('#sndState').textContent),'mélange prédéfini');click('#sndStop');
+  go('tcc');ok(d.querySelectorAll('#tccBox .item').length>=18&&/Mon cercle anxieux/.test($('#tccBox').textContent),'espace Apprivoiser l\'anxiété');
+  click($('#tccBox [data-ex="outil:cercle"]'));ok(/cercle anxieux/i.test(d.body.textContent),'outil cercle ouvert');
   // Journal + pensée
   go('journal');ok($('#jPrompt').textContent.length>5,'question pour écrire');click($('#moodJ button[data-v="3"]'));click($('#emoJ button'));click($('#sitJ button'));$('#jNote').value='Test';
   submit('#jForm');ok(/noté/.test($('#jMsg').textContent),'note de journal');
@@ -78,7 +80,7 @@ w.addEventListener('load',async()=>{try{
   go('sommeil');ok(d.querySelectorAll('#nightTiles .tile').length===9,'tuiles du soir');click($('#slQ button[data-v="4"]'));submit('#slForm');ok(/enregistrée/.test($('#slMsg').textContent),'nuit enregistrée');
   $('#vtTxt').value='trucs';click('#vtGo');ok(/posé/.test($('#vtMsg').textContent),'vide-tête');
   // Parcours
-  go('parcours');ok(d.querySelectorAll('#progBox .item').length===15&&/Série audio/.test($('#progBox').textContent),'15 parcours dont séries audio');click($('#progBox [data-prog="elan"]'));click('#progPick');go('accueil');ok(/élan/.test($('#homeProg').textContent),'programme du jour');
+  go('parcours');ok(d.querySelectorAll('#progBox .item').length===16&&/Série audio/.test($('#progBox').textContent),'15 parcours dont séries audio');click($('#progBox [data-prog="elan"]'));click('#progPick');go('accueil');ok(/élan/.test($('#homeProg').textContent),'programme du jour');
   click($('#homeProg [data-stepdone]'));ok(/étape 2/.test($('#homeProg').textContent),'étape suivante');
   // Programme TAG
   go('programme');ok(d.querySelectorAll('#tagBox .item').length===8,'programme : 8 modules');

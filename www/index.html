@@ -62,7 +62,7 @@
     <div class="hwrap"><p class="hbub" id="homeBub" aria-live="polite"></p><div class="hmasc" id="homeMasc" title="Touche ELYRA"></div></div>
     <nav class="doors" aria-label="Que veux-tu faire ?">
       <a class="door d1" id="talkHome" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><b>Parler</b><span>à ELYRA</span></a>
-      <a class="door d2" href="#programme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></svg><b>Apprendre</b><span>sur l'anxiété</span></a>
+      <a class="door d2" href="#tcc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></svg><b>Apprivoiser</b><span>mon anxiété</span></a>
       <a class="door d3" href="#calme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c0-6 0-9 0-12M12 9c-4 0-6-2-6-5 4 0 6 2 6 5zM12 13c4 0 6-2 6-5-4 0-6 2-6 5z"/></svg><b>Un moment</b><span>pour moi</span></a>
     </nav>
   </div>
@@ -221,10 +221,18 @@
 </section>
 
 <!-- MOI -->
+<section class="view" data-ph id="v-tcc" style="--vph:url(photos/apresconflit.webp)" aria-labelledby="tccT">
+  <button class="back" data-back="accueil">‹ Accueil</button>
+  <h1 id="tccT">Apprivoiser l'anxiété</h1>
+  <p class="sub">Des outils inspirés des thérapies cognitives et comportementales (TCC) pour comprendre ta peur, examiner tes pensées et t'entraîner pas à pas à ne plus alimenter le cercle anxieux. Ils ne remplacent pas un suivi avec un professionnel.</p>
+  <div id="tccBox"></div>
+</section>
+
 <section class="view" data-ph id="v-moi" style="--vph:url(photos/montagne.webp)" aria-labelledby="moiT">
   <h1 id="moiT">Moi</h1>
   <p class="sub">Ton parcours, tes nuits, tes progrès et tes repères.</p>
   <div class="hub">
+    <a href="#tcc" style="grid-column:1/-1;background:linear-gradient(135deg,var(--lavs),var(--sages));border:0"><svg viewBox="0 0 24 24"><path d="M12 21c-5-3-8-6.5-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 3.5c0 4-3 7.5-8 10.5z"/></svg><h3>Apprivoiser l'anxiété</h3><p>Comprendre ta peur, examiner tes pensées, affronter pas à pas, outils TCC et auto-hypnose.</p></a>
     <a href="#programme" style="grid-column:1/-1;background:linear-gradient(135deg,var(--lavs),var(--champs));border:0"><svg viewBox="0 0 24 24"><path d="M12 3l2 6 6 .5-4.6 4 1.4 6.5L12 17l-4.8 3 1.4-6.5L4 9.5 10 9z"/></svg><h3>Programme TAG</h3><p>8 modules pour apprivoiser l'anxiété, inspirés des TCC et de l'ACT.</p></a>
     <a href="#outils" style="grid-column:1/-1;background:linear-gradient(135deg,var(--sages),var(--lavs));border:0"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M9 8V6a3 3 0 0 1 6 0v2M3 13h18M10 13v2h4v-2"/></svg><h3>Ma boîte à outils</h3><p>Tous les outils, et ce qui t'aide, toi.</p></a>
     <a href="#corps"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 10.5l5-1.5 5 1.5M9.5 21l2.5-6 2.5 6"/></svg><h3>Mon corps</h3><p>Noter, comprendre, prendre soin.</p></a>
@@ -505,6 +513,7 @@
 <script src="photos/index.js"></script>
 <script src="tag.js"></script>
 <script src="outils.js"></script>
+<script src="tcc.js"></script>
 <script src="config.js"></script>
 <script src="mascotte.js"></script>
 <script src="live.js"></script>

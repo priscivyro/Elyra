@@ -468,3 +468,91 @@ C.fiches.push(
  ["Le meilleur de la tisane","Souvent, c'est aussi le rituel qui apaise : la chaleur, l'odeur, la pause. Essaie la séance « Le rituel de la tisane »."]]}
 );
 })();
+
+/* ================= APPRIVOISER L'ANXIÉTÉ : auto-hypnose, parcours panique, plan de l'espace ================= */
+(function(){
+const C = window.ELYRA_CONTENT;
+const HYP = [
+{k:'hyplieu',c:'hypnose',t:'Auto-hypnose · Mon lieu sûr',d:"Créer en toi un refuge où revenir quand ça monte.",s:[
+ ["Installe-toi confortablement. Cette séance d'auto-hypnose est un état naturel de concentration, comme quand on est absorbé par un livre. Tu restes libre à chaque instant.",22],
+ ["Choisis un point devant toi et fixe-le. Laisse tes paupières devenir lourdes. Quand elles ont envie de se fermer, laisse-les se fermer.",30],
+ ["Respire tranquillement. À chaque expiration, imagine que tu descends une marche d'un escalier très doux. Dix… neuf… huit…",30],
+ ["Sept… six… cinq… Tu descends à ton rythme, de plus en plus {détendu|détendue}.",30],
+ ["Quatre… trois… deux… un. En bas de l'escalier, il y a une porte. Derrière cette porte se trouve ton lieu sûr.",30],
+ ["Ouvre la porte. Ce lieu peut être réel ou imaginaire : une plage, une forêt, une pièce chaleureuse. C'est ton lieu, et personne n'y entre sans ton accord.",40],
+ ["Regarde autour de toi. Les couleurs, la lumière. Prends le temps de tout remarquer.",40],
+ ["Écoute les sons de ce lieu. Le vent, l'eau, le silence. Sens la température de l'air sur ta peau.",40],
+ ["Remarque comme ton corps se sent en sécurité ici. Les épaules qui se relâchent. Le souffle qui ralentit.",40],
+ ["Maintenant, choisis un petit geste pour ancrer ce lieu : par exemple, poser le pouce contre l'index. Fais-le maintenant, en ressentant tout ce calme.",35],
+ ["Désormais, chaque fois que tu feras ce geste, une partie de ce calme pourra revenir. Plus tu t'entraînes, plus le lien devient fort.",35],
+ ["Reste encore un moment dans ton lieu sûr. Tu peux y revenir quand tu veux.",45],
+ ["Il est temps de remonter. Je vais compter de un à cinq. Un… deux… tu sens ton corps sur la chaise ou le lit.",20],
+ ["Trois… quatre… tu bouges les doigts et les orteils. Cinq… ouvre les yeux, {reposé|reposée} et bien {présent|présente}.",20]]},
+{k:'hypvolume',c:'hypnose',t:'Auto-hypnose · Le bouton du volume',d:"Apprendre à baisser l'intensité de l'anxiété, comme on baisse un son.",s:[
+ ["Installe-toi. Pense à une situation qui t'inquiète un peu, pas la plus forte. Note de zéro à dix l'anxiété qu'elle te donne.",25],
+ ["Ferme les yeux si tu veux. Laisse ta respiration ralentir, sans la forcer. Chaque expiration te dépose un peu plus.",35],
+ ["Imagine devant toi un grand bouton de volume, comme sur une vieille radio. Il indique le niveau de ton anxiété en ce moment.",35],
+ ["Regarde le chiffre affiché. Remarque sa couleur, sa forme, la matière du bouton.",30],
+ ["Pose maintenant ta main imaginaire sur le bouton. Tu sens qu'il peut tourner, doucement.",30],
+ ["Tourne-le d'un cran vers le bas. Juste un. Et remarque ce qui change dans ton corps, même très peu.",40],
+ ["Encore un cran. Le son de l'inquiétude devient plus lointain, comme une radio dans une autre pièce.",40],
+ ["Continue, cran par cran, à ton rythme. Tu n'as pas besoin d'arriver à zéro. Juste un peu plus bas qu'au début.",50],
+ ["Remarque que c'est toi qui tiens le bouton. L'anxiété peut monter, et tu sais maintenant qu'elle peut aussi redescendre.",40],
+ ["Laisse le bouton là où il est. Tu pourras le retrouver chaque fois que tu en auras besoin.",30],
+ ["Reviens doucement. Bouge les mains. Ouvre les yeux. Et note à nouveau ton anxiété de zéro à dix.",20]]},
+{k:'hypconfiance',c:'hypnose',t:'Auto-hypnose · Ma force intérieure',d:"Retrouver un souvenir de réussite et le ramener dans le présent.",s:[
+ ["Installe-toi confortablement et laisse tes yeux se fermer quand ils le souhaitent.",20],
+ ["Respire tranquillement. Imagine qu'une douce chaleur descend du sommet de ta tête jusqu'à tes pieds, en relâchant tout sur son passage.",45],
+ ["Laisse revenir un souvenir où tu as été {fort|forte}, même un petit. Un moment où tu as fait face, où tu as réussi quelque chose, où tu as été {fier|fière} de toi.",45],
+ ["Revis-le comme si tu y étais. Où es-tu ? Qu'est-ce que tu vois, qu'est-ce que tu entends ?",40],
+ ["Remarque comment ton corps se tient dans ce souvenir. Le dos, les épaules, le regard. Sens cette force-là.",40],
+ ["Cette force n'a pas disparu. Elle est toujours en toi, même quand l'anxiété fait du bruit.",35],
+ ["Serre doucement le poing de ta main dominante, en ressentant cette force au maximum. Garde-le serré quelques secondes… puis relâche.",35],
+ ["Imagine maintenant une situation à venir qui t'inquiète. Et entre dedans avec cette force, le poing serré, à ton rythme.",50],
+ ["Remarque ce qui change quand tu y vas avec cette force. Même un peu.",40],
+ ["Relâche la main. Ce geste, le poing qui se serre doucement, pourra te rappeler cette force quand tu en auras besoin.",30],
+ ["Reviens doucement, en comptant jusqu'à trois. Un… deux… trois. Ouvre les yeux.",20]]},
+{k:'hypdodo',c:'hypnose',t:'Auto-hypnose · Glisser dans le sommeil',d:"Une descente lente et hypnotique, au lit, lumière éteinte.",s:[
+ ["Installe-toi dans ton lit, lumière éteinte. Pas besoin de rester {éveillé|éveillée} jusqu'au bout.",25],
+ ["Remarque trois choses que tu entends. Puis trois choses que tu sens sur ta peau. Puis trois choses que tu ressens à l'intérieur.",50],
+ ["Maintenant deux sons… deux sensations sur la peau… deux sensations à l'intérieur.",45],
+ ["Un son… une sensation sur la peau… une sensation à l'intérieur.",40],
+ ["Imagine que tu flottes sur un grand lac tiède, porté, ou portée, par l'eau. Tu n'as rien à faire pour flotter.",55],
+ ["À chaque expiration, tu t'enfonces un tout petit peu dans le matelas, comme une feuille qui se pose.",60],
+ ["Les pensées peuvent passer. Laisse-les flotter à côté de toi sur le lac, sans les suivre.",60],
+ ["Ton corps sait dormir. Il l'a fait des milliers de fois. Tu peux lui faire confiance.",60],
+ ["Plus lourd… plus loin… plus calme… Tu peux te laisser glisser.",75]]}
+];
+C.meds.push(...HYP);
+C.cats.push(['hypnose','Auto-hypnose']);
+
+C.progs.unshift({id:'panique2',n:'Sortir du cercle de la panique',d:"Deux semaines pour comprendre ta peur, l'examiner avec du recul et t'entraîner, pas à pas, à ne plus l'alimenter.",s:[
+ ['Jour 1 · Comprendre la panique',"Une crise de panique est une fausse alarme : très désagréable, mais pas dangereuse.",'fiche:panique'],
+ ['Jour 2 · Dessiner mon cercle',"Repérer la pensée, les sensations et ce que tu fais pour te protéger.",'outil:cercle'],
+ ['Jour 3 · La pensée qui fait peur',"Prendre la pensée qui déclenche la peur et l'examiner avec du recul.",'pensee'],
+ ['Jour 4 · En parler avec ELYRA',"ELYRA t'aide à examiner une pensée, question après question.",'tcc:dialogue'],
+ ['Jour 5 · Respirer sans contrôler',"Une respiration douce, pour le confort, pas pour « empêcher » la crise.",'br:coh'],
+ ['Jour 6 · Mes comportements de sécurité',"Repérer ce qui rassure sur le moment mais entretient la peur.",'outil:securite'],
+ ['Jour 7 · Mon lieu sûr',"Une séance d'auto-hypnose pour te créer un refuge intérieur.",'med:hyplieu'],
+ ['Jour 8 · Tolérer les sensations',"Premier exercice : provoquer doucement des sensations, pour voir qu'elles passent.",'outil:intero'],
+ ['Jour 9 · Recommencer',"Refaire le même exercice : la peur descend avec la répétition.",'outil:intero'],
+ ['Jour 10 · Mon échelle de peurs',"Lister les situations évitées, de la plus facile à la plus difficile.",'expo'],
+ ['Jour 11 · Un premier pas',"Affronter la marche la plus basse de ton échelle, et rester jusqu'à ce que ça redescende.",'expo'],
+ ['Jour 12 · Lâcher une habitude rassurante',"Réduire un comportement de sécurité, et observer ce qui se passe vraiment.",'outil:securite'],
+ ['Jour 13 · Le bouton du volume',"Apprendre à baisser l'intensité de l'anxiété.",'med:hypvolume'],
+ ['Jour 14 · Mon bilan',"Regarder le chemin parcouru, et choisir la suite à ton rythme.",'progres']]});
+
+/* Plan de l'espace « Apprivoiser l'anxiété » */
+C.tcc = [
+ ['Comprendre ma peur',"Pourquoi ton cerveau croit au danger, et comment la peur s'entretient.",[
+  ['outil:cercle',"Dessine la boucle qui entretient ta peur."],['fiche:cercle',"Le cercle de l'anxiété expliqué simplement."],['fiche:panique',"Ce qui se passe dans le corps pendant une crise."],['fiche:evitement',"Pourquoi éviter soulage… et fait grandir la peur."],['programme',"8 modules inspirés des TCC, à ton rythme."]]],
+ ['Examiner mes pensées',"Identifier la pensée qui déclenche la peur et la regarder avec du recul.",[
+  ['pensee',"Un outil pas à pas : situation, pensée, pièges, pensée plus juste."],['tcc:dialogue',"ELYRA te guide en conversation, question après question."],['outil:defusion',"Prendre du recul quand une pensée colle."],['outil:reporter',"Donner rendez-vous à tes inquiétudes."]]],
+ ['Affronter mes peurs',"S'entraîner, progressivement, à ne plus alimenter le cercle.",[
+  ['expo',"Ton échelle de situations, de la plus facile à la plus difficile."],['outil:securite',"Repérer et lâcher les habitudes qui entretiennent la peur."],['outil:intero',"Apprendre que les sensations sont désagréables, pas dangereuses."]]],
+ ['Pendant une crise',"Être {accompagné|accompagnée} quand ça monte.",[
+  ['sosopen',"Ouvrir le SOS, en un geste."],['prog:panique2',"14 étapes pour sortir du cercle de la panique."],['br:coh',"Une respiration douce, sans forcer."]]],
+ ['Se détendre autrement',"Auto-hypnose et accueil des émotions.",[
+  ['med:hyplieu',"Créer un refuge intérieur."],['med:hypvolume',"Baisser l'intensité de l'anxiété."],['med:hypconfiance',"Retrouver ta force intérieure."],['med:hypdodo',"Glisser dans le sommeil."],['outil:accueil',"Faire de la place à une émotion."]]]
+];
+})();

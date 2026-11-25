@@ -1,8 +1,8 @@
 // ELYRA — service worker : rend l'appli disponible hors ligne (iPhone / navigateur).
 // Changer VERSION à chaque mise à jour.
-const VERSION = 'elyra-2.2.0';
+const VERSION = 'elyra-2.3.0';
 const CORE = [
-  './', 'index.html', 'styles.css', 'content.js', 'seances.js', 'art.js', 'mascotte.js', 'visage-elyra.jpg', 'photos/index.js', 'tag.js','outils.js','config.js','live.js','piper-worker.js', 'sons.js', 'app.js', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css', 'content.js', 'seances.js', 'art.js', 'mascotte.js', 'visage-elyra.jpg', 'photos/index.js', 'tag.js','outils.js','tcc.js','config.js','live.js','piper-worker.js', 'sons.js', 'app.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
   'fonts/dm-serif-display-latin-400-normal.woff2', 'fonts/dm-serif-display-latin-400-italic.woff2',
   'fonts/dm-sans-latin-400-normal.woff2', 'fonts/dm-sans-latin-500-normal.woff2', 'fonts/dm-sans-latin-700-normal.woff2'
