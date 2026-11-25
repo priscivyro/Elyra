@@ -207,7 +207,7 @@ jobs:
           npx cap sync android
       # Toujours la même signature : les mises à jour s'installent par-dessus sans perdre les données.
       - name: Signature fixe et numéro de version
-        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.4.${{ github.run_number }}
+        run: python3 tools/android/configure.py $((100 + ${{ github.run_number }})) 1.5.${{ github.run_number }}
       - name: Construire l'APK
         working-directory: android
         run: |
@@ -225,8 +225,8 @@ jobs:
       - name: Publier la version
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.4.${{ github.run_number }}
-          name: ELYRA pour Android (version 1.4.${{ github.run_number }})
+          tag_name: v1.5.${{ github.run_number }}
+          name: ELYRA pour Android (version 1.5.${{ github.run_number }})
           make_latest: true
           files: ELYRA.apk
           body: |
