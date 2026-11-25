@@ -621,3 +621,16 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 .chart.mood div{background:linear-gradient(180deg,#7966D9,#42BFB0)}input[type=range]{accent-color:var(--violet)}
 #v-sommeil .stepl input{accent-color:#B7A9FF}
 #progBox .item{--cat:#F5C96B}
+/* bulle de la mascotte */
+.hwrap{position:relative;display:flex;justify-content:flex-end;align-items:flex-start}
+.hbub{position:absolute;right:150px;top:24px;max-width:min(58vw,250px);background:rgb(255 255 255/.9);color:#292943;border-radius:20px 20px 6px 20px;padding:10px 14px;font-size:.92rem;line-height:1.35;
+  box-shadow:0 10px 24px -12px rgb(41 41 67/.5);opacity:0;transform:translateY(6px) scale(.96);transition:opacity .45s,transform .45s;pointer-events:none;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hbub.on{opacity:1;transform:none}
+/* pistes de réflexion, bilan */
+.rmasc,.bmini{width:74px;height:78px;flex:none}.rmasc svg.masc,.bmini svg.masc{width:100%;height:100%;overflow:visible}
+.rq{font-family:"DM Serif Display",Georgia,serif;font-size:1.15rem;line-height:1.3}
+.refl{background:color-mix(in srgb,var(--violet) 8%,var(--card))}
+.bilan,.bilanh{background:linear-gradient(150deg,color-mix(in srgb,#F5C96B 18%,var(--card)),color-mix(in srgb,#42BFB0 10%,var(--card)))}
+.bilanh{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink);margin-top:14px}
+.vict{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.vict li{display:flex;gap:10px;align-items:baseline}.vict li::before{content:"";width:10px;height:10px;border-radius:50%;background:#F5C96B;flex:none;transform:translateY(1px)}

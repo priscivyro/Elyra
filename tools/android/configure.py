@@ -41,3 +41,30 @@ for perm in ('android.permission.RECORD_AUDIO', 'android.permission.MODIFY_AUDIO
         x = x.replace('</manifest>', f'    <uses-permission android:name="{perm}" />\n</manifest>', 1)
 m.write_text(x)
 print('permissions micro ajoutées')
+
+# Raccourcis sur l'icône (appui long) : SOS et Respirer. Ouvrent elyra://sos et elyra://respirer.
+import json
+app_id = json.load(open('capacitor.config.json'))['appId']
+xd = pathlib.Path('android/app/src/main/res/xml'); xd.mkdir(parents=True, exist_ok=True)
+def sc(i, lab, icon):
+    return f'''  <shortcut android:shortcutId="{i}" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_{i}" android:shortcutLongLabel="@string/sc_{i}">
+    <intent android:action="android.intent.action.VIEW" android:targetPackage="{app_id}" android:targetClass="{app_id}.MainActivity" android:data="elyra://{i}" />
+  </shortcut>'''
+(xd / 'shortcuts.xml').write_text('<?xml version="1.0" encoding="utf-8"?>\n<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">\n' + sc('sos', 'SOS', '') + '\n' + sc('respirer', 'Respirer', '') + '\n</shortcuts>\n')
+sv = pathlib.Path('android/app/src/main/res/values/strings.xml'); t = sv.read_text()
+for k, v in (('sc_sos', 'SOS anxiété'), ('sc_respirer', 'Respirer')):
+    if k not in t: t = t.replace('</resources>', f'    <string name="{k}">{v}</string>\n</resources>', 1)
+sv.write_text(t)
+x = m.read_text()
+if 'android.app.shortcuts' not in x:
+    x = re.sub(r'(<activity[^>]*MainActivity[^>]*>)', r'''\1
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="elyra" />
+            </intent-filter>''', x, count=1, flags=re.S)
+    assert 'android.app.shortcuts' in x, 'activité principale introuvable'
+m.write_text(x)
+print('raccourcis SOS et Respirer ajoutés')

@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.1.0";
+const APP_VERSION="2.2.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -73,6 +73,9 @@ const setP=fn=>{fn(ST.prof);save();renderAll()};
 const VO={idx:null,el:null,tts:null};
 const CapTTS=()=>{try{return window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.TextToSpeech||null}catch(e){return null}};
 const isNative=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+/* raccourcis Android (appui long sur l'icône) : elyra://sos, elyra://respirer */
+try{const AP=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;if(AP){const go=u=>{const m=/elyra:\/\/(\w+)/.exec(u||'');if(m)setTimeout(()=>shortcut(m[1]),300)};
+  AP.addListener('appUrlOpen',e=>go(e&&e.url));AP.getLaunchUrl&&AP.getLaunchUrl().then(r=>go(r&&r.url)).catch(()=>{})}}catch(e){}
 let voices=[];
 function loadVoices(){try{if(window.speechSynthesis){voices=speechSynthesis.getVoices().filter(v=>/^fr/i.test(v.lang));renderVoiceSel()}}catch(e){}}
 try{if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}}catch(e){}
@@ -102,7 +105,8 @@ const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
 const cur=()=>{const v=(location.hash||'#accueil').slice(1);return VIEWS.includes(v)?v:'accueil'};
-function route(){const v=cur();$('#rate').classList.remove('on');$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));enter($('#v-'+v));const tab=TABOF[v]||v;
+function shortcut(k){if(k==='sos'){location.replace('#accueil');setTimeout(openSOS,60);return true}if(k==='respirer'){location.replace('#calme');setTimeout(()=>calTab('respirer'),60);return true}return false}
+function route(){if(shortcut((location.hash||'').slice(1)))return;const v=cur();$('#rate').classList.remove('on');$$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));enter($('#v-'+v));const tab=TABOF[v]||v;
   $$('#nav a').forEach(a=>{const on=a.dataset.k===tab;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   if(v!=='calme'&&brMain&&brMain.on)brMain.stop(false);
   if(v==='outil'&&!TR.k){location.replace('#outils');return}if(v!=='outil')toolStop();if(v!=='expo')xpStop();
@@ -162,7 +166,9 @@ function tileHTML(ex){const [k,v]=ex.split(':');const lab=EX[ex];
 function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST.prof.name:'';
   $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
   $('#hero').className='hero t-'+slot();
-  if(window.ElyraMascotte&&!$('#homeMasc .masc')){const hm=ElyraMascotte.create($('#homeMasc'),'repos');hm.svg.setAttribute('aria-label','ELYRA, touche-la pour dire bonjour')}
+  if(window.ElyraMascotte&&!$('#homeMasc .masc')){const hm=ElyraMascotte.create($('#homeMasc'),'repos');hm.svg.setAttribute('aria-label','ELYRA, touche-la pour dire bonjour');
+    hm.svg.addEventListener('click',()=>{const l=TAPS();bubble(l[Math.floor(Math.random()*l.length)])});setTimeout(()=>bubble(greet()),700)}
+  const wd=new Date().getDay();renderBilan($('#homeBilan'),true);if(!(wd===0||wd===1))$('#homeBilan').innerHTML='';
   $('#homeTiles').innerHTML=homePicks().map(tileHTML).join('');
   const ht=helpTop(1).slice(0,4);$('#homeHelp').innerHTML=ht.length?`<div class="sect"><h2>Ce qui t'aide</h2><a href="#outils">Ma boîte à outils</a></div><div class="tiles">${ht.map(([id])=>tileHTML(id)).join('')}</div>`:'';
   const hr=new Date().getHours();$('#homeNight').innerHTML=hr<5||hr>=23?`<div class="card nightc"><span class="tag lav">La nuit</span><h3 class="mt">${esc(G(hr<5?'Réveillé{e} cette nuit ?':'Pas encore endormi{e} ?'))}</h3><p class="sub">Un écran sombre et calme, pour te reposer sans pression.</p><button class="main mt" data-ex="nuit:1">Ouvrir l'écran de nuit</button></div>`:'';
@@ -241,6 +247,52 @@ function renderMeds(){const cat=ST.prof.medCat||'tout';const sit=(C.situations||
   if(rm)$('#resGo').onclick=()=>openPlayer(rm.k,r.i)}
 $('#medCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(b)setP(p=>{p.medCat=b.dataset.cat;p.medSit=null})};
 $('#medSits').onclick=e=>{const b=e.target.closest('[data-sit]');if(!b)return;const k=b.dataset.sit;setP(p=>p.medSit=p.medSit===k?null:k);haptic()};
+
+/* ============ LA MASCOTTE PARLE (bulle sur l'accueil) ============ */
+function greet(){const h=new Date().getHours(),nm=ST.prof.name?', '+ST.prof.name:'',last=ST.items.length?ST.items[0].t:0,gap=last?(Date.now()-last)/DAY:0;
+  const today=ST.items.filter(x=>dkey(x.t)===dkey()&&(x.kind==='pratique'||x.kind==='outil'));
+  if(gap>=3)return G(`Contente de te revoir${nm}. Aucune pression : on reprend doucement.`);
+  if(today.length)return `Bravo pour ton moment de calme aujourd'hui. Ça compte.`;
+  return h<6?`Tu es réveillé{e}${nm} ? Je suis là si tu as besoin.`:h<12?`Bonjour${nm}. Comment tu te sens ce matin ?`:h<18?`Coucou${nm}. Une petite pause te ferait du bien ?`:h<22?`Bonsoir${nm}. On souffle un peu avant la nuit ?`:`Il est tard${nm}. Pense à te reposer, ou parle-moi si ça tourne.`}
+const TAPS=()=>["Hihi, ça chatouille !","Je suis contente que tu sois là.",G("Tu fais de ton mieux, et c'est déjà beaucoup."),"Une respiration ensemble ? Touche « Un moment ».","Je t'écoute quand tu veux.","Petit pas après petit pas."];
+let bubT;function bubble(t){const b=$('#homeBub');if(!b)return;b.textContent=G(t);b.classList.add('on');clearTimeout(bubT);bubT=setTimeout(()=>b.classList.remove('on'),6000)}
+
+/* ============ PISTES DE RÉFLEXION (journal) ============ */
+const RQ=[[/anx|peur|stress/i,["Qu'est-ce qui t'aiderait à te sentir un peu plus en sécurité, là maintenant ?","Parmi ce qui t'inquiète, qu'est-ce qui dépend de toi, et qu'est-ce qui n'en dépend pas ?","Qu'est-ce que tu dirais à une amie qui ressent la même peur ?"]],
+ [/trist|seul|honte|culpa/i,["De quoi aurais-tu besoin ce soir, même d'une toute petite chose ?","Qui pourrait t'apporter un peu de chaleur cette semaine ?","Qu'est-ce que cette émotion dit de ce qui compte pour toi ?"]],
+ [/col|frustr/i,["Qu'est-ce qui a été franchi, ou pas respecté, pour toi ?","De quoi aurais-tu eu besoin dans ce moment-là ?"]],
+ [/fatig/i,["Qu'est-ce que tu pourrais lâcher ou reporter pour souffler un peu ?","Qu'est-ce qui te recharge, même un peu ?"]],
+ [/joie|soulag|grat|fier|sér/i,["Qu'est-ce qui a rendu ce moment possible ?","Comment pourrais-tu t'offrir un peu plus de ça ?"]]];
+const RQG=["Qu'est-ce que tu aimerais te dire, avec douceur, après avoir écrit ça ?","Qu'est-ce qui t'a aidé{e}, même un peu, aujourd'hui ?","Si tu regardais cette journée avec bienveillance, que remarquerais-tu ?","Qu'est-ce qui compte pour toi, derrière ce que tu ressens ?"];
+function showReflect(note,emos){const box=$('#jRefl');if(!box)return;const pool=[];emos.forEach(e=>RQ.forEach(([re,l])=>{if(re.test(e))pool.push(...l)}));if(!pool.length)pool.push(...RQG);
+  const q=G(pool[Math.floor(Math.random()*pool.length)]),ai=!!(note&&VOIX_URL());
+  box.hidden=false;box.innerHTML=`<div class="row" style="gap:12px;align-items:center;flex-wrap:nowrap"><div class="rmasc" id="rMasc"></div><div style="flex:1"><span class="tag lav">Une piste pour toi</span><p class="rq mt" id="rQ">${esc(q)}</p></div></div>
+   <div class="row mt"><button class="ghost" id="rAns">Y répondre</button>${ai?'<button class="ghost" id="rAI">Une piste personnalisée</button>':''}<button class="ghost" id="rX">Plus tard</button></div>${ai?'<p class="note">La piste personnalisée envoie ta note au serveur ELYRA, le temps de répondre. Rien n’y est gardé.</p>':''}`;
+  const M=window.ElyraMascotte?ElyraMascotte.create($('#rMasc'),'reconfort'):null;
+  $('#rAns').onclick=()=>{$('#jPrompt').textContent=$('#rQ').textContent;box.hidden=true;$('#jNote').focus();$('#jForm').scrollIntoView({behavior:'smooth',block:'start'})};
+  $('#rX').onclick=()=>{box.hidden=true};
+  if(ai)$('#rAI').onclick=async()=>{const b=$('#rAI');b.disabled=true;b.textContent='ELYRA réfléchit…';M&&M.set('reflexion');const ac=new AbortController(),to=setTimeout(()=>ac.abort(),15000);
+    try{const r=await fetch(VOIX_URL()+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reflect:note,emos}),signal:ac.signal});const j=await r.json();
+      if(!r.ok||!j.text)throw 0;$('#rQ').textContent=j.text;b.remove();M&&M.set(/0800 32 123|112/.test(j.text)?'reconfort':'repos');if(/0800 32 123|112/.test(j.text))box.insertAdjacentHTML('beforeend','<button class="sosb big" id="rSos">Ouvrir le SOS</button>'),$('#rSos').onclick=openSOS}
+    catch(e){b.disabled=false;b.textContent='Une piste personnalisée';M&&M.set('reconfort');toast("ELYRA n'a pas pu répondre. Réessaie un peu plus tard.")}finally{clearTimeout(to)}};
+  box.scrollIntoView({behavior:'smooth',block:'nearest'})}
+
+/* ============ BILAN DE LA SEMAINE ============ */
+function bilan(){const now=Date.now(),wk=ST.items.filter(x=>now-x.t<7*DAY),pw=ST.items.filter(x=>now-x.t>=7*DAY&&now-x.t<14*DAY);
+  const pr=wk.filter(x=>x.kind==='pratique'||x.kind==='outil'),min=pr.reduce((a,x)=>a+(+x.min||0),0),jn=wk.filter(x=>x.kind==='journal');
+  const md=a=>{const m=a.filter(x=>x.mood).map(x=>x.mood);return m.length?m.reduce((p,c)=>p+c,0)/m.length:null},m1=md(wk),m0=md(pw);
+  const days=Math.min(7,new Set(wk.map(x=>dkey(x.t))).size),best=helpTop(1)[0],L=[];
+  if(pr.length)L.push(`${pr.length} moment${pr.length>1?'s':''} pour toi, ${min} min de calme`);
+  if(jn.length)L.push(`${jn.length} note${jn.length>1?'s':''} dans ton journal`);
+  if(days)L.push(G(`Tu es venu{e} ${days} jour${days>1?'s':''} sur 7`));
+  if(best)L.push(`Ce qui t'aide le plus en ce moment : ${EX[best[0]]}`);
+  let mood='';if(m1!=null&&m0!=null){if(m1>m0+.3)mood="Ton humeur semble un peu plus légère que la semaine dernière.";else if(m1<m0-.3)mood="Cette semaine a peut-être été plus lourde. Prends soin de toi, à ton rythme : tu n'as rien à prouver."}
+  const empty=!L.length;
+  return{empty,st:empty?'reconfort':'joie',title:empty?'Une semaine tranquille':'Tes petites victoires',L,mood:empty?"Rien de noté cette semaine, et c'est très bien comme ça. ELYRA est là quand tu en as besoin.":mood}}
+function renderBilan(box,compact){if(!box)return;const b=bilan();
+  if(compact){if(b.empty){box.innerHTML='';return}box.innerHTML=`<a class="card bilanh" href="#progres"><div class="bmini" data-bm></div><div><span class="tag lav">Bilan de la semaine</span><h3 class="mt">${esc(b.title)}</h3><p class="sub">${esc(b.L[0])}${b.L.length>1?' · et plus encore':''}</p></div></a>`}
+  else box.innerHTML=`<div class="row" style="gap:12px;align-items:center;flex-wrap:nowrap"><div class="bmini" data-bm></div><div><span class="tag lav">Bilan de la semaine</span><h2 class="mt">${esc(b.title)}</h2></div></div>${b.L.length?`<ul class="vict">${b.L.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${b.mood?`<p class="sub mt">${esc(b.mood)}</p>`:''}`;
+  const h=box.querySelector('[data-bm]');if(h&&window.ElyraMascotte)ElyraMascotte.create(h,b.st)}
 
 /* ============ EFT ============ */
 const EFTP=Object.fromEntries((C.eftPoints||[]).map(p=>[p[0],p]));
@@ -437,7 +489,7 @@ $('#emoJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jEmo=togg
 $('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jSit=toggleIn(jSit,b.dataset.v);multi('#sitJ',C.sits,jSit)};
 $('#stress').oninput=e=>$('#sv').textContent=e.target.value;
 $('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
-  sparkle($('#jForm button[type=submit]')||$('#jForm'),0,10);addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
+  sparkle($('#jForm button[type=submit]')||$('#jForm'),0,10);addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});showReflect(note,jEmo.slice());resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
 const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG',outil:'Outil',expo:'Exposition',corps:'Mon corps'};
 function bars(el,days,key){const today=dstart(Date.now());const out=[];
   for(let i=days-1;i>=0;i--){const dd=dstart(today-i*DAY+432e5);const s=ST.items.filter(x=>x[key]!=null&&x[key]!==''&&dstart(x.t)===dd);const v=s.length?avg(s.map(x=>+x[key])):null;
@@ -548,7 +600,7 @@ function summary(c,p,label){if(!c.days)return `<p class="sub">Rien de noté ${la
   if(c.st!=null&&p.st!=null){const d=c.st-p.st;o.push(Math.abs(d)<.5?`Ton stress déclaré est stable (${c.st.toFixed(1)}/10).`:d<0?`Ton stress déclaré a baissé : ${c.st.toFixed(1)}/10 contre ${p.st.toFixed(1)} avant.`:G(`Ton stress déclaré est un peu plus haut (${c.st.toFixed(1)}/10). Une période plus chargée, peut-être : sois {doux|douce} avec toi.`))}
   else if(c.st!=null)o.push(`Stress déclaré moyen : ${c.st.toFixed(1)}/10.`);
   if(c.wins)o.push(`${c.wins} petite(s) victoire(s) notée(s). Bravo.`);return o.map(x=>`<p>${esc(x)}</p>`).join('')}
-function renderProgres(){const now=Date.now();const I30=ST.items.filter(x=>now-x.t<30*DAY);
+function renderProgres(){renderBilan($('#bilan'));const now=Date.now();const I30=ST.items.filter(x=>now-x.t<30*DAY);
   $('#p30ex').textContent=I30.filter(x=>isPrat(x)&&x.min>0).length;$('#p30min').textContent=I30.filter(isPrat).reduce((a,x)=>a+(+x.min||0),0);
   $('#p30days').textContent=new Set(I30.map(x=>dkey(x.t))).size;bars($('#chMood'),30,'mood');bars($('#chStress'),30,'stress');
   const t0=dstart(now)+DAY;$('#week').innerHTML=summary(period(t0-7*DAY,t0),period(t0-14*DAY,t0-7*DAY),'ces 7 derniers jours');

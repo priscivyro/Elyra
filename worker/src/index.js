@@ -65,6 +65,8 @@ const json = (o, status, h) => new Response(JSON.stringify(o), { status, headers
 function b64(buf) { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
 function quota(e) { const m = String(e && (e.message || e)); return /neuron|quota|limit|429|capacity|exceeded/i.test(m); }
 
+const REFLECT = "Tu es ELYRA, un compagnon bienveillant. Tu tutoies, avec un ton doux, simple et jamais culpabilisant. On te donne une note de journal émotionnel. Réponds en français, en deux phrases au maximum : d'abord une courte reformulation chaleureuse de ce que la personne vit, puis UNE seule question ouverte et douce qui l'aide à réfléchir (un besoin, ce qui l'a aidée, ce qui compte pour elle). Pas de diagnostic, pas de conseil médical, pas de liste, pas de guillemets. Si la note évoque des idées de suicide, l'envie de mourir, de se faire du mal ou un danger immédiat, réponds uniquement : Ce que tu écris est important, et tu n'as pas à le porter tout seul. Appelle le 0800 32 123 (Centre de Prévention du Suicide, jour et nuit) ou le 112 en cas de danger.";
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), { ok, h } = cors(req.headers.get('Origin'));
@@ -103,6 +105,11 @@ export default {
       }
       if (url.pathname === '/chat') {
         const b = await req.json();
+        if (b.reflect) {
+          const em = (Array.isArray(b.emos) ? b.emos : []).slice(0, 6).join(', ');
+          const r = await env.AI.run(MODEL_CHAT, { messages: [{ role: 'system', content: REFLECT }, { role: 'user', content: clip((em ? 'Émotions : ' + em + '\n' : '') + String(b.reflect), 1800) }], max_tokens: 120, temperature: 0.6 });
+          return json({ text: clip(r && (r.response || r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || '', 360).replace(/^["«\s]+|["»\s]+$/g, '') }, 200, h);
+        }
         const hist = (Array.isArray(b.messages) ? b.messages : []).slice(-16)
           .filter(m => m && (m.role === 'user' || m.role === 'assistant') && m.content).map(m => ({ role: m.role, content: clip(m.content, 2000) }));
         while (hist.length && hist[0].role !== 'user') hist.shift();

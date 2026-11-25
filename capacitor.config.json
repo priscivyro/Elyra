@@ -3,12 +3,12 @@
   "appName": "ELYRA",
   "webDir": "www",
   "android": {
-    "backgroundColor": "#f7f2e9"
+    "backgroundColor": "#F8F5F2"
   },
   "plugins": {
     "LocalNotifications": {
       "smallIcon": "ic_stat_elyra",
-      "iconColor": "#9282c2"
+      "iconColor": "#7966D9"
     }
   }
 }
