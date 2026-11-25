@@ -131,10 +131,45 @@ const SND={
   const lfo=osc('square',rr(42,52)),lg=gn(.5);lfo.connect(lg).connect(am.gain);lfo.start();
   const s2=src(S.buf.pink),l2=bq('lowpass',400),g2=gn(.1);s2.connect(l2).connect(g2).connect(o);let n=0;
   return{nodes:[s,lfo,s2],tick(t){if(n<t+.3){const T=Math.max(n,t),d=rr(4,9);g.gain.setTargetAtTime(R()<.2?.05:rr(.25,.6),T,1.4);b.frequency.setTargetAtTime(rr(4600,6000),T,2);n=T+d}}}},
- rose(o){const s=src(S.buf.pink),l=bq('lowpass',3500),g=gn(.5);s.connect(l).connect(g).connect(o);return{nodes:[s],tick(){}}}
+ rose(o){const s=src(S.buf.pink),l=bq('lowpass',3500),g=gn(.5);s.connect(l).connect(g).connect(o);return{nodes:[s],tick(){}}},
+ /* — musiques douces (générées en direct, jamais tout à fait pareilles) — */
+ piano(o,w){const P=[[[130.81,196],[329.63,392,493.88,587.33,659.25]],[[110,164.81],[261.63,329.63,392,523.25,587.33]],[[87.31,130.81],[261.63,329.63,440,523.25,659.25]],[[98,146.83],[293.66,392,493.88,587.33,783.99]]];
+  let n=0,i=0;return{nodes:[],tick(t){if(n<t+.5){const T=Math.max(n,t)+.05,[lo,hi]=P[i%P.length],bar=rr(7.5,9);
+   pno(o,w,T,lo[0],.1,-.2);pno(o,w,T+.05,lo[1],.06,-.1);let tt=T+rr(.8,1.2);
+   while(tt<T+bar-1){pno(o,w,tt,hi[Math.floor(R()*hi.length)],rr(.035,.06),rr(-.3,.4));tt+=R()<.3?rr(.35,.5):rr(.9,1.6)}
+   i++;n=T+bar}}}},
+ kalimba(o,w){const sc=[392,440,523.25,587.33,659.25,783.99,880,1046.5];let n=0,mot=null,rep=0;
+  return{nodes:[],tick(t){if(n<t+.5){const T=Math.max(n,t)+.05;
+   if(!mot||rep>=2){let x=2+Math.floor(R()*3);mot=[];for(let j=0;j<5+Math.floor(R()*3);j++){mot.push(x);x=Math.max(0,Math.min(sc.length-1,x+[-2,-1,1,2,0][Math.floor(R()*5)]))}rep=0}
+   const st=rr(.3,.38);mot.forEach((x,j)=>{const v=rep&&R()<.2?Math.min(sc.length-1,x+1):x;kal(o,w,T+j*st,sc[v],rr(.05,.075),rr(-.4,.4))});
+   if(rep===0)kal(o,w,T,[196,220,261.63][Math.floor(R()*3)],.06,0,2.6);
+   rep++;n=T+mot.length*st+rr(.8,2.6)}}}},
+ handpan(o,w){const sc=[146.83,220,233.08,261.63,293.66,329.63,349.23,392,440];let n=0,step=0,ix=4,rest=0;
+  return{nodes:[],tick(t){while(n<t+.5){const T=Math.max(n,t),beat=.46;
+   if(rest>0){rest--}else if(step%8===0)hpan(o,w,T,sc[0],.09,0);
+   else if(R()<.55){ix=Math.max(1,Math.min(sc.length-1,ix+[-2,-1,1,2][Math.floor(R()*4)]));hpan(o,w,T,sc[ix],rr(.045,.07),ix%2?-.35:.35)}
+   step++;if(step%16===0&&R()<.35)rest=8;n=T+beat}}}},
+ flute(o,w){const a=A(),t0=a.currentTime,lp=bq('lowpass',420,.6),dg=gn(0);lp.connect(dg);dg.connect(o);dg.connect(w);dg.gain.setValueAtTime(0,t0);dg.gain.linearRampToValueAtTime(.07,t0+6);
+  const D=[[73.42,-3],[73.42,3],[110,0],[146.83,-2]].map(([f,d],i)=>{const os=osc(i===3?'triangle':'sine',f);os.detune.value=d;const g=gn(i===3?.25:.6);os.connect(g).connect(lp);os.start(t0);return os});
+  const sc=[587.33,698.46,783.99,880,1046.5,1174.66];let n=t0+3,ix=2;
+  return{nodes:D,tick(t){if(n<t+.5){let T=Math.max(n,t)+.05;const k=3+Math.floor(R()*3);
+   for(let j=0;j<k;j++){ix=Math.max(0,Math.min(sc.length-1,ix+[-1,-1,1,1,2,-2][Math.floor(R()*6)]));const len=j===k-1?rr(2.4,3.4):rr(.9,1.8);flt(o,w,T,sc[ix],len,.06,rr(-.2,.2));T+=len+rr(.05,.25)}
+   n=T+rr(5,9)}}}},
+ berceuse(o,w){const F4=349.23,G4=392,A4=440,Bb4=466.16,C5=523.25,D5=587.33,E4=329.63;
+  const M=[[A4,2],[C5,1],[Bb4,1],[A4,1],[G4,1],[A4,2],[F4,1],[G4,3],[A4,2],[C5,1],[D5,1],[C5,1],[A4,1],[G4,1],[A4,1],[G4,1],[F4,3],
+   [C5,2],[D5,1],[C5,1],[A4,1],[F4,1],[Bb4,2],[A4,1],[G4,3],[A4,2],[C5,1],[Bb4,1],[A4,1],[G4,1],[G4,2],[E4,1],[F4,3]];
+  const CH={F:[174.61,220,261.63],C:[130.81,196,329.63],B:[116.54,174.61,293.66]},BARS='FCFCFBCFFFBCFBCF';
+  let n=0,i=0,beat=0;return{nodes:[],tick(t){while(n<t+.5){const T=Math.max(n,t)+.05,bt=.62;
+   if(i===0&&beat===0)n=T;const [f,d]=M[i];if(beat%3===0){const c=CH[BARS[(beat/3)%16]];chord(o,w,T,c,bt*3+.4,.03)}
+   kal(o,w,T,f,rr(.055,.07),rr(-.15,.15),2.4);kal(o,w,T,f*2,.012,0,1.2);
+   beat+=d;i++;n=T+d*bt;if(i>=M.length){i=0;beat=0;n+=rr(2.5,4)}}}}},
+ guitare(o,w){const CH=[[82.41,123.47,164.81,196,246.94,329.63],[130.81,164.81,196,261.63,329.63,392],[98,123.47,146.83,196,246.94,392],[146.83,220,293.66,369.99,440,293.66]];
+  const PAT=[0,3,4,5,4,3];let n=0,c=0,j=0,bar=0;return{nodes:[],tick(t){while(n<t+.5){const T=Math.max(n,t)+.03,ch=CH[c%CH.length],x=PAT[j];
+   gtr(o,w,T,ch[x===0?0:Math.min(ch.length-1,x)],x===0?.16:rr(.08,.11),x===0?-.15:rr(-.3,.3));if(x===0&&R()<.4)gtr(o,w,T+.02,ch[2],.07,.1);
+   j++;n=T+.43+rr(-.015,.03);if(j>=PAT.length){j=0;bar++;if(bar%2===0)c++;if(bar%8===0)n+=rr(.6,1.4)}}}}}
 };
-const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7,orage:1.6,cascade:.9,carillon:3.2,matin:9,harpe:4,nappe:1,ronron:2.2,cigales:3.3,rose:.85};
-const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25,orage:.25,carillon:.75,matin:.35,harpe:.7,nappe:.6};
+const BASE={pluie:1.25,vagues:1,vent:1.1,foret:2.3,ruisseau:1.5,feu:.72,nuit:2.2,bol:2.6,musique:.7,brun:.7,orage:1.6,cascade:.9,carillon:3.2,matin:9,harpe:4,nappe:1,ronron:2.2,cigales:3.3,rose:.85,piano:5,kalimba:4.4,handpan:3,flute:1.1,berceuse:2.5,guitare:2.5};
+const WET={foret:.35,bol:.7,musique:.6,vagues:.12,feu:.2,nuit:.25,orage:.25,carillon:.75,matin:.35,harpe:.7,nappe:.6,piano:.45,kalimba:.5,handpan:.55,flute:.55,berceuse:.5,guitare:.35};
 
 function bird(o,w,t){const a=A(),p=rr(-.8,.8),f0=rr(2200,4400),n=1+Math.floor(R()*5),kind=Math.floor(R()*3);let T=t;
   for(let i=0;i<n;i++){const d=rr(.05,.14),os=osc('sine',f0),g=gn(0),pn=pan(p);
@@ -149,8 +184,8 @@ function cricket(o,t,f,p){const os=osc('sine',f),g=gn(0),pn=pan(p);os.connect(g)
 function bowl(o,w,t){const f0=[196,174.61,220,164.81][Math.floor(R()*4)],P=[[1,.13,11],[2.71,.07,7.5],[5.15,.035,4.5],[8.47,.016,3]];
   for(const [r,v,d] of P){for(const det of [-.35,.35]){const os=osc('sine',f0*r+det),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);
     os.connect(g);g.connect(o);g.connect(w);os.start(t);os.stop(t+d+.1)}}}
-function chord(o,w,t,notes,len){const lp=bq('lowpass',1100,.4),g=gn(0);lp.connect(g);g.connect(o);g.connect(w);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+4);g.gain.setValueAtTime(.05,t+len-4);g.gain.linearRampToValueAtTime(0,t+len);
+function chord(o,w,t,notes,len,lv){lv=lv||.05;const at=Math.min(4,len/3);const lp=bq('lowpass',1100,.4),g=gn(0);lp.connect(g);g.connect(o);g.connect(w);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(lv,t+at);g.gain.setValueAtTime(lv,t+len-at);g.gain.linearRampToValueAtTime(0,t+len);
   for(const f of notes){for(const det of [-2.5,2.5]){const os=osc('triangle',f);os.detune.value=det;os.connect(lp);os.start(t);os.stop(t+len+.1)}}}
 function note(w,t,f){const os=osc('sine',f),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.035,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+3.2);
   os.connect(g).connect(w);os.start(t);os.stop(t+3.3)}
@@ -163,6 +198,30 @@ function warble(o,w,t){const a=A(),p=rr(-.7,.7),f0=rr(1800,2800),n=6+Math.floor(
 function pluck(o,w,t,f,v,d){const lp=bq('lowpass',f*4,.5),g=gn(0);lp.connect(g);g.connect(o);g.connect(w);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);lp.frequency.setValueAtTime(f*6,t);lp.frequency.exponentialRampToValueAtTime(f*1.5,t+d*.6);
   for(const [m,a] of [[1,1],[2,.35],[3,.12]]){const os=osc('triangle',f*m),og=gn(a);os.connect(og).connect(lp);os.start(t);os.stop(t+d+.05)}}
+
+/* — instruments pour les musiques — */
+function pno(o,w,t,f,v,p){const pn=pan(p||0);pn.connect(o);pn.connect(w);const lp=bq('lowpass',Math.min(4200,f*5),.5);lp.connect(pn);const d=Math.max(2.4,7-f/140);
+  for(const [m,a,dd] of [[1,1,1],[2.003,.38,.6],[3.008,.13,.4],[4.02,.05,.25]]){const os=osc('sine',f*m),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.008);
+    g.gain.exponentialRampToValueAtTime(v*a*.35,t+.3*dd);g.gain.exponentialRampToValueAtTime(.0001,t+d*dd);os.connect(g).connect(lp);os.start(t);os.stop(t+d*dd+.05)}}
+function kal(o,w,t,f,v,p,d){const pn=pan(p||0);pn.connect(o);pn.connect(w);d=d||1.8;
+  for(const [m,a,dd] of [[1,1,1],[3.0,.06,.35],[5.4,.16,.12]]){const os=osc('sine',f*m),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.003);
+    g.gain.exponentialRampToValueAtTime(.0001,t+d*dd);os.connect(g).connect(pn);os.start(t);os.stop(t+d*dd+.05)}}
+function hpan(o,w,t,f,v,p){const pn=pan(p||0);pn.connect(o);pn.connect(w);
+  for(const [m,a,dd,det] of [[1,1,4.2,-.6],[1,.7,4,.6],[2,.42,2.6,0],[3,.14,1.3,0]]){const os=osc('sine',f*m+det),g=gn(0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.018);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dd);os.connect(g).connect(pn);os.start(t);os.stop(t+dd+.05)}}
+function flt(o,w,t,f,len,v,p){const a=A(),pn=pan(p||0);pn.connect(o);pn.connect(w);const g=gn(0);g.connect(pn);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.28);g.gain.setValueAtTime(v*.92,t+len);g.gain.linearRampToValueAtTime(0,t+len+.45);
+  const os=osc('sine',f),o2=osc('triangle',f*2),g2=gn(.07);os.connect(g);o2.connect(g2).connect(g);
+  const vib=osc('sine',rr(4.6,5.4)),vg=gn(0);vib.connect(vg);vg.connect(os.frequency);vg.connect(o2.detune);vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(f*.006,t+Math.min(.9,len));
+  const b=a.createBufferSource();b.buffer=S.buf.white;b.loop=true;const bf=bq('bandpass',f*2,1.2),bg=gn(.05);b.connect(bf).connect(bg).connect(g);
+  for(const n of [os,o2,vib])n.start(t);b.start(t,R()*6);for(const n of [os,o2,vib,b])n.stop(t+len+.55)}
+const KS={};
+function ksBuf(f){const a=A(),sr=a.sampleRate,k=Math.round(f);if(KS[k])return KS[k];const N=Math.max(2,Math.round(sr/f)),len=Math.floor(sr*3.2),buf=a.createBuffer(1,len,sr),y=buf.getChannelData(0);
+  let prev=0;for(let i=0;i<N;i++){const r=R()*2-1;prev=prev*.5+r*.5;y[i]=prev}
+  const damp=.9965+Math.min(.003,f/90000);for(let i=N;i<len;i++)y[i]=damp*.5*(y[i-N]+y[i-N+1]);
+  let mx=0;for(let i=0;i<len;i++)mx=Math.max(mx,Math.abs(y[i]));if(mx)for(let i=0;i<len;i++)y[i]/=mx;return KS[k]=buf}
+function gtr(o,w,t,f,v,p){const a=A(),b=a.createBufferSource();b.buffer=ksBuf(f);const lp=bq('lowpass',2600,.4),g=gn(v),pn=pan(p||0);
+  b.connect(lp).connect(g).connect(pn);pn.connect(o);pn.connect(w);b.start(t);b.stop(t+3.2)}
 
 /* couches */
 function on(k,vol){if(!SND[k]||S.layers[k])return;if(!ctx())return;const a=S.ac;

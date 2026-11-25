@@ -112,7 +112,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: voix-cache
-          key: voix-v3-${{ secrets.AZURE_SPEECH_KEY != '' && 'az' || 'pi' }}-${{ hashFiles('www/content.js', 'tools/voix/**') }}
+          key: voix-v3-${{ secrets.AZURE_SPEECH_KEY != '' && 'az' || 'pi' }}-${{ hashFiles('www/content.js', 'www/seances.js', 'tools/voix/**') }}
           restore-keys: |
             voix-v3-${{ secrets.AZURE_SPEECH_KEY != '' && 'az' || 'pi' }}-
             voix-v3-

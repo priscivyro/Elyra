@@ -61,6 +61,7 @@
   <symbol id="g-histoire" viewBox="0 0 24 24"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5V19c-2-1-5-1-8 .5C9 18 6 18 4 19z"/><path d="M12 6v13.5"/></symbol>
   <symbol id="g-breath" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></symbol>
   <symbol id="g-son" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></symbol>
+  <symbol id="g-musique" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
 </svg>
 
 <header class="top"><div class="in">
@@ -188,9 +189,14 @@
     <p class="note">Rien ne doit forcer. Si la tête tourne ou si c'est inconfortable, arrête et reprends ta respiration normale.</p>
   </div>
   <div class="pane" id="p-mediter" role="tabpanel">
+    <div class="sect"><h2>J'ai besoin d'une séance pour…</h2></div>
+    <div class="scrollx chips mt" id="medSits"></div>
+    <div class="sect"><h2>Toutes les séances</h2></div>
     <div class="scrollx chips mt" id="medCats"></div>
     <div id="resume"></div>
+    <p class="note" id="medSitT" hidden></p>
     <div class="list" id="meds"></div>
+    <div class="card mt2" id="libre"></div>
   </div>
   <div class="pane" id="p-histoires" role="tabpanel">
     <p class="sub mt">Des histoires lentes pour t'endormir. Pas besoin d'arriver au bout.</p>
@@ -199,7 +205,11 @@
   <div class="pane" id="p-sons" role="tabpanel">
     <p class="sub mt">Touche un son pour l'écouter. Tu peux en mélanger plusieurs et régler chaque volume.</p>
     <div class="scrollx chips mt" id="mixes"></div>
+    <div class="sect"><h2>Ambiances</h2></div>
     <div class="snd" id="sounds"></div>
+    <div class="sect"><h2>Musiques douces</h2></div>
+    <p class="note" style="margin:6px 2px 0">Composées en direct par ton téléphone : elles ne se répètent jamais tout à fait. Tu peux les mélanger avec une ambiance.</p>
+    <div class="snd" id="musics"></div>
     <div class="card">
       <label class="f" style="margin:0">Minuterie
         <select id="sndTimer"><option value="0">Sans arrêt</option><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">1 heure</option><option value="90">1 h 30</option></select></label>
@@ -444,7 +454,7 @@
     <button class="round big" id="plPlay" aria-label="Pause"><svg class="icon"><use href="#i-pause"/></svg></button>
     <button class="round" id="plNext" aria-label="Étape suivante"><svg class="icon"><use href="#i-next"/></svg></button>
   </div>
-  <div class="pl-opts"><select id="ambM" aria-label="Ambiance sonore"></select><button class="ghost" id="plVoice" aria-pressed="true">Voix : oui</button><button class="ghost" id="plFav" aria-pressed="false">☆ Favori</button></div>
+  <div class="pl-opts"><select id="ambM" aria-label="Ambiance sonore"></select><button class="ghost" id="plVoice" aria-pressed="true">Voix : oui</button><button class="ghost" id="plFav" aria-pressed="false">☆ Favori</button><button class="ghost" id="plLen" aria-pressed="false">Pauses : normales</button></div>
 </div>
 
 <!-- CONVERSATION À VOIX HAUTE -->
@@ -517,6 +527,7 @@
 <nav class="tabs" aria-label="Navigation principale"><div id="nav"></div></nav>
 
 <script src="content.js"></script>
+<script src="seances.js"></script>
 <script src="tag.js"></script>
 <script src="outils.js"></script>
 <script src="config.js"></script>

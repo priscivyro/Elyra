@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="1.5.0";
+const APP_VERSION="1.6.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -33,17 +33,17 @@ for(const k in PRESETS)EX['br:'+k]=PRESETS[k].n;MEDS.forEach(m=>EX['med:'+m.k]=m
 for(const k in SOSF)EX['sos:'+k]=SOSF[k].n;C.sounds.forEach(s=>EX['snd:'+s[0]]=s[1]);FICHES.forEach(f=>EX['fiche:'+f.k]='Lire : '+f.t);
 window.ELYRA_TAG.mods.forEach((m,i)=>EX['tag:'+m.id]=`Module ${i+1} : ${m.n}`);
 for(const k in O.tools)EX['outil:'+k]=O.tools[k].n;
-Object.assign(EX,{'calme:respirer':'Respiration guidée','calme:mediter':'Méditations guidées',expo:"Coach d'exposition",outils:'Ma boîte à outils',corps:'Mon corps',consult:'Préparer une consultation',nuit:'Réveil la nuit',programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
+Object.assign(EX,{libre:'Méditation libre','calme:respirer':'Respiration guidée','calme:mediter':'Méditations guidées',expo:"Coach d'exposition",outils:'Ma boîte à outils',corps:'Mon corps',consult:'Préparer une consultation',nuit:'Réveil la nuit',programme:'Ouvrir le programme TAG',journal:'Ouvrir mon journal',kit:'Ouvrir mon kit',progres:'Ouvrir mes progrès',sommeil:'Ouvrir Sommeil',videtete:'Ouvrir le vide-tête',pensee:'Démêler une pensée',
   'chat:comprend':'En parler avec ELYRA','chat:accompagne':'En parler avec ELYRA','chat:encourage':'En parler avec ELYRA','chat:ecoute':'En parler avec ELYRA'});
 const findSess=k=>MEDS.find(m=>m.k===k)||STORIES.find(s=>s.k===k);
 const isStory=k=>STORIES.some(s=>s.k===k);
-function catOf(ex){const [k,v]=ex.split(':');if(k==='outil'&&O.tools[v])return O.tools[v].c;if(k==='br')return'breath';if(k==='snd')return'son';if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
+function catOf(ex){const [k,v]=ex.split(':');if(k==='outil'&&O.tools[v])return O.tools[v].c;if(k==='br')return'breath';if(k==='snd'){const x=C.sounds.find(y=>y[0]===v);return x&&x[3]==='m'?'musique':'son'}if(k==='story')return'histoire';if(k==='sos')return'sos';if(k==='med'){const m=MEDS.find(x=>x.k===v);return m?m.c:'stress'}return'quotidien'}
 const covHTML=(cat,cls='')=>`<span class="cov ${cls}" data-c="${esc(cat)}" aria-hidden="true"><svg><use href="#g-${esc(cat)}"/></svg></span>`;
 
 /* ============ DONNÉES (sur le téléphone) ============ */
 const KEY='elyra.v1';
 const defP=()=>({name:'',genre:'',vmode:'elyra',rate:1,vname:'',brVoice:false,size:'m',theme:'auto',anticip:true,kit:{phr:[],con:[],notes:'',tech:[]},favs:[],goals:[],prog:{id:null,done:{}},
-  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',sndVol:{},tag:{cur:null,m:{}},vvoice:'siwis',soucis:[],expo:{but:'',steps:[]},lock:{on:false,h:'',s:''},rem:{},ctxShare:false,consult:''});
+  routine:{items:C.routine.slice(),checks:{}},up:[],resume:null,onb:false,lastBackup:null,medCat:'tout',medSit:null,long:false,libre:{min:10,every:0},sndVol:{},tag:{cur:null,m:{}},vvoice:'siwis',soucis:[],expo:{but:'',steps:[]},lock:{on:false,h:'',s:''},rem:{},ctxShare:false,consult:''});
 const ST={prof:defP(),items:[]};
 let storageOK=true;
 function merge(base,o){const r=Object.assign(base,o);r.kit=Object.assign(defP().kit,o.kit||{});r.prog=Object.assign({id:null,done:{}},o.prog||{});
@@ -119,6 +119,7 @@ function doEx(id){if(!id)return;const [k,v]=id.split(':');
   else if(k==='calme'){location.hash='calme';calTab(v)}
   else if(k==='expo'){openExpo()}
   else if(k==='nuit'){openNuit()}
+  else if(k==='libre'){location.hash='calme';calTab('mediter');setTimeout(()=>{const l=$('#libre');if(l)l.scrollIntoView({behavior:'smooth'})},80)}
   else if(k==='programme'){tagOpen=null;location.hash='programme';renderProgramme()}
   else if(k==='chat'){openChat(v)}
   else if(k==='videtete'){location.hash='sommeil';setTimeout(()=>{$('#vtCard').scrollIntoView({behavior:'smooth'});$('#vtTxt').focus()},80)}
@@ -146,7 +147,7 @@ function homePicks(){const S={matin:['med:matin','br:coh','med:respi','med:minut
 function sessMin(k){const m=findSess(k);if(!m)return 0;return Math.max(1,Math.round(durs(m).reduce((a,b)=>a+b,0)/60))}
 function tileHTML(ex){const [k,v]=ex.split(':');const lab=EX[ex];
   const meta=k==='br'?`${PRESETS[v].d} min · respiration`:k==='snd'?'son':k==='story'?`${sessMin(v)} min · histoire`:k==='med'?`${sessMin(v)} min`:'';
-  return `<button class="tile" data-ex="${esc(ex)}">${covHTML(catOf(ex))}<b>${esc(lab)}</b><span>${esc(meta)}</span></button>`}
+  return `<button class="tile" data-ex="${esc(ex)}">${covHTML(catOf(ex))}<b>${esc(G(lab))}</b><span>${esc(meta)}</span></button>`}
 function renderHome(){const h=new Date().getHours();const nm=ST.prof.name?' '+ST.prof.name:'';
   $('#hello').textContent=(h<5?'Bonne nuit':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir')+nm;
   $('#hero').className='hero t-'+slot();
@@ -211,16 +212,41 @@ $('#calTabs').onclick=e=>{const b=e.target.closest('button');if(b)calTab(b.datas
 selP('coh');selD(5);
 
 /* ============ SÉANCES ============ */
-const durs=m=>m.s.map(s=>{const r=+ST.prof.rate||1;const c=ST.prof.vmode==='elyra'?clip(G(s[0])):null;const v=c?c[1]/r:(ST.prof.vmode==='off'?0:est(s[0])/r);return Math.max(s[1],Math.ceil(v+3))});
+const lenF=m=>ST.prof.long&&!m.sos?1.9:1;
+const durs=m=>m.s.map(s=>{const r=+ST.prof.rate||1;const lf=lenF(m);const c=ST.prof.vmode==='elyra'?clip(G(s[0])):null;const v=c?c[1]/r:(ST.prof.vmode==='off'?0:est(s[0])/r);return Math.max(Math.round(s[1]*lf),Math.ceil(v+3))});
 function itemHTML(m,story){const key=(story?'story:':'med:')+m.k;const f=ST.prof.favs.includes(key);
-  return `<div class="item"><button class="go" data-ex="${key}">${covHTML(story?'histoire':m.c)}<span><h3>${esc(m.t)}</h3><p>${esc(m.d)}</p><span class="meta">${sessMin(m.k)} min</span></span></button><button class="star" data-fav="${key}" aria-pressed="${f}" aria-label="Favori : ${esc(m.t)}">${f?'★':'☆'}</button></div>`}
-function renderMeds(){const cat=ST.prof.medCat||'tout';
-  $('#medCats').innerHTML=C.cats.map(([k,n])=>`<button data-cat="${k}" aria-pressed="${k===cat}">${esc(n)}</button>`).join('');
-  $('#meds').innerHTML=MEDS.filter(m=>cat==='tout'||m.c===cat).map(m=>itemHTML(m,false)).join('');
+  return `<div class="item"><button class="go" data-ex="${key}">${covHTML(story?'histoire':m.c)}<span><h3>${esc(G(m.t))}</h3><p>${esc(G(m.d))}</p><span class="meta">${sessMin(m.k)} min</span></span></button><button class="star" data-fav="${key}" aria-pressed="${f}" aria-label="Favori : ${esc(G(m.t))}">${f?'★':'☆'}</button></div>`}
+function renderMeds(){const cat=ST.prof.medCat||'tout';const sit=(C.situations||[]).find(x=>x[0]===ST.prof.medSit);
+  $('#medSits').innerHTML=(C.situations||[]).map(([k,n])=>`<button data-sit="${k}" aria-pressed="${!!sit&&sit[0]===k}">${esc(G(n))}</button>`).join('');
+  $('#medCats').innerHTML=C.cats.map(([k,n])=>`<button data-cat="${k}" aria-pressed="${!sit&&k===cat}">${esc(n)}</button>`).join('');
+  $('#medSitT').textContent=sit?G(sit[1]):'';$('#medSitT').hidden=!sit;
+  $('#meds').innerHTML=(sit?sit[2].map(findSess).filter(Boolean):MEDS.filter(m=>cat==='tout'||m.c===cat)).map(m=>itemHTML(m,isStory(m.k))).join('');renderLibre();
   const r=ST.prof.resume;const rm=r&&findSess(r.k);
-  $('#resume').innerHTML=rm?`<div class="card row between">${covHTML(isStory(rm.k)?'histoire':rm.c)}<div style="flex:1"><span class="tag lav">À reprendre</span><h3 class="mt">${esc(rm.t)}</h3></div><button class="main" id="resGo">Reprendre</button></div>`:'';
+  $('#resume').innerHTML=rm?`<div class="card row between">${covHTML(isStory(rm.k)?'histoire':rm.c)}<div style="flex:1"><span class="tag lav">À reprendre</span><h3 class="mt">${esc(G(rm.t))}</h3></div><button class="main" id="resGo">Reprendre</button></div>`:'';
   if(rm)$('#resGo').onclick=()=>openPlayer(rm.k,r.i)}
-$('#medCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(b)setP(p=>p.medCat=b.dataset.cat)};
+$('#medCats').onclick=e=>{const b=e.target.closest('[data-cat]');if(b)setP(p=>{p.medCat=b.dataset.cat;p.medSit=null})};
+$('#medSits').onclick=e=>{const b=e.target.closest('[data-sit]');if(!b)return;const k=b.dataset.sit;setP(p=>p.medSit=p.medSit===k?null:k);haptic()};
+
+/* ============ MÉDITATION LIBRE ============ */
+const LB={on:false,end:0,start:0,min:10,every:0,iv:null,next:0};
+function renderLibre(){const box=$('#libre');if(!box)return;const st=ST.prof.libre||{min:10,every:0};
+  if(LB.on){const left=Math.max(0,Math.round((LB.end-Date.now())/1000));
+    box.innerHTML=`<div class="row between"><div><span class="tag lav">Méditation libre</span><h3 class="mt">En cours</h3></div><span class="lbt" role="timer" aria-live="off">${mmss(left)}</span></div>
+     <p class="sub">${esc(G(`Pas de voix, juste le silence${st.every?' et une cloche de temps en temps':''}. Quand tu t'aperçois que tu es parti{e} ailleurs, reviens simplement à ton souffle.`))}</p>
+     <div class="row mt"><button class="ghost" id="lbStop">Terminer</button></div>`;$('#lbStop').onclick=()=>libreEnd(false);return}
+  box.innerHTML=`<span class="tag lav">Méditation libre</span><h3 class="mt">Juste un minuteur et des cloches</h3><p class="sub">Pour méditer en silence, à ta façon.</p>
+   <div class="row chips mt" id="lbMin">${[5,10,15,20,30,45].map(m=>`<button data-m="${m}" aria-pressed="${st.min===m}">${m} min</button>`).join('')}</div>
+   <label class="f">Cloche pendant la séance<select id="lbEvery"><option value="0">Seulement au début et à la fin</option><option value="5" ${st.every===5?'selected':''}>Toutes les 5 minutes</option><option value="10" ${st.every===10?'selected':''}>Toutes les 10 minutes</option></select></label>
+   <button class="main mt" id="lbGo">Commencer</button>`;
+  $('#lbMin').onclick=e=>{const b=e.target.closest('[data-m]');if(b)setP(p=>p.libre={...(p.libre||{every:0}),min:+b.dataset.m})};
+  $('#lbEvery').onchange=e=>setP(p=>p.libre={...(p.libre||{min:10}),every:+e.target.value});
+  $('#lbGo').onclick=libreStart}
+function libreStart(){const st=ST.prof.libre||{min:10,every:0};SND.ctx();stopVoice();if(brMain.on)brMain.stop(false);
+  LB.on=true;LB.start=Date.now();LB.end=LB.start+st.min*60e3;LB.every=st.every;LB.next=st.every?LB.start+st.every*60e3:Infinity;SND.bell();
+  clearInterval(LB.iv);LB.iv=setInterval(()=>{const now=Date.now();if(now>=LB.end)return libreEnd(true);if(now>=LB.next){SND.tone(523.25,3.5,.12);LB.next+=LB.every*60e3}
+    const el=$('#libre .lbt');if(el)el.textContent=mmss(Math.round((LB.end-now)/1000))},500);renderLibre()}
+function libreEnd(full){if(!LB.on)return;clearInterval(LB.iv);LB.on=false;SND.bell();const min=Math.round((Date.now()-LB.start)/60000);
+  renderLibre();if(min>=1){toast(full?'Séance terminée. Merci pour ce moment.':'Bien joué, chaque minute compte.');askHelp(addItem({kind:'pratique',ex:'libre',label:'Méditation libre',min}))}}
 function renderStories(){$('#stories').innerHTML=STORIES.map(s=>itemHTML(s,true)).join('')}
 
 /* ============ LECTEUR ============ */
@@ -231,7 +257,7 @@ function openPlayer(k,from){const m=findSess(k);if(!m)return;SND.ctx();if(brMain
   PL.done=false;PL.paused=false;const cat=story?'histoire':m.c;
   $('#plCov').outerHTML=covHTML(cat,'big').replace('class="cov big"','class="cov big" id="plCov"');
   const cs=getComputedStyle($('#plCov'));$('#plAura').style.setProperty('--c1',cs.getPropertyValue('--c1'));$('#plAura').style.setProperty('--c2',cs.getPropertyValue('--c2'));
-  $('#plT').textContent=m.t;$('#plSub').textContent=m.d;$('#plTag').textContent=story?'Histoire':(C.cats.find(c=>c[0]===m.c)||['',''])[1];
+  $('#plT').textContent=G(m.t);$('#plSub').textContent=G(m.d);syncPlLen();$('#plTag').textContent=story?'Histoire':(C.cats.find(c=>c[0]===m.c)||['',''])[1];
   $('#plTot').textContent=mmss(PL.tot);setPlay(true);syncPlVoice();syncPlFav();syncAmb();
   $('#player').classList.add('on');document.body.style.overflow='hidden';SND.bell();
   clearInterval(PL.iv);PL.iv=setInterval(tick,250);step(start);$('#plPlay').focus()}
@@ -247,6 +273,10 @@ function finish(){PL.done=true;clearInterval(PL.iv);stopVoice();SND.bell();const
 function closePlayer(){clearInterval(PL.iv);stopVoice();$('#player').classList.remove('on');document.body.style.overflow=$('#sos').classList.contains('on')?'hidden':'';
   if(PL.m&&!PL.done&&(PL.i>0||PL.stepEl>=10)&&!PL.m.sos)setP(p=>{p.resume={k:PL.m.k,i:PL.i}})}
 $('#plClose').onclick=closePlayer;
+function syncPlLen(){const b=$('#plLen');if(!b||!PL.m)return;const ok=!PL.m.sos;b.hidden=!ok;b.textContent='Pauses : '+(ST.prof.long?'longues':'normales');b.setAttribute('aria-pressed',!!ST.prof.long)}
+$('#plLen').onclick=()=>{if(!PL.m)return;setP(p=>p.long=!p.long);const frac=PL.d[PL.i]?PL.stepEl/PL.d[PL.i]:0;PL.d=durs(PL.m);PL.tot=PL.d.reduce((a,b)=>a+b,0);
+  PL.stepEl=Math.round(frac*PL.d[PL.i]*4)/4;PL.el=PL.d.slice(0,PL.i).reduce((a,b)=>a+b,0)+PL.stepEl;$('#plTot').textContent=mmss(PL.tot);updBar();syncPlLen();
+  toast(ST.prof.long?'Pauses plus longues entre les phrases.':'Pauses normales.')};
 $('#plPlay').onclick=()=>{if(PL.done){openPlayer(PL.m.k);return}PL.paused=!PL.paused;setPlay(!PL.paused);
   if(PL.paused){if(VO.el&&!VO.el.paused)VO.el.pause();else stopVoice()}
   else{if(VO.el&&VO.el.src&&VO.el.currentTime>0&&!VO.el.ended&&ST.prof.vmode==='elyra'&&clip(G(PL.m.s[PL.i][0])))VO.el.play().catch(()=>{});else speak(G(PL.m.s[PL.i][0]))}};
@@ -268,12 +298,13 @@ SND.onChange(why=>{const a=SND.active();
   if(why==='timer')toast('Minuterie terminée. Les sons se sont arrêtés.');renderSounds();syncAmb()});
 function renderSounds(){const a=SND.active();
   $('#mixes').innerHTML=C.mixes.map(([n,l],i)=>`<button data-mix="${i}" aria-pressed="${l.length===a.length&&l.every(x=>a.includes(x))}">${esc(n)}</button>`).join('');
-  $('#sounds').innerHTML=C.sounds.map(([k,n,d])=>{const on=a.includes(k);const v=ST.prof.sndVol[k]!=null?ST.prof.sndVol[k]:.8;
-    return `<div class="sndc" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}">${covHTML('son')}<span>${esc(n)}<small>${on?'En cours':esc(d)}</small></span></button>${on?`<input type="range" min="0" max="1" step="0.05" value="${v}" data-vol="${k}" aria-label="Volume : ${esc(n)}">`:''}</div>`}).join('');
+  const card=([k,n,d,g])=>{const on=a.includes(k);const v=ST.prof.sndVol[k]!=null?ST.prof.sndVol[k]:.8;
+    return `<div class="sndc" aria-current="${on}"><button class="go" data-snd="${k}" aria-pressed="${on}">${covHTML(g==='m'?'musique':'son')}<span>${esc(n)}<small>${on?'En cours':esc(d)}</small></span></button>${on?`<input type="range" min="0" max="1" step="0.05" value="${v}" data-vol="${k}" aria-label="Volume : ${esc(n)}">`:''}</div>`};
+  $('#sounds').innerHTML=C.sounds.filter(x=>x[3]!=='m').map(card).join('');$('#musics').innerHTML=C.sounds.filter(x=>x[3]==='m').map(card).join('');
   $('#sndState').textContent=a.length?`En cours : ${a.map(k=>EX['snd:'+k]).join(', ')}.`:'Aucun son en cours.';$('#sndStop').hidden=!a.length}
-$('#sounds').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;const was=SND.active().length;
+$('#sounds').onclick=$('#musics').onclick=e=>{const b=e.target.closest('[data-snd]');if(!b)return;const k=b.dataset.snd;const was=SND.active().length;
   if(SND.active().includes(k))SND.off(k);else{SND.on(k,ST.prof.sndVol[k]);if(!was)SND.timer(+$('#sndTimer').value)}haptic()};
-$('#sounds').oninput=e=>{const r=e.target.closest('[data-vol]');if(!r)return;SND.vol(r.dataset.vol,+r.value);ST.prof.sndVol[r.dataset.vol]=+r.value;save()};
+$('#sounds').oninput=$('#musics').oninput=e=>{const r=e.target.closest('[data-vol]');if(!r)return;SND.vol(r.dataset.vol,+r.value);ST.prof.sndVol[r.dataset.vol]=+r.value;save()};
 $('#mixes').onclick=e=>{const b=e.target.closest('[data-mix]');if(!b)return;const l=C.mixes[+b.dataset.mix][1];SND.only(null);setTimeout(()=>{l.forEach(k=>SND.on(k,ST.prof.sndVol[k]));SND.timer(+$('#sndTimer').value)},50)};
 $('#sndTimer').onchange=e=>{if(SND.active().length)SND.timer(+e.target.value)};
 $('#sndStop').onclick=()=>SND.stopAll();
@@ -445,7 +476,7 @@ $('#vtGo').onclick=()=>{const v=$('#vtTxt').value.trim();if(!v){$('#vtMsg').text
 let progOpen=null;
 function toggleStep(pid,i,force){const was=(ST.prof.prog.done[pid]||[]).includes(i);setP(p=>{const a=p.prog.done[pid]||[];const on=force===undefined?!was:force;p.prog.done[pid]=on?[...new Set([...a,i])]:a.filter(x=>x!==i)})}
 function renderParcours(){const box=$('#progBox');const act=ST.prof.prog.id;
-  if(!progOpen){box.innerHTML=`<div class="list">${PROGS.map(P=>{const d=(ST.prof.prog.done[P.id]||[]).length;return `<div class="item" aria-current="${P.id===act}"><button class="go" data-prog="${P.id}"><span class="cov" data-c="corps" aria-hidden="true" style="font:700 .9rem Figtree,sans-serif">${d}/${P.s.length}</span><span><h3>${esc(P.n)}</h3><p>${esc(P.d)}</p>${P.id===act?'<span class="meta" style="color:var(--lavd)">En cours</span>':''}</span></button></div>`}).join('')}</div>`;return}
+  if(!progOpen){box.innerHTML=`<div class="list">${PROGS.map(P=>{const d=(ST.prof.prog.done[P.id]||[]).length;return `<div class="item" aria-current="${P.id===act}"><button class="go" data-prog="${P.id}"><span class="cov" data-c="corps" aria-hidden="true" style="font:700 .9rem Figtree,sans-serif">${d}/${P.s.length}</span><span>${P.audio?'<span class="tag lav">Série audio</span>':''}<h3>${esc(P.n)}</h3><p>${esc(P.d)}</p>${P.id===act?'<span class="meta" style="color:var(--lavd)">En cours</span>':''}</span></button></div>`}).join('')}</div>`;return}
   const P=PROGS.find(x=>x.id===progOpen);const done=ST.prof.prog.done[P.id]||[];
   box.innerHTML=`<button class="back mt" id="progBack">‹ Tous les parcours</button><div class="card"><h2>${esc(P.n)}</h2><p class="sub">${esc(P.d)}</p>
     <div class="row mt">${P.id===act?`<span class="tag">C'est ton parcours en cours</span><button class="ghost" id="progStop">Mettre en pause</button>`:`<button class="main" id="progPick">Choisir ce parcours</button>`}</div></div>

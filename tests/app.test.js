@@ -47,16 +47,21 @@ w.addEventListener('load',async()=>{try{
   // Calme
   go('calme');click($('#presets [data-k="vague"]'));click('#brBtn');ok($('#brBtn').textContent==='Arrêter','respiration démarre');click('#brBtn');
   click('#brFav');ok(/Vague/.test($('#favBox').textContent),'favori affiché');
-  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===29,'29 séances');
-  click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===3,'filtre sommeil');
+  click($('#calTabs [data-t="mediter"]'));ok(d.querySelectorAll('#meds .item').length===48,'48 séances');
+  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===5&&/examen/.test($('#meds').textContent),'séances par situation');
+  click($('#medSits [data-sit="avant"]'));ok(d.querySelectorAll('#meds .item').length===48,'situation désélectionnée');
+  click($('#lbMin [data-m="5"]'));click('#lbGo');ok(/En cours/.test($('#libre').textContent),'méditation libre démarre');click('#lbStop');ok(!!$('#lbGo'),'méditation libre arrêtée');
+  click($('#medCats [data-cat="sommeil"]'));ok(d.querySelectorAll('#meds .item').length===5,'filtre sommeil');
   click($('#meds [data-ex="med:scandodo"]'));ok($('#player').classList.contains('on'),'lecteur ouvert');
   await wait(600);ok($('#plSay').textContent.length>5,'texte de la séance affiché');
   click('#plNext');click('#plNext');await wait(400);click('#plPlay');ok(/Lecture/.test($('#plPlay').getAttribute('aria-label')),'pause');click('#plPlay');
   click('#plFav');ok(/★/.test($('#plFav').textContent),'favori depuis le lecteur');
+  {const t1=$('#plTot').textContent;click('#plLen');ok(/longues/.test($('#plLen').textContent)&&$('#plTot').textContent!==t1,'pauses longues');click('#plLen')}
   click('#plClose');ok(/Scan du soir/.test($('#resume').textContent),'reprise de lecture proposée');
-  click($('#calTabs [data-t="histoires"]'));ok(d.querySelectorAll('#stories .item').length===4,'4 histoires');
+  click($('#calTabs [data-t="histoires"]'));ok(d.querySelectorAll('#stories .item').length===12,'12 histoires');
   click($('#stories [data-ex="story:phare"]'));ok(/phare/.test($('#plT').textContent),'histoire ouverte');click('#plClose');
-  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===19,'19 sons');
+  click($('#calTabs [data-t="sons"]'));ok(d.querySelectorAll('#sounds .sndc').length===17,'17 ambiances');ok(d.querySelectorAll('#musics .sndc').length===8,'8 musiques');
+  click($('#musics [data-snd="piano"]'));ok(/Piano doux/.test($('#sndState').textContent),'musique lancée');click('#sndStop');await wait(50);
   click($('#sounds [data-snd="pluie"]'));click($('#sounds [data-snd="feu"]'));ok(/Pluie douce, Feu/.test($('#sndState').textContent),'mélange de deux sons');
   ok(!!$('#sounds [data-vol="pluie"]'),'réglage de volume par son');click('#sndStop');await wait(50);ok(/Aucun/.test($('#sndState').textContent),'tout arrêter');
   click([...d.querySelectorAll('#mixes [data-mix]')].find(b=>/Bord de mer/.test(b.textContent)));await wait(120);ok(/Vagues/.test($('#sndState').textContent),'mélange prédéfini');click('#sndStop');
@@ -69,7 +74,7 @@ w.addEventListener('load',async()=>{try{
   go('sommeil');ok(d.querySelectorAll('#nightTiles .tile').length===9,'tuiles du soir');click($('#slQ button[data-v="4"]'));submit('#slForm');ok(/enregistrée/.test($('#slMsg').textContent),'nuit enregistrée');
   $('#vtTxt').value='trucs';click('#vtGo');ok(/posé/.test($('#vtMsg').textContent),'vide-tête');
   // Parcours
-  go('parcours');ok(d.querySelectorAll('#progBox .item').length===12,'12 parcours');click($('#progBox [data-prog="elan"]'));click('#progPick');go('accueil');ok(/élan/.test($('#homeProg').textContent),'programme du jour');
+  go('parcours');ok(d.querySelectorAll('#progBox .item').length===15&&/Série audio/.test($('#progBox').textContent),'15 parcours dont séries audio');click($('#progBox [data-prog="elan"]'));click('#progPick');go('accueil');ok(/élan/.test($('#homeProg').textContent),'programme du jour');
   click($('#homeProg [data-stepdone]'));ok(/étape 2/.test($('#homeProg').textContent),'étape suivante');
   // Programme TAG
   go('programme');ok(d.querySelectorAll('#tagBox .item').length===8,'programme : 8 modules');
@@ -144,7 +149,7 @@ w.addEventListener('load',async()=>{try{
   // Nuit
   click('#sosOpen');click($('#sosBody [data-sit="nuit"]'));click($('#sosBody [data-opt="nuitv"]'));ok($('#nuit').classList.contains('on')&&!$('#sos').classList.contains('on'),'écran de nuit');
   click($('#nuit [data-n="br"]'));ok(!!$('#nuBr .stage'),'nuit : respiration');click($('#nuit [data-n="vt"]'));$('#nuVt').value='demain';click('#nuVtGo');ok(/posé/.test($('#nuVtM').textContent),'nuit : vide-tête');
-  click($('#nuit [data-n="hist"]'));ok(d.querySelectorAll('#nuitZone [data-nst]').length===4,'nuit : histoires');click('#nuitX');ok(!$('#nuit').classList.contains('on'),'nuit fermée');
+  click($('#nuit [data-n="hist"]'));ok(d.querySelectorAll('#nuitZone [data-nst]').length===12,'nuit : histoires');click('#nuitX');ok(!$('#nuit').classList.contains('on'),'nuit fermée');
   // Verrou, rappels, contexte
   go('espace');click('#lkOn');ok($('#lock').classList.contains('on'),'verrou : choisir un code');for(const k of '1234')click($(`#lockPad [data-d="${k}"]`));await wait(50);ok(/Confirme/.test($('#lockT').textContent),'verrou : confirmer le code');for(const k of '1234')click($(`#lockPad [data-d="${k}"]`));await wait(500);
   ok(!$('#lock').classList.contains('on')&&JSON.parse(w.localStorage.getItem('elyra.v1')).prof.lock.on,'verrou activé (code enregistré, pas en clair)');

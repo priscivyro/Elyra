@@ -114,6 +114,7 @@ input[type=range]{width:100%;accent-color:var(--lavd);height:40px}
 .cov[data-c=histoire]{--c1:#b4a6dd;--c2:#2f2b55;--c3:#4a4380}
 .cov[data-c=breath]{--c1:#e0d6f3;--c2:#a9c6a4;--c3:#b4a5d8}
 .cov[data-c=son]{--c1:#cfe3e0;--c2:#9fb8c9;--c3:#8eaaa3}
+.cov[data-c=musique]{--c1:#e6d3ee;--c2:#c7b08c;--c3:#b59ac4}
 .cov.big{width:min(56vw,230px);height:min(56vw,230px);border-radius:40px;box-shadow:0 30px 60px -30px rgb(40 30 70/.55)}
 
 .list{display:grid;gap:10px;margin-top:14px}
@@ -433,3 +434,5 @@ body:has(.rate.on) .toast{bottom:calc(220px + env(safe-area-inset-bottom))}
 .elyface{width:120px;height:120px}
 @media(max-width:380px){.elylive{grid-template-columns:90px minmax(0,1fr)}.elyface{width:90px;height:90px}.cv-mic{width:76px;height:76px}}
 [hidden]{display:none!important}
+.lbt{font:600 2rem Figtree,sans-serif;color:var(--lavd);font-variant-numeric:tabular-nums}
+#medSitT{margin:14px 2px 0;font-weight:600;color:var(--text)}

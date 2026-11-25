@@ -1,10 +1,11 @@
-// Liste toutes les phrases à faire lire par la voix ELYRA, à partir de www/content.js.
+// Liste toutes les phrases à faire lire par la voix ELYRA, à partir de www/content.js et www/seances.js.
 // Usage : node tools/voix/lignes.mjs > tools/voix/lignes.json
 import fs from 'node:fs';
 import vm from 'node:vm';
 const code = fs.readFileSync(new URL('../../www/content.js', import.meta.url), 'utf8');
 const sandbox = { window: {} };
 vm.runInNewContext(code, sandbox);
+vm.runInNewContext(fs.readFileSync(new URL('../../www/seances.js', import.meta.url), 'utf8'), sandbox);
 const C = sandbox.window.ELYRA_CONTENT;
 
 // Les accords « prêt{e} » / « {doux|douce} » : on génère la version masculine et la version féminine.
