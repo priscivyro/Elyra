@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.7.0";
+const APP_VERSION="2.8.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -348,7 +348,9 @@ function openPlayer(k,from){const m=findSess(k);if(!m)return;SND.ctx();if(brMain
   $('#plCov').outerHTML=covHTML(cat,'big',k).replace(/class="cov big art( photo)?"/,(m,p)=>`class="cov big art${p||''}" id="plCov"`);$('#plCov').hidden=!!m.eft;$('#plEft').hidden=!m.eft;
   const cs=getComputedStyle($('#plCov'));$('#plAura').style.setProperty('--c1',cs.getPropertyValue('--c1'));$('#plAura').style.setProperty('--c2',cs.getPropertyValue('--c2'));
   $('#plT').textContent=G(m.t);$('#plSub').textContent=G(m.d);syncPlLen();$('#plTag').textContent=story?'Histoire':(C.cats.find(c=>c[0]===m.c)||['',''])[1];
-  $('#plTot').textContent=mmss(PL.tot);setPlay(true);syncPlVoice();syncPlFav();syncAmb();
+  $('#plTot').textContent=mmss(PL.tot);setPlay(true);syncPlVoice();syncPlFav();
+  // Fond sonore retenu : il revient tout seul à chaque séance, et la voix le baisse quand elle parle.
+  PL.autoAmb=false;if(!SND.active().length&&ST.prof.plAmb&&ST.prof.plAmb!=='none'&&!m.sos){try{SND.only(ST.prof.plAmb);PL.autoAmb=true}catch(e){}}syncAmb();
   $('#player').classList.add('on');document.body.style.overflow='hidden';SND.bell();
   clearInterval(PL.iv);PL.iv=setInterval(tick,250);step(start);$('#plPlay').focus()}
 function step(i){PL.i=i;PL.stepEl=0;const t=G(PL.m.s[i][0]);if(PL.m.eft)eftShow($('#plEft'),PL.m.s[i][2]);const say=$('#plSay');say.classList.add('fade');
@@ -360,7 +362,7 @@ function setPlay(playing){$('#plPlay').innerHTML=`<svg class="icon"><use href="#
 function finish(){PL.done=true;clearInterval(PL.iv);stopVoice();SND.bell();sparkle(PL.m.eft?$('#plEft'):$('#plCov'),0,20);const t=isStory(PL.m.k)?'Bonne nuit.':"Merci de t'être offert ce moment.";
   $('#plSay').textContent=t;PL.el=PL.tot;updBar();setPlay(false);
   setP(p=>{if(p.resume&&p.resume.k===PL.m.k)p.resume=null});askHelp(addItem({kind:'pratique',ex:PL.key,label:PL.m.t,min:Math.max(1,Math.round(PL.tot/60))}))}
-function closePlayer(){clearInterval(PL.iv);stopVoice();$('#player').classList.remove('on');document.body.style.overflow=$('#sos').classList.contains('on')?'hidden':'';
+function closePlayer(){clearInterval(PL.iv);stopVoice();if(PL.autoAmb){try{SND.stopAll()}catch(e){}PL.autoAmb=false}$('#player').classList.remove('on');document.body.style.overflow=$('#sos').classList.contains('on')?'hidden':'';
   if(PL.m&&!PL.done&&(PL.i>0||PL.stepEl>=10)&&!PL.m.sos)setP(p=>{p.resume={k:PL.m.k,i:PL.i}})}
 $('#plClose').onclick=closePlayer;
 function syncPlLen(){const b=$('#plLen');if(!b||!PL.m)return;const ok=!PL.m.sos;b.hidden=!ok;b.textContent='Pauses : '+(ST.prof.long?'longues':'normales');b.setAttribute('aria-pressed',!!ST.prof.long)}
@@ -379,7 +381,7 @@ $('#plFav').onclick=()=>toggleFav(PL.key);
 
 /* ============ SONS ============ */
 const AMBS=[['none','Sans ambiance'],...C.sounds.map(s=>[s[0],s[1]])];
-for(const s of ['#ambB','#ambM']){$(s).innerHTML=AMBS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join('');$(s).onchange=e=>{SND.only(e.target.value)}}
+for(const s of ['#ambB','#ambM']){$(s).innerHTML=AMBS.map(([k,n])=>`<option value="${k}">${esc(n)}</option>`).join('');$(s).onchange=e=>{SND.only(e.target.value);if(s==='#ambM'){setP(p=>{p.plAmb=e.target.value});PL.autoAmb=e.target.value!=='none'}}}
 function syncAmb(){const a=SND.active();for(const s of ['#ambB','#ambM']){const el=$(s);if(el)el.value=a.length===1?a[0]:'none'}}
 let sndSess={start:0,names:[]};
 SND.onChange(why=>{const a=SND.active();
@@ -500,7 +502,23 @@ const toggleIn=(arr,v)=>arr.includes(v)?arr.filter(x=>x!==v):[...arr,v];
 $('#emoJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jEmo=toggleIn(jEmo,b.dataset.v);multi('#emoJ',C.emos,jEmo)};
 $('#sitJ').onclick=e=>{const b=e.target.closest('button');if(!b)return;jSit=toggleIn(jSit,b.dataset.v);multi('#sitJ',C.sits,jSit)};
 $('#stress').oninput=e=>$('#sv').textContent=e.target.value;
-$('#jForm').onsubmit=e=>{e.preventDefault();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
+/* Journal à la voix : tu parles, ELYRA écrit (reconnaissance vocale gratuite du serveur ELYRA). */
+const JD={mic:null,busy:0};
+function jdMsg(t){$('#jDictMsg').textContent=t}
+function jdStop(){if(JD.mic){JD.mic.stop();JD.mic=null}$('#jDict').setAttribute('aria-pressed','false');$('#jDict').textContent='🎙 Dicter';if(!JD.busy)jdMsg('')}
+$('#jDict').onclick=async()=>{if(JD.mic){jdStop();return}
+  if(!VOIX_URL()){jdMsg("La dictée a besoin du petit serveur ELYRA (voir Mon espace). Tu peux aussi utiliser le micro de ton clavier.");return}
+  if(!window.ElyraMic){jdMsg('Micro indisponible.');return}
+  JD.mic=ElyraMic({silenceMs:1600,maxMs:28000,onStart(){jdMsg("Je t'écoute…")},
+    async onEnd(w){if(!w)return;JD.busy++;jdMsg('J’écris…');
+      try{const r=await fetch(VOIX_URL()+'/stt',{method:'POST',headers:{'Content-Type':'audio/wav'},body:w});const j=await r.json();const t=String(j.text||'').trim();
+        if(t){const n=$('#jNote');n.value=(n.value.trim()?n.value.trim()+' ':'')+t;n.dispatchEvent(new Event('input'))}}
+      catch(e){jdMsg('Je n’ai pas pu écrire ce passage. Réessaie, ou écris-le.')}
+      JD.busy--;if(JD.mic&&!JD.busy)jdMsg("Je t'écoute… (touche « Arrêter » quand tu as fini)");else if(!JD.busy)jdMsg('')},
+    onError(k){jdMsg(k==='refus'?'Autorise le micro pour ELYRA dans les réglages du téléphone.':'Micro indisponible.');jdStop()}});
+  const ok=await JD.mic.start();if(!ok){JD.mic=null;return}
+  $('#jDict').setAttribute('aria-pressed','true');$('#jDict').textContent='■ Arrêter';jdMsg('Parle librement, je t’écoute…')};
+$('#jForm').onsubmit=e=>{e.preventDefault();jdStop();const note=$('#jNote').value.trim();if(!jm&&!note&&!jEmo.length){$('#jMsg').textContent='Choisis une humeur, une émotion ou écris un mot.';return}
   sparkle($('#jForm button[type=submit]')||$('#jForm'),0,10);addItem({kind:'journal',mood:jm,stress:+$('#stress').value,emos:jEmo.slice(),sits:jSit.slice(),note:note.slice(0,3000),q:note?$('#jPrompt').textContent:''});showReflect(note,jEmo.slice());resetJ();$('#jMsg').textContent="C'est noté. Merci de prendre ce temps pour toi."};
 const KLAB={journal:'Journal',humeur:'Humeur',videtete:'Vide-tête',sos:'Après un SOS',pensee:'Pensée démêlée',tag:'Programme TAG',outil:'Outil',expo:'Exposition',corps:'Mon corps'};
 function bars(el,days,key){const today=dstart(Date.now());const out=[];
