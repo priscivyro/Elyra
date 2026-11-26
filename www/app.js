@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.9.1";
+const APP_VERSION="2.9.2";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -103,9 +103,13 @@ function ttsSpeak(t,rate){t=oral(t);const cap=CapTTS();
     const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/(premium|enhanced|améliorée|neural|natural)/i.test(v.name))||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
 function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'||!sessVoice))return 0;const rate=+P.rate||1;
   const c=P.vmode!=='tel'?clip(t):null;
-  if(c){const el=audioEl();el.src=`voix/${VO.v||VV()}/`+c[0];el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>{});return c[1]/rate}
+  if(c){const el=audioEl(),url=`voix/${VO.v||VV()}/`+c[0];el.src=url;el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>acVoice(url,rate));return c[1]/rate}
   ttsSpeak(t,rate);return est(t)/rate}
-function stopVoice(){if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
+/* Secours : si le téléphone refuse de lancer le son sans toucher l'écran (Android), la voix passe par le moteur audio déjà autorisé. */
+const VA={src:null,n:0};
+async function acVoice(url,rate){const my=++VA.n;try{const ac=SND.ctx();if(!ac)return;const r=await fetch(url);const buf=await ac.decodeAudioData(await r.arrayBuffer());if(my!==VA.n)return;
+  const s=ac.createBufferSource();s.buffer=buf;s.playbackRate.value=rate;s.connect(ac.destination);s.onended=()=>{if(VA.src===s){VA.src=null;SND.duck(false)}};VA.src=s;SND.duck(true);s.start()}catch(e){}}
+function stopVoice(){VA.n++;if(VA.src){try{VA.src.stop()}catch(e){}VA.src=null}if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
 
 /* ============ NAVIGATION ============ */
 const VIEWS=['instant','tcc','accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
