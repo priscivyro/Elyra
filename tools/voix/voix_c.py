@@ -23,8 +23,18 @@ def nom(texte, ton):
     # Les phrases corrigées pour la prononciation (« sans ») ont un nouveau nom : elles sont refaites.
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from rythme import prononce
-    v = 'c1' if prononce(texte) == texte else 'c1p'
-    return hashlib.sha1(f'{v}|{ton}|{texte}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
+    p = prononce(texte)
+    if p == texte:
+        return hashlib.sha1(f'c1|{ton}|{texte}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
+    if p == prononce_sans(texte):  # corrigé seulement pour « sans » : nom déjà fabriqué
+        return hashlib.sha1(f'c1p|{ton}|{texte}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
+    return hashlib.sha1(f'c2p|{ton}|{p}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
+
+
+def prononce_sans(t):
+    import re
+    t = re.sub(r'\b([Ss])ans\b(\s+)(?=[aeiouyàâéèêëîïôûAEIOUYÉÈÊ])', r'\1anz\2', t)
+    return re.sub(r'\b([Ss])ans\b', r'\1an', t)
 
 
 def charge_index(d):

@@ -9,7 +9,11 @@ _V = 'aeiouyàâéèêëîïôûAEIOUYÉÈÊ'
 
 def prononce(t):
     t = re.sub(r'\b([Ss])ans\b(\s+)(?=[' + _V + '])', r'\1anz\2', t)
-    return re.sub(r'\b([Ss])ans\b', r'\1an', t)
+    t = re.sub(r'\b([Ss])ans\b', r'\1an', t)
+    # « sens » du verbe sentir (je sens, tu te sens, sens tes pieds…) : sans le « s » final ; « le sens » (signification) reste.
+    t = re.sub(r"\b([Jj]e|[Tt]u|[Mm]e|[Tt]e|[Ss]e|[Jj]e me|[Tt]u te|n'?)\s+(res|pres)?sens\b", lambda m: m.group(1) + ' ' + (m.group(2) or '') + 'san', t)
+    t = re.sub(r"(^|[.!?…]\s+|«\s*)([Rr]es)?[Ss]ens\b(?!\s*(?:de|du|des|que|qu'))", lambda m: m.group(1) + ('Ressan' if m.group(2) else 'San'), t)
+    return t
 
 # Pause (en secondes) laissée après chaque fin de phrase, selon la ponctuation.
 PAUSES = {'…': 0.95, '.': 0.7, '!': 0.6, '?': 0.75, ':': 0.45, ';': 0.45}

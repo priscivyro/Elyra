@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.9.0";
+const APP_VERSION="2.9.1";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -96,7 +96,7 @@ function oral(t){return String(t)
   .replace(/\b(\d+)\s?min\b\.?/g,'$1 minutes').replace(/\b(\d+)\s?(?:sec|s)\b/g,'$1 secondes').replace(/\b(\d+)\s?km\b/g,'$1 kilomètres').replace(/\b(\d+)\s?kg\b/g,'$1 kilos')
   .replace(/(\d)\s?%/g,'$1 pour cent').replace(/(\d)\s?€/g,'$1 euros').replace(/\b1er\b/g,'premier').replace(/\b1re\b/g,'première').replace(/\b(\d+)e\b/g,'$1ième')
   .replace(/\bDr\.?\s/g,'docteur ').replace(/\bDre\.?\s/g,'docteure ').replace(/\betc\.?/g,'et cetera').replace(/\bn°\s?/g,'numéro ').replace(/\brdv\b/gi,'rendez-vous').replace(/\s&\s/g,' et ')
-  .replace(/\b([Ss])ans\b(\s+)(?=[aeiouyàâéèêëîïôûAEIOUYÉÈÊ])/g,'$1anz$2').replace(/\b([Ss])ans\b/g,'$1an').replace(/[*_#>`~]/g,'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/\s{2,}/g,' ').trim()}
+  .replace(/\b([Ss])ans\b(\s+)(?=[aeiouyàâéèêëîïôûAEIOUYÉÈÊ])/g,'$1anz$2').replace(/\b([Ss])ans\b/g,'$1an').replace(/(^|\s)(je|tu|me|te|se|n'?|Je|Tu|Me|Te|Se)\s+(res|pres)?sens\b/g,(x,a,b,c)=>a+b+' '+(c||'')+'san').replace(/(^|[.!?…]\s+|«\s*)(Res)?[Ss]ens\b(?!\s*(?:de|du|des|que|qu'))/g,(x,a,b)=>a+(b?'Ressan':'San')).replace(/[*_#>`~]/g,'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/\s{2,}/g,' ').trim()}
 function ttsSpeak(t,rate){t=oral(t);const cap=CapTTS();
   if(cap){try{cap.stop().catch(()=>{});cap.speak(capOpts(t,.9*rate)).catch(()=>{})}catch(e){}return}
   try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=.86*rate;u.pitch=.98;
