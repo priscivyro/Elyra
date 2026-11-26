@@ -5,7 +5,7 @@ Les fichiers déjà présents sont réutilisés : seules les nouvelles phrases s
 Version 3 (voix plus humaine et plus mélodieuse) : chaque phrase est lue séparément, avec une vraie pause après
 (plus longue après « … »), un tempo qui varie légèrement d'une phrase à l'autre, une dernière
 phrase un peu plus posée, et un son plus chaud (graves doux, aigus adoucis, petite pièce feutrée)."""
-import hashlib, json, os, random, subprocess, sys, tempfile, wave
+import hashlib, json, os, random, re, subprocess, sys, tempfile, wave
 import numpy as np
 from piper import PiperVoice, SynthesisConfig
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -14,7 +14,7 @@ from rythme import phrases, pause_apres, assemble, FILTRE
 
 
 def name(text):
-    return hashlib.sha1(('v3|' + text).encode('utf-8')).hexdigest()[:14] + '.mp3'
+    return hashlib.sha1(('v4|' + text).encode('utf-8')).hexdigest()[:14] + '.mp3'
 
 
 def duration(path):
@@ -23,10 +23,16 @@ def duration(path):
     return round(float(r.stdout.strip() or 0), 2)
 
 
+def prononce(t):
+    """Corrige les mots que Piper prononce mal (« sans » lu « sanse »)."""
+    t = re.sub(r'\b([Ss])ans\b(\s+)(?=[aeiouyàâéèêëîïôûAEIOUYÉÈÊ])', r'\1anz\2', t)
+    return re.sub(r'\b([Ss])ans\b', r'\1an', t)
+
+
 def lire(voice, text, slow=1.18):
     """Lit un texte phrase par phrase avec des pauses naturelles. Renvoie (audio float32, fréquence)."""
     rnd = random.Random(text)  # même texte → même lecture (fichiers stables)
-    ps = phrases(text)
+    ps = phrases(prononce(text))
     morceaux = []
     for i, p in enumerate(ps):
         dernier = i == len(ps) - 1
