@@ -21,7 +21,9 @@ function texteDe(r) {
 }
 // Une seule question par réponse : on garde le texte jusqu'à la première question (les lignes MEMOIRE restent).
 export function uneQuestion(t) {
-  const L = String(t).split('\n'), mem = L.filter(l => /^\s*MEMOIRE/.test(l)), main = L.filter(l => !/^\s*MEMOIRE/.test(l)).join(' ').replace(/\s+/g, ' ').trim();
+  // Les lignes techniques (VISAGE, MEMOIRE, EXERCICE) sont gardées telles quelles, même collées en fin de phrase.
+  const TAG = /\s*\b((?:VISAGE|M[EÉ]MOIRE|EXERCICE)\s*:[^\n]*)/gi, mem = [];
+  const main = String(t).replace(TAG, (x, g) => { mem.push(g.trim()); return '\n'; }).replace(/\s+/g, ' ').trim();
   const i = main.indexOf('?');
   const court = i >= 0 && main.indexOf('?', i + 1) >= 0 ? main.slice(0, i + 1) : main;
   return [court, ...mem].join('\n').trim();

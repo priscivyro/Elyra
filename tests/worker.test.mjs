@@ -35,5 +35,5 @@ r = await W.fetch(rq('/chat', { messages: [{ role: 'user', content: 'a' }] }), e
 ok(!/MEMOIRE/.test(systemPrompt({ memOn: false }).replace("N'écris jamais de ligne MEMOIRE", '')), 'prompt sans mémoire');
 const envF = { AI: { run: async (model, input) => { last = { model, input }; if (model === MODEL_SMART) throw new Error('indisponible'); return env.AI.run(model, input) } } };
 r = await W.fetch(rq('/chat', { messages: [{ role: 'user', content: 'a' }] }), envF); ok(/Je suis là/.test(await r.text()) && last.model === MODEL_CHAT, 'secours : modèle léger si le principal échoue');
-ok(uneQuestion('Ok. A ? B ?') === 'Ok. A ?' && uneQuestion('Seule ?') === 'Seule ?', 'une seule question');
+ok(uneQuestion('Ok. A ? B ? VISAGE: doux') === 'Ok. A ?\nVISAGE: doux' && uneQuestion('Ok. A ? B ?') === 'Ok. A ?' && uneQuestion('Seule ?') === 'Seule ?', 'une seule question');
 console.log(errors.length ? '\n' + errors.join('\n') : '\nTOUT EST OK'); process.exit(errors.length ? 1 : 0);
