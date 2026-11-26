@@ -1,0 +1,119 @@
+name: Voix C (Chatterbox) des séances
+# Fabrique la voix C des séances en plusieurs lots en parallèle (gratuit, serveurs GitHub).
+# Le résultat est rangé dans la publication « voix-c » (pré-version, n'affecte pas l'APK),
+# puis l'appli est reconstruite. Seules les phrases nouvelles ou modifiées sont recalculées.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['www/content.js', 'www/seances.js', 'tools/voix/voix_c.py', 'tools/voix/lignes_c.mjs', 'tools/voix/rythme.py', '.github/workflows/voix-c.yml']
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: voix-c
+  cancel-in-progress: false
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      lots: ${{ steps.p.outputs.lots }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reprendre la voix C déjà fabriquée
+        run: |
+          mkdir -p voixc
+          gh release download voix-c -p voix-c.zip -R "$GITHUB_REPOSITORY" && unzip -q voix-c.zip -d voixc || echo "Première fabrication."
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - id: p
+        name: Répartir les phrases à fabriquer
+        run: |
+          pip install -q remotezip numpy
+          node tools/voix/lignes_c.mjs > lignes_c.json
+          python tools/voix/voix_c.py plan lignes_c.json voixc plan
+      - name: Voix de référence (base libre SIWIS)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          python tools/voix/reference_siwis.py plan/ref.wav
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plan
+          path: |
+            plan
+            lignes_c.json
+          retention-days: 3
+
+  lot:
+    needs: plan
+    if: needs.plan.outputs.lots != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        lot: ${{ fromJSON(needs.plan.outputs.lots) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: plan
+      - name: Installer Chatterbox (open source, MIT)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "chatterbox-tts @ git+https://github.com/resemble-ai/chatterbox@ab55923c27757c90cfcc407baa57dc25a7d25217" \
+            --extra-index-url https://download.pytorch.org/whl/cpu
+      - name: Fabriquer le lot ${{ matrix.lot }}
+        run: python tools/voix/voix_c.py rendre plan/ref.wav plan/lot-${{ matrix.lot }}.json sortie 320
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lot-${{ matrix.lot }}
+          path: sortie
+          retention-days: 3
+          if-no-files-found: ignore
+
+  rassembler:
+    needs: [plan, lot]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: plan
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: lot-*
+          path: lots
+      - name: Tout rassembler et ranger dans « voix-c »
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg zip >/dev/null
+          mkdir -p voixc lots
+          gh release download voix-c -p voix-c.zip -R "$GITHUB_REPOSITORY" && unzip -q voix-c.zip -d voixc || true
+          pip install -q numpy && python tools/voix/voix_c.py fusion lignes_c.json voixc lots/*
+          rm -f voix-c.zip && (cd voixc && zip -q -r ../voix-c.zip .)
+          du -sh voix-c.zip
+          gh release view voix-c -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create voix-c -R "$GITHUB_REPOSITORY" --prerelease --title "Voix C des séances" \
+              --notes "Voix des séances fabriquée par Chatterbox (MIT) d'après la base SIWIS (CC BY 4.0). Utilisée automatiquement par l'appli."
+          gh release upload voix-c voix-c.zip --clobber -R "$GITHUB_REPOSITORY"
+      - name: Reconstruire l'appli avec la nouvelle voix
+        if: needs.plan.outputs.lots != '[]'
+        run: gh workflow run build.yml -R "$GITHUB_REPOSITORY" --ref main

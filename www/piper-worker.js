@@ -62,6 +62,17 @@ function phonemize(text) {
   });
 }
 
+// Retire le silence de fin et laisse une pause naturelle selon la ponctuation (plus longue après « … »).
+function respire(a, sr, text) {
+  let end = a.length;
+  while (end > 0 && Math.abs(a[end - 1]) < 0.01) end--;
+  end = Math.min(a.length, end + Math.round(sr * 0.04));
+  const c = text.slice(-1), p = c === '…' ? 0.9 : c === '?' ? 0.6 : c === '.' ? 0.5 : c === '!' ? 0.45 : 0.3;
+  const o = new Float32Array(end + Math.round(sr * p));
+  o.set(a.subarray(0, end));
+  return o;
+}
+
 async function say(m) {
   const t0 = performance.now();
   const ids = await phonemize(String(m.text).trim().slice(0, 600));
@@ -69,11 +80,11 @@ async function say(m) {
   const feeds = {
     input: new ORT.Tensor('int64', BigInt64Array.from(ids.map(x => BigInt(x))), [1, ids.length]),
     input_lengths: new ORT.Tensor('int64', BigInt64Array.from([BigInt(ids.length)]), [1]),
-    scales: new ORT.Tensor('float32', Float32Array.from([I.noise_scale ?? 0.667, lenScale, I.noise_w ?? 0.8]), [3])
+    scales: new ORT.Tensor('float32', Float32Array.from([0.72, lenScale * (0.965 + Math.random() * 0.08), 0.9]), [3])
   };
   if (cfg.speaker_id_map && Object.keys(cfg.speaker_id_map).length) feeds.sid = new ORT.Tensor('int64', BigInt64Array.from([0n]), [1]);
   const out = await sess.run(feeds);
-  const pcm = new Float32Array(out.output.data);
+  const pcm = respire(new Float32Array(out.output.data), cfg.audio.sample_rate, String(m.text).trim());
   postMessage({ type: 'audio', id: m.id, pcm, sr: cfg.audio.sample_rate, ms: Math.round(performance.now() - t0) }, [pcm.buffer]);
 }
 

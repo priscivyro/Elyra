@@ -125,9 +125,18 @@ jobs:
       - name: Générer les voix (féminine et masculine)
         run: |
           node tools/voix/lignes.mjs > lignes.json
-          python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache/siwis 1.18
+          # La voix Piper féminine est gardée à part : la voix des séances = voix C + Piper en secours.
+          [ -d voix-cache/siwis-piper ] || { [ -d voix-cache/siwis ] && mv voix-cache/siwis voix-cache/siwis-piper || true; }
+          python tools/voix/render.py modeles/fr_FR-siwis-medium.onnx lignes.json voix-cache/siwis-piper 1.18
           python tools/voix/render.py modeles/fr_FR-tom-medium.onnx lignes.json voix-cache/tom 1.12
           mkdir -p voix-cache/modele && cp modeles/fr_FR-siwis-medium.onnx* modeles/fr_FR-tom-medium.onnx* voix-cache/modele/ && ls -la voix-cache/modele
+      - name: Voix C (Chatterbox) pour les séances, quand elle est prête
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/voixc
+          gh release download voix-c -p voix-c.zip -R "$GITHUB_REPOSITORY" -D /tmp && unzip -q -o /tmp/voix-c.zip -d /tmp/voixc || echo "Pas encore de voix C : voix Piper."
+          python tools/voix/fusion_seances.py voix-cache/siwis-piper /tmp/voixc voix-cache/siwis
       - name: Voix humaines Microsoft (si le compte gratuit est configuré)
         env:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
@@ -141,7 +150,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: voix
-          path: voix-cache
+          path: |
+            voix-cache
+            !voix-cache/siwis-piper
           retention-days: 7
 
   # Vraie voix naturelle, calculée dans un vrai navigateur (Chrome) : vérification.

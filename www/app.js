@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.5.1";
+const APP_VERSION="2.6.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -84,7 +84,7 @@ const VV=()=>ST.prof.vvoice==='tom'?'tom':'siwis';
 /* voix du téléphone (Android) : liste des voix françaises installées */
 let NV=[];const capOpts=(text,rate)=>{const o={text,lang:'fr-FR',rate,pitch:1,volume:1,category:'playback'};const v=NV.find(x=>x.name===ST.prof.vname);if(v)o.voice=v.i;return o};
 function loadNativeVoices(){const cap=CapTTS();if(!cap||!cap.getSupportedVoices)return;cap.getSupportedVoices().then(r=>{NV=(r&&r.voices||[]).map((v,i)=>Object.assign({},v,{i})).filter(v=>/^fr/i.test(v.lang||''));try{renderVoiceSel()}catch(e){}}).catch(()=>{})}
-async function loadVoiceIdx(){const v=VV();VO.idx=null;VO.v=v;VO.human=false;for(const d of (v==='tom'?['remy','tom']:['vivienne','siwis'])){try{const r=await fetch(`voix/${d}/index.json`,{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items&&j.complete!==false&&VV()===v){VO.idx=j.items;VO.v=d;VO.human=d==='remy'||d==='vivienne';break}}}catch(e){}}try{renderEspace();renderMeds();renderStories();renderHome()}catch(e){}}
+async function loadVoiceIdx(){const v=VV();VO.idx=null;VO.v=v;VO.human=false;for(const d of (v==='tom'?['remy','tom']:['vivienne','siwis'])){try{const r=await fetch(`voix/${d}/index.json`,{cache:'no-cache'});if(r.ok){const j=await r.json();if(j&&j.items&&j.complete!==false&&VV()===v){VO.idx=j.items;VO.v=d;VO.eng=j.engine||'piper';VO.human=d==='remy'||d==='vivienne';break}}}catch(e){}}try{renderEspace();renderMeds();renderStories();renderHome()}catch(e){}}
 const clip=t=>VO.idx&&VO.idx[t];
 const est=t=>String(t).split(/\s+/).length/2.3+1;
 let sessVoice=true;
@@ -656,7 +656,7 @@ const chipRow=(sel,list,cur,attr)=>{$(sel).innerHTML=list.map(([k,n])=>`<button 
 function renderEspace(){const P=ST.prof;renderPf();if(document.activeElement!==$('#pName'))$('#pName').value=P.name||'';$('#pAnt').checked=!!P.anticip;$('#pCtx').checked=!!P.ctxShare;$('#brVoice').checked=!!P.brVoice;
   chipRow('#pGenre',GENRES,P.genre,'genre');chipRow('#onbGenre',GENRES,P.genre,'genre');chipRow('#pVoiceMode',VMODES,P.vmode,'vmode');chipRow('#pVVoice',VVOICES,VV(),'vvoice');$('#pVVoiceBox').hidden=P.vmode!=='elyra';chipRow('#pRate',RATES,String(+P.rate||1),'rate');
   chipRow('#pSize',SIZES,P.size,'size');chipRow('#pTheme',THEMES,P.theme,'theme');chipRow('#pAnim',ANIMS,P.anim||'on','anim');chipRow('#pImg',IMGS,P.img||'photos','img');$('#phCred').innerHTML=PHOTOS.credits.map(([a,u])=>`<li>${esc(a)}</li>`).join('');
-  $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est ${VO.human?'une voix humaine (Microsoft)':'une voix française de synthèse (Piper)'}, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
+  $('#pVoiceInfo').textContent=P.vmode==='elyra'?(VO.idx?`La voix ELYRA est ${VO.human?'une voix humaine (Microsoft)':VO.eng==='chatterbox'?'une voix naturelle (Chatterbox, d’après la voix d’une comédienne de la base libre SIWIS, CC BY 4.0)':'une voix française de synthèse (Piper)'}, intégrée à l'appli (${Object.keys(VO.idx).length} phrases enregistrées). Elle fonctionne hors ligne.`:"La voix ELYRA n'est pas encore disponible sur ce téléphone. En attendant, c'est la voix du téléphone qui lit les séances."):P.vmode==='tel'?"Astuce iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Français, puis télécharge une voix « améliorée » ou « premium ».":'Les séances s’affichent sans être lues.';
   $('#pOffline').hidden=isNative||!VO.idx||!('caches' in window);
   renderVoiceSel();$('#lastBackup').textContent=P.lastBackup?`Dernière sauvegarde : ${fmtD(P.lastBackup)}.`:"Pas encore de sauvegarde.";
   $('#persistInfo').textContent=storageOK?'':"Attention : ce navigateur n'autorise pas l'enregistrement. Installe l'appli sur l'écran d'accueil.";
@@ -1349,9 +1349,15 @@ function piperStart(){if(PV.state==='loading'||(PV.state==='ready'&&PV.voice===p
   PV.w.onerror=()=>{if(PV.state!=='ready'){PV.state='error';piperUI()}};
   PV.w.postMessage({type:'init',base:piperBase(),voice:PV.voice,lengthScale:VV()==='tom'?1.12:1.18})}
 function piperSay(text){return new Promise((res,rej)=>{const id=++PV.n;PV.cb[id]={res,rej};PV.w.postMessage({type:'say',id,text});setTimeout(()=>{if(PV.cb[id]){delete PV.cb[id];rej(new Error('lent'))}},20000)})}
+/* Voix de conversation plus chaude : graves doux, aigus adoucis, petite pièce feutrée (comme les séances).
+   Renvoie [entrée, sortie] d'une petite chaîne créée pour chaque phrase (la réverbération est calculée une fois). */
+function pvWarm(ac){try{const f=(t,fr,gn,q)=>{const b=ac.createBiquadFilter();b.type=t;b.frequency.value=fr;b.gain.value=gn;if(q)b.Q.value=q;return b};
+  if(!PV.ir||PV.ir.sampleRate!==ac.sampleRate){const n=Math.round(ac.sampleRate*.45),ir=ac.createBuffer(2,n,ac.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2)}PV.ir=ir}
+  const lo=f('lowshelf',200,2.5),mid=f('peaking',3200,-1.5,1),hi=f('highshelf',7000,-2.5),out=ac.createGain(),wet=ac.createGain(),cv=ac.createConvolver();
+  cv.buffer=PV.ir;wet.gain.value=.1;lo.connect(mid).connect(hi);hi.connect(out);hi.connect(cv).connect(wet).connect(out);return [lo,out]}catch(e){const g=ac.createGain();return [g,g]}}
 function pvPlay(pcm,sr,onEnd){try{if(!PV.ac)PV.ac=new (window.AudioContext||window.webkitAudioContext)();const ac=PV.ac;if(ac.state==='suspended')ac.resume();
   const b=ac.createBuffer(1,pcm.length,sr);b.getChannelData(0).set(pcm);const s=ac.createBufferSource();s.buffer=b;s.playbackRate.value=+ST.prof.rate||1;
-  const g=ac.createGain();g.gain.value=1.5;const an=ac.createAnalyser();an.fftSize=1024;s.connect(g).connect(an).connect(ac.destination);
+  const g=ac.createGain();g.gain.value=1.5;const an=ac.createAnalyser();an.fftSize=1024;const W=pvWarm(ac);s.connect(W[0]);W[1].connect(g).connect(an).connect(ac.destination);
   PV.src=s;const d=new Float32Array(an.fftSize);
   const loop=()=>{if(PV.src!==s)return;an.getFloatTimeDomainData(d);let e=0;for(let i=0;i<d.length;i++)e+=d[i]*d[i];CV.face&&CV.face.level(Math.min(1,Math.sqrt(e/d.length)*6));PV.raf=requestAnimationFrame(loop)};loop();
   s.onended=()=>{if(PV.src!==s)return;PV.src=null;cancelAnimationFrame(PV.raf);CV.face&&CV.face.level(0);onEnd()};s.start()}catch(e){onEnd()}}

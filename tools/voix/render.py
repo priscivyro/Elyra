@@ -2,7 +2,7 @@
 Usage : python tools/voix/render.py <modele.onnx> <lignes.json> <dossier_sortie> [lenteur, ex. 1.18]
 Les fichiers déjà présents sont réutilisés : seules les nouvelles phrases sont générées.
 
-Version 2 (voix plus humaine) : chaque phrase est lue séparément, avec une vraie pause après
+Version 3 (voix plus humaine et plus mélodieuse) : chaque phrase est lue séparément, avec une vraie pause après
 (plus longue après « … »), un tempo qui varie légèrement d'une phrase à l'autre, une dernière
 phrase un peu plus posée, et un son plus chaud (graves doux, aigus adoucis, petite pièce feutrée)."""
 import hashlib, json, os, random, subprocess, sys, tempfile, wave
@@ -14,7 +14,7 @@ from rythme import phrases, pause_apres, assemble, FILTRE
 
 
 def name(text):
-    return hashlib.sha1(('v2|' + text).encode('utf-8')).hexdigest()[:14] + '.mp3'
+    return hashlib.sha1(('v3|' + text).encode('utf-8')).hexdigest()[:14] + '.mp3'
 
 
 def duration(path):
@@ -31,7 +31,7 @@ def lire(voice, text, slow=1.18):
     for i, p in enumerate(ps):
         dernier = i == len(ps) - 1
         ls = slow * (1 + rnd.uniform(-0.035, 0.045)) * (1.05 if dernier and len(ps) > 1 else 1)
-        cfg = SynthesisConfig(length_scale=ls, noise_scale=0.62, noise_w_scale=0.82)
+        cfg = SynthesisConfig(length_scale=ls, noise_scale=0.72, noise_w_scale=0.9)
         a = [c.audio_int16_array.astype(np.float32) / 32768 for c in voice.synthesize(p, syn_config=cfg)]
         if a:
             morceaux.append((np.concatenate(a), pause_apres(p, dernier)))
