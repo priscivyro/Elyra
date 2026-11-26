@@ -15,7 +15,7 @@ const PAL={
  musique:  {s1:'#e9daf0',s2:'#f8efe2',h1:'#cbb79a',h2:'#a08867',a:'#f0c987',d:'#806b50',n:0},
  son:      {s1:'#d5e6e4',s2:'#f6efe4',h1:'#a9c4c0',h2:'#7fa29c',a:'#f1d39a',d:'#62847e',n:0}
 };
-const MOT={minute:'soleil',pause:'nuage',respi:'feuille',emotion:'mer',pression:'galets',colere:'pluie',avant:'porte',scan:'feuille',muscle:'galets',etire:'arbre',
+const MOT={longscan:'feuille',longdodo:'lune',longtension:'galets',longsecu:'porte',minute:'soleil',pause:'nuage',respi:'feuille',emotion:'mer',pression:'galets',colere:'pluie',avant:'porte',scan:'feuille',muscle:'galets',etire:'arbre',
  place:'bol',marche:'arbre',jardin:'arbre',plage:'mer',foret:'arbre',montagne:'montagne',force:'montagne',douceur:'main',proches:'soleil',matin:'soleil',soir:'bougie',
  gratitude:'soleil',nuages:'nuage',scandodo:'lune',dodo:'lune',reveil:'etoiles',sosvoix:'porte',vague:'mer',trop:'galets',examen:'porte',rdvmed:'plume',attente:'plume',
  route:'montgolfiere',apresconflit:'pluie',tristesse:'pluie',deuil:'bougie',solitude:'etoiles',culpabilite:'plume',sante:'feuille',douleur:'bol',epuise:'nuage',travail:'galets',

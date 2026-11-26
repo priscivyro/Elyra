@@ -13,7 +13,7 @@ const variants = t => {
   const f = t.replace(/\{([^|}]*)\|([^}]*)\}/g, (x, a, b) => b).replace(/\{e\}/g, 'e');
   return [...new Set([f, m])];
 };
-const DOUX = new Set(['hypdodo', 'yogasoir', 'eftdodo', 'soir']);
+const DOUX = new Set(['hypdodo', 'yogasoir', 'eftdodo', 'soir', 'longdodo']);
 const LUMINEUX = new Set(['matin', 'yogamatin', 'gratitude', 'montagne', 'force', 'estime', 'non', 'echec', 'hypconfiance', 'bureau']);
 const ton = m => m.c === 'sos' ? 'calme' : (m.c === 'sommeil' || DOUX.has(m.k)) ? 'doux'
   : (LUMINEUX.has(m.k) || m.c === 'mouvement') ? 'lumineux' : 'chaleureux';

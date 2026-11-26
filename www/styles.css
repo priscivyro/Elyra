@@ -663,3 +663,5 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 .biol{display:flex;justify-content:space-between;font-size:.75rem;color:var(--soft);margin:4px 0 0}
 :is(.item,.tool,.tile):has(.cov[data-c=mouvement]){--cat:#E39A5B}#medCats [data-cat=mouvement][aria-pressed=true]{background:#E39A5B;border-color:#E39A5B;color:#fff}.cov[data-c=mouvement]{--c1:#F8D3A8;--c2:#E39A5B;--c3:#EFB07A}
 :is(.item,.tool,.tile):has(.cov[data-c=pensees]){--cat:#5A7FD1}#medCats [data-cat=pensees][aria-pressed=true]{background:#5A7FD1;border-color:#5A7FD1;color:#fff}.cov[data-c=pensees]{--c1:#B3C6F2;--c2:#5A7FD1;--c3:#7C98DC}
+
+:is(.item,.tool,.tile):has(.cov[data-c=longue]){--cat:#8A6FD1}#medCats [data-cat=longue][aria-pressed=true]{background:#8A6FD1;border-color:#8A6FD1;color:#fff}.cov[data-c=longue]{--c1:#D6CBF3;--c2:#8A6FD1;--c3:#A891E0}
