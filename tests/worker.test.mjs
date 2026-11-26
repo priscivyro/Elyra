@@ -26,7 +26,7 @@ r = await W.fetch(rq('/chat', { mode: 'apaise', name: 'Priscilla', genre: 'f', m
 const rep = await r.text(); ok(r.headers.get('Content-Type').includes('event-stream') && /Je suis là\. Comment tu te sens \?/.test(rep) && !/sensations/.test(rep) && /MEMOIRE/.test(rep), 'réponse : une seule question, mémoire gardée');
 const sys = last.input.messages[0].content;
 ok(last.model === MODEL_SMART && last.input.messages[1].role === 'user', 'historique commence par la personne');
-ok(/APAISE/.test(sys) && /0800 32 123/.test(sys) && /112/.test(sys) && /N'invente jamais de souvenir/.test(sys) && /dépendance/.test(sys), 'consignes de sécurité');
+ok(/APAISE/.test(sys) && /0800 32 123/.test(sys) && /112/.test(sys) && /N'invente jamais de souvenir/.test(sys) && /dépendance/.test(sys) && /Rebondis toujours sur le sujet précis/.test(sys), 'consignes de sécurité et d’écoute');
 ok(/La marche t’aide/.test(sys) && /ton travail/.test(sys) && /féminin/.test(sys) && /sos:ground/.test(sys), 'mémoire, dernière fois, exercices transmis');
 r = await W.fetch(rq('/chat', { memOn: false, messages: [{ role: 'user', content: 'a' }] }), env); await r.text(); ok(/N'écris jamais de ligne MEMOIRE/.test(last.input.messages[0].content), 'pas de mémoire sans accord');
 r = await W.fetch(rq('/chat', { summary: true, messages: [{ role: 'user', content: 'mon boulot' }] }), env); ok((await r.json()).text === 'Tu parlais de ton travail.', 'résumé pour la prochaine fois');
