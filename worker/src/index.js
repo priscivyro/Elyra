@@ -6,6 +6,26 @@
    Cloudflare s'engage à ne pas garder ni utiliser ces contenus pour entraîner des modèles. */
 
 export const MODEL_CHAT = '@cf/mistralai/mistral-small-3.1-24b-instruct';
+// Modèle principal de la conversation : plus fin et plus fiable en français, même coût gratuit environ.
+export const MODEL_SMART = '@cf/openai/gpt-oss-120b';
+
+// Texte d'une réponse, quel que soit le format renvoyé par le modèle.
+function texteDe(r) {
+  if (!r) return '';
+  if (typeof r === 'string') return r;
+  if (typeof r.response === 'string') return r.response;
+  const c = r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content;
+  if (typeof c === 'string') return c;
+  const o = Array.isArray(r.output) ? r.output : [];
+  return o.filter(x => x && x.type === 'message').flatMap(x => x.content || []).map(x => x.text || '').join('');
+}
+// Une seule question par réponse : on garde le texte jusqu'à la première question (les lignes MEMOIRE restent).
+export function uneQuestion(t) {
+  const L = String(t).split('\n'), mem = L.filter(l => /^\s*MEMOIRE/.test(l)), main = L.filter(l => !/^\s*MEMOIRE/.test(l)).join(' ').replace(/\s+/g, ' ').trim();
+  const i = main.indexOf('?');
+  const court = i >= 0 && main.indexOf('?', i + 1) >= 0 ? main.slice(0, i + 1) : main;
+  return [court, ...mem].join('\n').trim();
+}
 export const MODEL_STT = '@cf/openai/whisper-large-v3-turbo';
 // Voix humaines Microsoft (offre gratuite F0) : mêmes voix que les séances enregistrées.
 export const AZ_F = 'fr-FR-VivienneMultilingualNeural', AZ_M = 'fr-FR-RemyMultilingualNeural';
@@ -122,6 +142,13 @@ export default {
           const r = await env.AI.run(MODEL_CHAT, { messages: [{ role: 'system', content: "Résume en une ou deux phrases, à la deuxième personne, le sujet principal de cette conversation, pour pouvoir la reprendre plus tard. Pas de détail médical précis. Rien d'autre." }, ...hist], max_tokens: 90, temperature: 0.3 });
           return json({ text: clip(r && (r.response || r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || '', 400) }, 200, h);
         }
+        let txt = '';
+        try {
+          txt = uneQuestion(texteDe(await env.AI.run(MODEL_SMART, { messages, max_tokens: 1200, reasoning: { effort: 'low' } })));
+        } catch (e) { if (quota(e)) throw e; }
+        if (txt) return new Response('data: ' + JSON.stringify({ response: txt }) + '\n\ndata: [DONE]\n\n',
+          { headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' } });
+        // Secours : le modèle plus léger, en flux.
         const stream = await env.AI.run(MODEL_CHAT, { messages, stream: true, max_tokens: 260, temperature: 0.45, top_p: 0.9 });
         return new Response(stream, { headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' } });
       }
