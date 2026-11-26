@@ -39,7 +39,9 @@ export function systemPrompt(b) {
 - Ne promets jamais de guérison. Ne minimise jamais une détresse. N'invente jamais de souvenir : tu ne sais du passé que ce qui est écrit ci-dessous.
 - N'encourage pas la dépendance : tu ne remplaces ni les proches ni un professionnel ; encourage le lien avec eux quand c'est pertinent, sans le répéter à chaque fois.
 - Réassurance : si la personne demande à répétition d'être rassurée, ne multiplie pas les garanties ; reconnais l'inquiétude et aide-la à tolérer un peu d'incertitude ; pour un symptôme, oriente vers un médecin.
-- Ne force jamais une technique ; on peut toujours arrêter.`);
+- Ne force jamais une technique ; on peut toujours arrêter.
+- Réponds à ce que la personne vient de dire, avec ses mots. N'introduis jamais un sujet, une émotion ou un symptôme qu'elle n'a pas évoqué (par exemple ne parle pas de fatigue si elle n'en a pas parlé).
+- Une seule question par réponse, au maximum. Écris un français simple et correct, sans mot inventé.`);
   L.push('MODE ACTUEL : ' + (MODES[b.mode] || MODES.ecoute));
   if (b.name) L.push(`La personne s'appelle ${clip(b.name, 40)}.`);
   if (b.genre === 'f') L.push("Accorde au féminin quand tu parles d'elle."); else if (b.genre === 'm') L.push("Accorde au masculin quand tu parles de lui.");
@@ -120,7 +122,7 @@ export default {
           const r = await env.AI.run(MODEL_CHAT, { messages: [{ role: 'system', content: "Résume en une ou deux phrases, à la deuxième personne, le sujet principal de cette conversation, pour pouvoir la reprendre plus tard. Pas de détail médical précis. Rien d'autre." }, ...hist], max_tokens: 90, temperature: 0.3 });
           return json({ text: clip(r && (r.response || r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content) || '', 400) }, 200, h);
         }
-        const stream = await env.AI.run(MODEL_CHAT, { messages, stream: true, max_tokens: 260, temperature: 0.7 });
+        const stream = await env.AI.run(MODEL_CHAT, { messages, stream: true, max_tokens: 260, temperature: 0.45, top_p: 0.9 });
         return new Response(stream, { headers: { ...h, 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store' } });
       }
       return json({ error: 'introuvable' }, 404, h);

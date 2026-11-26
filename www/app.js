@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.6.0";
+const APP_VERSION="2.6.1";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -89,7 +89,15 @@ const clip=t=>VO.idx&&VO.idx[t];
 const est=t=>String(t).split(/\s+/).length/2.3+1;
 let sessVoice=true;
 function audioEl(){if(!VO.el){const el=new Audio();el.preload='auto';el.addEventListener('play',()=>SND.duck(true));el.addEventListener('ended',()=>SND.duck(false));el.addEventListener('pause',()=>SND.duck(false));VO.el=el}return VO.el}
-function ttsSpeak(t,rate){const cap=CapTTS();
+/* Texte pour la voix : « 8h » → « 8 heures », « 8h30 » → « 8 heures 30 », abréviations, émojis. */
+function oral(t){return String(t)
+  .replace(/\b(\d{1,2})\s?[hH]\s?(\d{2})\b/g,(x,a,b)=>a+(a==='1'?' heure ':' heures ')+(b==='00'?'':b))
+  .replace(/\b(\d{1,2})\s?[hH]\b/g,(x,a)=>a+(a==='1'||a==='0'?' heure':' heures'))
+  .replace(/\b(\d+)\s?min\b\.?/g,'$1 minutes').replace(/\b(\d+)\s?(?:sec|s)\b/g,'$1 secondes').replace(/\b(\d+)\s?km\b/g,'$1 kilomètres').replace(/\b(\d+)\s?kg\b/g,'$1 kilos')
+  .replace(/(\d)\s?%/g,'$1 pour cent').replace(/(\d)\s?€/g,'$1 euros').replace(/\b1er\b/g,'premier').replace(/\b1re\b/g,'première').replace(/\b(\d+)e\b/g,'$1ième')
+  .replace(/\bDr\.?\s/g,'docteur ').replace(/\bDre\.?\s/g,'docteure ').replace(/\betc\.?/g,'et cetera').replace(/\bn°\s?/g,'numéro ').replace(/\brdv\b/gi,'rendez-vous').replace(/\s&\s/g,' et ')
+  .replace(/[*_#>`~]/g,'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/\s{2,}/g,' ').trim()}
+function ttsSpeak(t,rate){t=oral(t);const cap=CapTTS();
   if(cap){try{cap.stop().catch(()=>{});cap.speak(capOpts(t,.9*rate)).catch(()=>{})}catch(e){}return}
   try{const ss=window.speechSynthesis;if(!ss)return;ss.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=.86*rate;u.pitch=.98;
     const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/(premium|enhanced|améliorée|neural|natural)/i.test(v.name))||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
@@ -1329,7 +1337,7 @@ async function cvAsk(messages,greet){const c=cvP(),P=ST.prof,tk=++CV.ticket;CV.b
 const SRV={tts:null,at:0};
 async function srvPing(){if(!VOIX_URL()||Date.now()-SRV.at<60000&&SRV.tts!==null)return SRV.tts;try{const r=await fetch(VOIX_URL()+'/ping');const j=await r.json();SRV.tts=!!j.tts;SRV.at=Date.now()}catch(e){}try{piperUI()}catch(e){}return SRV.tts}
 const cvVoice=()=>{const v=cvP().voice||'auto';if((v==='auto'||v==='humaine')&&SRV.tts)return 'humaine';return v==='tel'?'tel':'elyra'};
-async function azureSay(text){if(!PV.ac)PV.ac=new (window.AudioContext||window.webkitAudioContext)();
+async function azureSay(text){text=oral(text);if(!PV.ac)PV.ac=new (window.AudioContext||window.webkitAudioContext)();
   const r=await fetch(VOIX_URL()+'/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voice:VV()==='tom'?'m':'f'})});if(!r.ok)throw r;
   const buf=await r.arrayBuffer();const ab=await new Promise((ok,ko)=>{const p=PV.ac.decodeAudioData(buf,ok,ko);if(p&&p.then)p.then(ok,ko)});return{pcm:ab.getChannelData(0),sr:ab.sampleRate}}
 const PV={state:'off',pct:0,w:null,cb:{},n:0,ac:null,src:null,raf:0,voice:'',ms:[]};
@@ -1348,7 +1356,7 @@ function piperStart(){if(PV.state==='loading'||(PV.state==='ready'&&PV.voice===p
     else if(m.type==='error'){if(m.id!=null&&PV.cb[m.id]){PV.cb[m.id].rej(new Error(m.msg));delete PV.cb[m.id]}else if(PV.state!=='ready'){PV.state='error';PV.err=m.msg;piperUI()}}};
   PV.w.onerror=()=>{if(PV.state!=='ready'){PV.state='error';piperUI()}};
   PV.w.postMessage({type:'init',base:piperBase(),voice:PV.voice,lengthScale:VV()==='tom'?1.12:1.18})}
-function piperSay(text){return new Promise((res,rej)=>{const id=++PV.n;PV.cb[id]={res,rej};PV.w.postMessage({type:'say',id,text});setTimeout(()=>{if(PV.cb[id]){delete PV.cb[id];rej(new Error('lent'))}},20000)})}
+function piperSay(text){text=oral(text);return new Promise((res,rej)=>{const id=++PV.n;PV.cb[id]={res,rej};PV.w.postMessage({type:'say',id,text});setTimeout(()=>{if(PV.cb[id]){delete PV.cb[id];rej(new Error('lent'))}},20000)})}
 /* Voix de conversation plus chaude : graves doux, aigus adoucis, petite pièce feutrée (comme les séances).
    Renvoie [entrée, sortie] d'une petite chaîne créée pour chaque phrase (la réverbération est calculée une fois). */
 function pvWarm(ac){try{const f=(t,fr,gn,q)=>{const b=ac.createBiquadFilter();b.type=t;b.frequency.value=fr;b.gain.value=gn;if(q)b.Q.value=q;return b};
