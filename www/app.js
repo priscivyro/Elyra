@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.6.2";
+const APP_VERSION="2.6.3";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -1258,7 +1258,11 @@ function cvRenderModes(){$('#cvModes').innerHTML=CVM.map(([k,n])=>`<button data-
 function cvSubs(){const c=cvP();$('#cvSubBox').hidden=!c.subs&&!c.muted;$('#cvSub').setAttribute('aria-pressed',!!c.subs);$('#cvMute').setAttribute('aria-pressed',!!c.muted);
   $('#cvMute').setAttribute('aria-label',c.muted?'Remettre le son':'Couper le son');$('#cvMute').innerHTML=`<svg class="icon"><use href="#i-${c.muted?'mute':'vol'}"/></svg>`}
 function cvExtra(html,keep){const b=$('#cvExtra');if(keep)b.insertAdjacentHTML('beforeend',html);else b.innerHTML=html}
-function openConv(o){o=o||{};const c=cvP();CV.open=true;CV.sess=0;CV.textMode=!!o.text&&!o.voice;CV.mode=o.mode||(slot()==='nuit'?'nuit':'ecoute');
+/* Écran allumé pendant la conversation (sinon la mise en veille coupe le micro et la voix). */
+const WK={l:null};async function wakeOn(){try{if(navigator.wakeLock&&!WK.l&&document.visibilityState==='visible'){WK.l=await navigator.wakeLock.request('screen');WK.l.addEventListener('release',()=>{WK.l=null})}}catch(e){}}
+function wakeOff(){try{WK.l&&WK.l.release()}catch(e){}WK.l=null}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&CV.open)wakeOn()});
+function openConv(o){o=o||{};const c=cvP();CV.open=true;wakeOn();CV.sess=0;CV.textMode=!!o.text&&!o.voice;CV.mode=o.mode||(slot()==='nuit'?'nuit':'ecoute');
   if(brMain.on)brMain.stop(false);SND.duck(true);$('#rate').classList.remove('on');
   $('#conv').classList.add('on');document.body.style.overflow='hidden';
   if(!CV.face)CV.face=ElyraFace($('#cvFace'),{label:'Le visage d’ELYRA',photo:faceSrc(),mascot:isMascot()});CV.face.expr('doux');
@@ -1399,7 +1403,7 @@ CV.utt=0;
 function cvAfterTalk(){CV.speaking=false;CV.face&&CV.face.quiet();const a=CV.after;CV.after=null;if(a){a();return}if(CV.mic&&CV.mic.on){CV.mic.sens=1;CV.mic.pause(false)}cvSet(CV.live?'listen':'idle')}
 function cvStopTalk(){CV.queue=[];CV.utt++;pvStop();CV.after=null;try{CV.abort&&CV.abort.abort()}catch(e){}CV.busy=false;CV.speaking=false;
   const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}CV.face&&CV.face.quiet()}
-async function closeConv(){if(!CV.open)return;CV.open=false;cvStopTalk();cvMicOff();CV.ticket++;$('#conv').classList.remove('on');document.body.style.overflow='';SND.duck(false);$('#cvHistBox').hidden=true;
+async function closeConv(){if(!CV.open)return;CV.open=false;wakeOff();cvStopTalk();cvMicOff();CV.ticket++;$('#conv').classList.remove('on');document.body.style.overflow='';SND.duck(false);$('#cvHistBox').hidden=true;
   const c=cvP();if(c.memOn&&CV.sess>=2&&VOIX_URL()){try{const r=await fetch(VOIX_URL()+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({summary:true,messages:c.msgs.slice(-16).map(m=>({role:m.r,content:m.c}))})});
     if(r.ok){const j=await r.json();if(j.text){c.last={t:Date.now(),txt:j.text};save()}}}catch(e){}}}
 function cvHist(){const c=cvP(),b=$('#cvHistBox');b.hidden=!b.hidden;if(b.hidden)return;
