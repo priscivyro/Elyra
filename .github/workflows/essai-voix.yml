@@ -1,36 +1,43 @@
-name: Essai voix Chatterbox
-# Essai ponctuel : génère quelques phrases pour écouter la voix avant de l'adopter.
+name: Essai voix (avant / après)
+# Essai ponctuel : les mêmes séances en 3 versions (voix actuelle, voix retouchée, Chatterbox),
+# pour écouter et choisir avant de tout changer. Rien n'est modifié dans l'appli.
 on:
   push:
-    paths: ['tools/voix/essai_chatterbox.py', '.github/workflows/essai-voix.yml']
+    paths: ['tools/voix/essai_chatterbox.py', 'tools/voix/reference_siwis.py', '.github/workflows/essai-voix.yml']
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
   essai:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Installer
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installer (tout est gratuit et open source)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           pip install -q torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
-          pip install -q chatterbox-tts==0.1.7 piper-tts==1.8.0
-      - name: Voix de référence (timbre)
-        run: |
-          mkdir -p modeles essai && python -m piper.download_voices fr_FR-siwis-medium fr_FR-tom-medium --data-dir modeles
-          T="Bonjour. Prends un moment pour toi. Installe-toi tranquillement, laisse tes épaules se relâcher, et respire à ton rythme. Tout va bien."
-          echo "$T" | python -m piper -m modeles/fr_FR-siwis-medium.onnx -f ref_f.wav --length-scale 1.15
-          echo "$T" | python -m piper -m modeles/fr_FR-tom-medium.onnx -f ref_m.wav --length-scale 1.1
-      - name: Générer
-        run: python tools/voix/essai_chatterbox.py
+          pip install -q "chatterbox-tts @ git+https://github.com/resemble-ai/chatterbox@ab55923c27757c90cfcc407baa57dc25a7d25217" \
+            piper-tts==1.8.0 remotezip --extra-index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch;print('torch', torch.__version__)"
+      - name: Voix Piper actuelle
+        run: mkdir -p modeles && python -m piper.download_voices fr_FR-siwis-medium --data-dir modeles
+      - name: Voix de référence humaine (base libre SIWIS)
+        run: python tools/voix/reference_siwis.py ref.wav
+      - name: Séances à écouter
+        run: node tools/voix/essai_seances.mjs > seances.json
+      - name: Générer les 3 versions
+        run: python tools/voix/essai_chatterbox.py modeles/fr_FR-siwis-medium.onnx ref.wav seances.json essai
       - name: Ranger les extraits dans la branche « essai-voix »
         run: |
-          mkdir -p /tmp/out && cp essai/*.mp3 /tmp/out/
+          ffmpeg -v error -y -i ref.wav -b:a 64k essai/0-voix-de-reference.mp3
+          mkdir -p /tmp/out && cp essai/*.mp3 /tmp/out/ && ls -la /tmp/out
           git config user.name "ELYRA" && git config user.email "elyra@users.noreply.github.com"
           git checkout --orphan essai-voix && git rm -rfq . && cp /tmp/out/*.mp3 . && git add *.mp3
-          git commit -qm "Extraits de la voix Chatterbox" && git push -f origin essai-voix
+          git commit -qm "Essai voix : actuelle, retouchée, Chatterbox" && git push -f origin essai-voix
