@@ -20,7 +20,11 @@ VITESSE = 1.45  # caractères calculés par seconde sur un serveur gratuit GitHu
 
 
 def nom(texte, ton):
-    return hashlib.sha1(f'c1|{ton}|{texte}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
+    # Les phrases corrigées pour la prononciation (« sans ») ont un nouveau nom : elles sont refaites.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from rythme import prononce
+    v = 'c1' if prononce(texte) == texte else 'c1p'
+    return hashlib.sha1(f'{v}|{ton}|{texte}'.encode('utf-8')).hexdigest()[:14] + '.mp3'
 
 
 def charge_index(d):
@@ -53,7 +57,7 @@ def plan(lignes_path, deja, plan_dir):
 
 def rendre(ref, lot_path, out, minutes_max):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from rythme import phrases, pause_apres, assemble, FILTRE
+    from rythme import phrases, pause_apres, assemble, FILTRE, prononce
     import torch
     from chatterbox.mtl_tts import ChatterboxMultilingualTTS
     debut = time.time()
@@ -76,7 +80,7 @@ def rendre(ref, lot_path, out, minutes_max):
             tts.prepare_conditionals(ref, exaggeration=r['exaggeration'])
             ton_actuel = ton
         t0 = time.time()
-        ps = phrases(texte)
+        ps = phrases(prononce(texte))
         morceaux = []
         for i, p in enumerate(ps):
             attendu = len(p) / r['cps'] + 0.3

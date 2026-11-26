@@ -3,6 +3,14 @@ Utilisé par render.py (Piper) et essai_chatterbox.py (Chatterbox)."""
 import re
 import numpy as np
 
+# Mots que les voix lisent mal tels qu'ils sont écrits (« sans » lu « sanse »).
+_V = 'aeiouyàâéèêëîïôûAEIOUYÉÈÊ'
+
+
+def prononce(t):
+    t = re.sub(r'\b([Ss])ans\b(\s+)(?=[' + _V + '])', r'\1anz\2', t)
+    return re.sub(r'\b([Ss])ans\b', r'\1an', t)
+
 # Pause (en secondes) laissée après chaque fin de phrase, selon la ponctuation.
 PAUSES = {'…': 0.95, '.': 0.7, '!': 0.6, '?': 0.75, ':': 0.45, ';': 0.45}
 

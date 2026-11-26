@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.8.0";
+const APP_VERSION="2.9.0";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -108,8 +108,8 @@ function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'|
 function stopVoice(){if(VO.el){try{VO.el.pause()}catch(e){}}const cap=CapTTS();if(cap){try{cap.stop().catch(()=>{})}catch(e){}}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}SND.duck(false)}
 
 /* ============ NAVIGATION ============ */
-const VIEWS=['tcc','accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
-const TABOF={tcc:'moi',outils:'moi',outil:'moi',expo:'moi',corps:'moi',consult:'moi',programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
+const VIEWS=['instant','tcc','accueil','elyra','calme','journal','pensee','moi','programme','parcours','sommeil','progres','kit','espace','comprendre','outils','outil','expo','corps','consult'];
+const TABOF={instant:'calme',tcc:'moi',outils:'moi',outil:'moi',expo:'moi',corps:'moi',consult:'moi',programme:'moi',parcours:'moi',sommeil:'moi',progres:'moi',kit:'moi',espace:'moi',comprendre:'moi',pensee:'journal'};
 const TABS=[['accueil','Accueil','<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>'],['elyra','ELYRA','<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>'],
  ['calme','Calme','<circle cx="12" cy="12" r="8"/><path d="M8 13c1.5-2 2.5-2 4 0s2.5 2 4 0"/>'],['journal','Journal','<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h3"/>'],['moi','Moi','<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']];
 $('#nav').innerHTML=TABS.map(([k,n,p])=>`<a href="#${k}" data-k="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>${n}</a>`).join('');
@@ -1478,4 +1478,6 @@ loadVoiceIdx();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!isNative){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cur()==='accueil')renderHome()});
+/* Passerelle pour les modules ajoutés (instant.js). */
+window.ElyraApp={$,$$,esc,G,st:()=>ST,setP,addItem,wakeOn,wakeOff,SND};
 }

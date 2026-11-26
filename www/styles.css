@@ -665,3 +665,54 @@ body:has(#v-sommeil.on) .brand{color:#F3F0FA}
 :is(.item,.tool,.tile):has(.cov[data-c=pensees]){--cat:#5A7FD1}#medCats [data-cat=pensees][aria-pressed=true]{background:#5A7FD1;border-color:#5A7FD1;color:#fff}.cov[data-c=pensees]{--c1:#B3C6F2;--c2:#5A7FD1;--c3:#7C98DC}
 
 :is(.item,.tool,.tile):has(.cov[data-c=longue]){--cat:#8A6FD1}#medCats [data-cat=longue][aria-pressed=true]{background:#8A6FD1;border-color:#8A6FD1;color:#fff}.cov[data-c=longue]{--c1:#D6CBF3;--c2:#8A6FD1;--c3:#A891E0}
+
+/* ===== L'Instant Présent : nature lumineuse, sauge, vert d'eau, lavande, crème ===== */
+#v-instant{--ipS:#DCE9DF;--ipE:#B9D2C7;--ipL:#D9D5EB;--ipC:#F4E4D2;--ipF:#8CA99A}
+.ip-door{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0;padding:22px 20px;border-radius:24px;color:#fff;text-decoration:none;
+ background:linear-gradient(90deg,rgba(40,60,52,.62),rgba(40,60,52,.15)),var(--ip) center/cover;box-shadow:0 10px 28px rgba(60,80,70,.22)}
+.ip-door b{display:block;font-family:"DM Serif Display",serif;font-size:1.35rem;font-weight:400}.ip-door small{opacity:.92}
+.ip-hero{position:relative;min-height:62vh;margin:-8px -16px 0;border-radius:0 0 34px 34px;overflow:hidden;background:var(--ip) center/cover;display:flex;align-items:flex-end}
+.ip-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,228,210,.05) 30%,rgba(40,60,52,.62))}.ip-veil.soft{background:rgba(30,40,36,.38)}
+.ip-hin{position:relative;padding:28px 22px 30px;color:#fff;width:100%}.ip-logo{width:38px;height:44px}
+.ip-hin h1{color:#fff;font-size:2.3rem;margin:.2em 0 0}.ip-sig{font-size:1.1rem;opacity:.95;margin:.2em 0 1.1em}
+.ip-go{background:var(--ipC);color:#2f4239;border:0}
+.ip-quote{text-align:center;font-family:"DM Serif Display",serif;font-size:1.15rem;color:var(--ipF);margin:22px 8px}
+#v-instant .card{background:linear-gradient(160deg,var(--ipS),#fff 70%);border:0}
+html[data-theme=dark] #v-instant .card{background:linear-gradient(160deg,#25332d,#1d2422 70%)}
+.ip-days{display:grid;gap:10px;margin-top:12px}
+.ip-day{display:flex;gap:14px;align-items:center;text-align:left;padding:12px 14px;border-radius:18px;border:1px solid var(--ipE);background:rgba(255,255,255,.6);color:inherit}
+html[data-theme=dark] .ip-day{background:rgba(255,255,255,.05)}
+.ip-day b{display:block}.ip-day small{color:var(--soft)}
+.ip-n{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--ipE);color:#2f4239;font-weight:600}
+.ip-day.done .ip-n{background:var(--ipF);color:#fff}
+.ip-pays{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:10px}
+.ip-pays button{height:92px;border-radius:16px;border:3px solid transparent;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.5)),var(--ip) center/cover;color:#fff;display:flex;align-items:flex-end;padding:8px 10px;font-weight:600}
+.ip-pays button[aria-pressed=true]{border-color:var(--ipF);box-shadow:0 0 0 3px var(--ipS)}
+.ip-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}.ip-stats div{background:rgba(255,255,255,.55);border-radius:16px;padding:12px;text-align:center}
+html[data-theme=dark] .ip-stats div{background:rgba(255,255,255,.06)}
+.ip-stats b{display:block;font-size:1.5rem;font-family:"DM Serif Display",serif;color:var(--ipF)}.ip-stats small{color:var(--soft)}
+.ip-feels{list-style:none;padding:0;margin:8px 0 0}.ip-feels li{padding:6px 0;border-bottom:1px solid var(--ipE)}.ip-feels span{color:var(--ipF);font-weight:600}
+/* écrans plein écran */
+.ip-ov{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity 1.4s ease}
+.ip-ov.on{opacity:1}.ip-ov.out,.ip-ov.back{opacity:0;transition:opacity 1.5s ease}
+.ip-bg{position:absolute;inset:-4%;background:var(--ip) center/cover}
+.ip-card{position:relative;max-width:560px;width:100%;background:rgba(250,247,240,.9);backdrop-filter:blur(14px);border-radius:28px;padding:26px 24px;color:#2f3a35;transition:opacity .3s}
+html[data-theme=dark] .ip-card{background:rgba(28,34,31,.88);color:#eef0ec}
+.ip-card.fade{opacity:0}.ip-card h2{font-family:"DM Serif Display",serif;font-weight:400;font-size:1.8rem;margin:.3em 0}
+.ip-but{background:var(--ipS);border-radius:14px;padding:10px 12px;color:#2f4239}
+.ip-prep{font-family:"DM Serif Display",serif;font-size:1.45rem;text-align:center;line-height:1.4;margin:10px 0}
+.ip-fl{display:grid;gap:8px;margin-top:10px}.ip-fl button{text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--ipE,#B9D2C7);background:rgba(255,255,255,.7);color:inherit}
+/* la méditation : le paysage respire, très lentement */
+.ip-ov.immersive{padding:0;background:#1d2622}
+.ip-bg.live{animation:ipDrift 90s ease-in-out infinite alternate}
+@keyframes ipDrift{0%{transform:scale(1.02) translate(0,0)}50%{transform:scale(1.09) translate(-1.6%,-1%)}100%{transform:scale(1.05) translate(1.4%,.8%)}}
+.ip-mist{position:absolute;inset:-20%;background:radial-gradient(ellipse 40% 18% at 30% 62%,rgba(255,255,255,.28),transparent 70%),radial-gradient(ellipse 35% 14% at 72% 70%,rgba(255,255,255,.22),transparent 70%);animation:ipMist 70s ease-in-out infinite alternate;pointer-events:none}
+@keyframes ipMist{from{transform:translateX(-6%)}to{transform:translateX(8%)}}
+.ip-light{position:absolute;inset:0;background:radial-gradient(circle at 70% 15%,rgba(255,236,200,.35),transparent 55%);animation:ipLight 40s ease-in-out infinite alternate;pointer-events:none}
+@keyframes ipLight{from{opacity:.25}to{opacity:.85}}
+.ip-ov.paused .ip-bg.live,.ip-ov.paused .ip-mist,.ip-ov.paused .ip-light{animation-play-state:paused;filter:saturate(.7)}
+.ip-hud{position:absolute;left:0;right:0;bottom:0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;transition:opacity 2s;background:linear-gradient(transparent,rgba(0,0,0,.25))}
+.ip-hud.off{opacity:0}.ip-tim{color:rgba(255,255,255,.82);font-size:1.05rem;letter-spacing:.08em}
+.ip-ctl{display:flex;gap:8px;margin-left:auto}.ip-b{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 14px;backdrop-filter:blur(6px)}
+html[data-anim=off] .ip-bg.live,html[data-anim=off] .ip-mist,html[data-anim=off] .ip-light{animation:none}
+@media(prefers-reduced-motion:reduce){.ip-bg.live,.ip-mist,.ip-light{animation:none}}

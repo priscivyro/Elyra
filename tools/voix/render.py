@@ -9,7 +9,7 @@ import hashlib, json, os, random, re, subprocess, sys, tempfile, wave
 import numpy as np
 from piper import PiperVoice, SynthesisConfig
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from rythme import phrases, pause_apres, assemble, FILTRE
+from rythme import phrases, pause_apres, assemble, FILTRE, prononce
 
 
 
@@ -21,12 +21,6 @@ def duration(path):
     r = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', path],
                        capture_output=True, text=True)
     return round(float(r.stdout.strip() or 0), 2)
-
-
-def prononce(t):
-    """Corrige les mots que Piper prononce mal (« sans » lu « sanse »)."""
-    t = re.sub(r'\b([Ss])ans\b(\s+)(?=[aeiouyàâéèêëîïôûAEIOUYÉÈÊ])', r'\1anz\2', t)
-    return re.sub(r'\b([Ss])ans\b', r'\1an', t)
 
 
 def lire(voice, text, slow=1.18):

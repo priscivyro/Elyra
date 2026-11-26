@@ -27,9 +27,22 @@ w.addEventListener('load',async()=>{try{
   $('#onbName').value='Priscilla';click($('#onbGenre [data-genre="f"]'));click('#onbGo');
   ok(!$('#onb').classList.contains('on'),'bienvenue fermée');
   ok($('#hello').textContent.includes('Priscilla'),'prénom affiché : '+$('#hello').textContent);
+  // L'Instant Présent : parcours de 7 jours, séance silencieuse, retour en douceur, évolution
+  go('#instant');await wait(80);ok($('#v-instant').classList.contains('on')&&d.querySelectorAll('#instBox .ip-day').length===7&&d.querySelectorAll('#ipPays button').length===6,"L'Instant Présent : 7 jours, 6 paysages");
+  ok(!!$('.ip-door[href="#instant"]'),'porte depuis Calme');
+  click('#instBox [data-ip="jour"][data-d="1"]');await wait(50);ok(/S.arr.ter/.test($('#ipOv').textContent)&&/objectif/.test($('#ipOv').textContent),'jour 1 : introduction et objectif');
+  click('#ipPrep');for(let i=0;i<3;i++){await wait(400);click('#ipNext')}await wait(80);
+  ok($('#ipOv').classList.contains('immersive')&&!!$('#ipOv .ip-bg.live')&&/^3:00|^2:5/.test($('#ipTime').textContent)&&!/[a-z]{4}/i.test($('#ipOv .ip-hud').textContent.replace(/Terminer/,'')),'méditation silencieuse plein écran, minuteur 3 min, aucun texte');
+  click('#ipPause');ok($('#ipOv').classList.contains('paused'),'pause');click('#ipPause');
+  click('#ipStop');await wait(1800);ok(/Te voilà de retour/.test($('#ipOv').textContent)&&d.querySelectorAll('#ipOv [data-ipf]').length===5,'retour en douceur et 5 ressentis');
+  click('#ipOv [data-ipf="apaise"]');await wait(30);click('#ipDone');await wait(800);
+  ok(!$('#ipOv')&&/1<\/b><small>séance/.test($('#instBox').innerHTML)&&/apaisée/.test($('#instBox .ip-feels').textContent),'évolution : séance et ressenti enregistrés');
+  click('#instBox [data-ipd="libre"]');click('#instBox [data-ipp="mer"]');await wait(30);ok($('#instBox [data-ipd="libre"]').getAttribute('aria-pressed')==='true'&&$('#instBox [data-ipp="mer"]').getAttribute('aria-pressed')==='true','sanctuaire : sans objectif, bord de mer');
+  click('#instBox [data-ip="sanctuaire"]');await wait(1200);ok(/^0:0/.test($('#ipTime').textContent),'sans objectif : le temps monte');click('#ipStop');await wait(1700);click('#ipSkip');await wait(800);
+  go('#accueil');await wait(50);
   ok(d.querySelectorAll('#homeTiles .tile').length>=4,'suggestions « Pour toi, maintenant »');
   click($('#moodQuick button[data-v="2"]'));$('#qStress').value='8';click('#qSave');ok(/SOS/.test($('#suggTxt').textContent),'suggestion SOS si stress haut');
-  await wait(400);ok(JSON.parse(w.localStorage.getItem('elyra.v1')).items.length===1,'humeur enregistrée sur le téléphone');
+  await wait(400);ok(JSON.parse(w.localStorage.getItem('elyra.v1')).items.filter(e=>e.kind!=='pratique').length===1,'humeur enregistrée sur le téléphone');
   for(const v of ['elyra','calme','journal','pensee','moi','parcours','sommeil','progres','kit','espace','comprendre','accueil']){go(v);ok($('#v-'+v).classList.contains('on'),'vue '+v)}
   // SOS
   click('#sosOpen');ok(d.querySelectorAll('#sosBody [data-sit]').length===8,'SOS : 8 situations');ok(!!$('#sosBody [data-noir]'),'SOS : accès « pensées très sombres »');
