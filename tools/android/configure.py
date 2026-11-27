@@ -68,3 +68,24 @@ if 'android.app.shortcuts' not in x:
     assert 'android.app.shortcuts' in x, 'activité principale introuvable'
 m.write_text(x)
 print('raccourcis SOS et Respirer ajoutés')
+
+# Les séances enchaînent leurs phrases toutes seules : la WebView peut lancer le son sans toucher l'écran.
+for ma in pathlib.Path('android/app/src/main/java').rglob('MainActivity.java'):
+    j = ma.read_text()
+    if 'setMediaPlaybackRequiresUserGesture' not in j:
+        pkg = re.search(r'^package [^;]+;', j, re.M)
+        j = (pkg.group(0) if pkg else '') + """
+
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try { this.bridge.getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
+    }
+}
+"""
+        ma.write_text(j)
+        print('lecture audio automatique autorisée')

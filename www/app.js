@@ -2,7 +2,7 @@
 {
 /* ============ CONFIGURATION ============ */
 const CHAT_URL="https://claude.ai/artifact/DQzS1B9ompRWMjSAXfYHuy";
-const APP_VERSION="2.9.2";
+const APP_VERSION="2.9.3";
 const C=window.ELYRA_CONTENT, SND=window.ElyraSons, O=window.ELYRA_OUTILS;
 
 /* ============ OUTILS ============ */
@@ -103,7 +103,10 @@ function ttsSpeak(t,rate){t=oral(t);const cap=CapTTS();
     const v=voices.find(v=>v.name===ST.prof.vname)||voices.find(v=>/(premium|enhanced|améliorée|neural|natural)/i.test(v.name))||voices.find(v=>/fr[-_](BE|FR)/i.test(v.lang))||voices[0];if(v)u.voice=v;ss.speak(u)}catch(e){}}
 function speak(t,force){stopVoice();const P=ST.prof;if(!force&&(P.vmode==='off'||!sessVoice))return 0;const rate=+P.rate||1;
   const c=P.vmode!=='tel'?clip(t):null;
-  if(c){const el=audioEl(),url=`voix/${VO.v||VV()}/`+c[0];el.src=url;el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>acVoice(url,rate));return c[1]/rate}
+  if(c){const url=`voix/${VO.v||VV()}/`+c[0];
+    // Dans l'appli Android, la voix passe directement par le moteur audio (le lecteur classique y est bloqué sans toucher l'écran).
+    if(isNative){acVoice(url,rate);return c[1]/rate}
+    const el=audioEl();el.src=url;el.playbackRate=rate;try{el.preservesPitch=true}catch(e){}el.play().catch(()=>acVoice(url,rate));return c[1]/rate}
   ttsSpeak(t,rate);return est(t)/rate}
 /* Secours : si le téléphone refuse de lancer le son sans toucher l'écran (Android), la voix passe par le moteur audio déjà autorisé. */
 const VA={src:null,n:0};
